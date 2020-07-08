@@ -19,6 +19,7 @@
 # install.packages("RJDBC")
 # install.packages("DBI")
 # install.packages("carData")
+# install.packages("xts")
 
 
 # 加载包
@@ -45,7 +46,7 @@ library('vctrs')
 library('httr')
 library('xml2')
 library('rvest')
-
+library('xts')
 
 
 # 关联数据库
