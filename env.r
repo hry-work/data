@@ -49,9 +49,15 @@ library('rvest')
 library('xts')
 
 
-# 关联数据库
-# net_orc <- odbcConnect("Oracle",uid="ls_xywy",pwd='ls_xywy') 
+# --- 关联数据库
+# 关联oracle（使用rjdbc的方式，rodbc及roracle此电脑有坑）
+drv <-JDBC("oracle.jdbc.driver.OracleDriver",
+           "D:/u01/app/oracle/product/11.2.0/client_1/jdbc/lib/ojdbc6_g.jar",
+           identifier.quote="\"")
 
+net_orc <-dbConnect(drv,"jdbc:oracle:thin:@192.168.128.247:1521/ORCL","ls_xywy","ls_xywy")
+
+# 关联sql server
 net_sql <- odbcConnect('orcl', uid='sa' , pwd='xywy2020.')
 
 
