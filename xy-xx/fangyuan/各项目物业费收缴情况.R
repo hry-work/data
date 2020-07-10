@@ -8,8 +8,7 @@ pd_date <- as_date('2020-06-30')
 # ---------- 应收表（近600万行，读约8分钟）
 # 一个pk_chargebills只会有一条记录
 print(now())
-need_recharge <- sqlQuery(net_sql , glue("select xywy_project1 , xywy_project2 ,
-                                          xywy_project3 , xywy_project4 , xywy_project6 ,
+need_recharge <- sqlQuery(net_sql , glue("select xywy_project1 , xywy_project4 , xywy_project6 ,
                                           pk_project , project_name , pk_build , 
                                           build_name , pk_house , house_name ,
                                           cost_startdate , cost_enddate , accrued_amount , pk_chargebills
@@ -20,7 +19,7 @@ need_recharge <- need_recharge %>%
   mutate(cost_startdate = as_date(cost_startdate) ,
          cost_enddate = as_date(cost_enddate)) %>% 
   filter(cost_enddate >= cost_startdate , accrued_amount > 0 , 
-         project_name != '测试项目' , cost_enddate <= pd_date) 
+         project_name != '测试项目' , (COST_STARTDATE <= pd_date | COST_ENDDATE <= pd_date)) 
   
 
 
@@ -157,3 +156,15 @@ fee_data2 <- fee_data %>%
 #   spread(year , accrued_amount)
 
 write.xlsx(fee_data2 , '..\\data\\xy-xx\\fangyuan\\20200708-物业缴费情况.xlsx')
+
+fee_data_stat <- fee_data2 %>% 
+  group_by(xywy_project1 , xywy_project4 , project_name , year) %>% 
+  summarise(all_house = n_distinct(pk_house),
+            owe_house = n_distinct(pk_house[owe_amount > 0]) ,
+            get_house_ratio = 1 - owe_house/all_house ,
+            all_amount = sum(accrued_amount) ,
+            owe_amount = sum(owe_amount) ,
+            get_amount_ratio = 1 - owe_amount/all_amount) %>% 
+  ungroup() 
+
+write.xlsx(fee_data_stat , '..\\data\\xy-xx\\fangyuan\\20200708-物业缴费情况2.xlsx')
