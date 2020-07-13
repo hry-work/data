@@ -1,4 +1,5 @@
-source('env.r' , encoding = 'utf8')
+source('C:/Users/Administrator/data/env.r' , encoding = 'utf8')
+
 
 # table <- 'test_dim_owner_basic_info'
 

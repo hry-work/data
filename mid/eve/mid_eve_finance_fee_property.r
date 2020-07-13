@@ -1,7 +1,6 @@
 source('env.r' , encoding = 'utf8')
 
 author <- c('huruiyi')
-needer <- c('fangyuan')
 table <- 'mid_eve_finance_fee_property'      # 物业费事件表（已修正的）
 # 命名规则：表应归属库_表类型_归属部门_业务大类_表详细归类
 
