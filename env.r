@@ -57,11 +57,11 @@ library('xts')
 
 # ----- 关联oracle
 # --- 此版适用本地（使用rjdbc的方式，rodbc及roracle此电脑有坑）
-drv <-JDBC("oracle.jdbc.driver.OracleDriver",
-           "D:/u01/app/oracle/product/11.2.0/client_1/jdbc/lib/ojdbc6_g.jar",
-           identifier.quote="\"")
+# drv <-JDBC("oracle.jdbc.driver.OracleDriver",
+#            "D:/u01/app/oracle/product/11.2.0/client_1/jdbc/lib/ojdbc6_g.jar",
+#            identifier.quote="\"")
 
-# --- 此版适用远程
+# --- 远程oracle包地址，本地也可使用
 drv <-JDBC("oracle.jdbc.driver.OracleDriver",
            "G:/app/oracle/product/11.2.0/client_1/jdbc/lib/ojdbc6_g.jar",
            identifier.quote="\"")
