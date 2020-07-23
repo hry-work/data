@@ -127,7 +127,7 @@ depart_indicator_stat <- index_explain %>%
 
 write.xlsx(depart_indicator_stat , '..\\data\\xy-xx\\hesugang\\台账-部门指标数.xlsx')
 
-# 主数据总数（需要编码的或重复出现的数据项）   需编码按清洗的，不按自己填写的版本
+# 主数据总数（需要编码的或重复出现的数据项）   需编码按清洗的，不按部门填写的版本
 # 按此方法十分不准确
 master_data <- bind_rows(data_explain %>% 
                            group_by(belong , data_item) %>% 
@@ -137,12 +137,37 @@ master_data <- bind_rows(data_explain %>%
                          data_explain %>% 
                            filter(is_need_coding == '是') %>% 
                            distinct(belong , data_item) %>% 
-                           mutate(type = '需编码(清洗)')) %>% 
+                           mutate(type = '需编码(清洗)',
+                                  cnt = 0)) %>% 
+  filter(!is.na(data_item) , data_item != '…') %>% 
   group_by(belong , data_item) %>% 
-  summarise(type = glue_collapse(type , sep = ';')) %>% 
-  ungroup()
+  summarise(type = glue_collapse(type , sep = ';'),
+            repeat_cnt = glue_collapse(cnt , sep = ';')) %>% 
+  ungroup() %>% 
+  mutate(repeat_cnt = str_replace(repeat_cnt , ';0' , '')) %>% 
+  select(-belong) %>% 
+  left_join(data_explain , by = 'data_item') %>% 
+  select(-c(serial , belong , `稽核场景`)) %>% 
+  replace_na(list(depart = '' , classify = '' , standing_book = '' , 
+                  data_item_explain = '' , coding_standard = '' , format_require = '' , 
+                  audit_rules = '' , data_from = '' , is_need_coding = '')) %>% 
+  group_by(data_item , type , repeat_cnt) %>% 
+  summarise(depart = glue_collapse(unique(depart) , sep = ';'),
+            classify = glue_collapse(unique(classify) , sep = ';'),
+            standing_book = glue_collapse(unique(standing_book) , sep = ';'),
+            data_item_explain = glue_collapse(unique(data_item_explain) , sep = ';'),
+            coding_standard = glue_collapse(unique(coding_standard) , sep = ';'),
+            format_require = glue_collapse(unique(format_require) , sep = ';'),
+            audit_rules = glue_collapse(unique(audit_rules) , sep = ';'),
+            data_from = glue_collapse(unique(data_from) , sep = ';'),
+            is_need_coding = glue_collapse(unique(is_need_coding) , sep = ';')) %>% 
+  ungroup() %>% 
+  arrange(desc(repeat_cnt))
+
+# names(master_data)
 
 write.xlsx(master_data , '..\\data\\xy-xx\\hesugang\\台账-主数据.xlsx')
+
                       
 # 业务元数据总数（不可分解的指标和指标中的分解项）?
 
