@@ -26,16 +26,24 @@ info <- sqlQuery(net_sql , "select PK_HOUSE , HOUSE_NAME , FLOOR_NAME , UNIT_NAM
 print(now())
 chargebills <- dbGetQuery(net_orc , glue("select pk_chargebills , cost_startdate , cost_enddate , 
                                          accrued_amount , uncollected_amount , proceeds_amount ,
-                                         pk_project , pk_build , pk_house , pk_projectid , dr
+                                         billdate , pk_project , pk_build , pk_house , pk_projectid , dr
                                          from wy_bill_chargebills"))
 print(now())
 
-
-chargebills_fix <- chargebills %>% 
+chargebills <- chargebills %>% 
   inner_join(property_code) %>% 
   mutate(COST_STARTDATE = as_date(COST_STARTDATE) ,
-         COST_ENDDATE = as_date(COST_ENDDATE)) %>% 
-  filter(DR == 0 , COST_ENDDATE >= COST_STARTDATE , ACCRUED_AMOUNT > 0 , 
+         COST_ENDDATE = as_date(COST_ENDDATE) ,
+         BILLDATE = as_date(BILLDATE)) %>% 
+  filter(DR == 0)
+
+  
+# date_locate <- chargebills %>% 
+#   filter(COST_ENDDATE < COST_STARTDATE)
+
+
+chargebills_fix <- chargebills %>% 
+  filter(COST_ENDDATE >= COST_STARTDATE , ACCRUED_AMOUNT > 0 , BILLDATE <= '2020-07-09' ,
          (COST_STARTDATE <= pd_date | COST_ENDDATE <= pd_date)) %>% 
   mutate(start_year = as.character(year(COST_STARTDATE)) ,
          end_year = as.character(year(COST_ENDDATE))) %>% 
@@ -43,10 +51,41 @@ chargebills_fix <- chargebills %>%
   left_join(belong , by = c('PROJECT_NAME' = 'PORJECT6')) %>% 
   filter(PROJECT_NAME != '测试项目')
 
+# names(chargebills_fix) <- tolower(chargebills_fix)
+
+
+# 查找问题
+jn_locate1 <- chargebills %>% 
+  filter(#COST_ENDDATE >= COST_STARTDATE , 
+         (COST_STARTDATE <= pd_date | COST_ENDDATE <= pd_date) ,
+         PK_PROJECT %in% c('007E9E8F5A00969BB0C9' , '007E9E8FC100F54B62D2' , 
+                           '007E9E8F780034D2AA26' , '007E9E8FB100C4571EE3') ,
+         BILLDATE <= '2020-07-09' ,
+         (COST_STARTDATE >= '2020-01-01' | COST_ENDDATE >= '2020-01-01')) %>% 
+  mutate(PROJECT_NAME = case_when(PK_PROJECT == '007E9E8F5A00969BB0C9' ~ '济南鑫苑名家三期北' ,
+                                  PK_PROJECT == '007E9E8FC100F54B62D2' ~ '济南鑫中心' ,
+                                  PK_PROJECT == '007E9E8F780034D2AA26' ~ '济南世家公馆一期' ,
+                                  PK_PROJECT == '007E9E8FB100C4571EE3' ~ '济南鑫苑名家一二期'))
+
+jn_stat1 <- jn_locate1 %>% 
+  group_by(PROJECT_NAME) %>% 
+  summarise(house_cnt = n_distinct(PK_HOUSE))
+  
+jn_locate2 <- chargebills_fix %>% 
+  filter(PROJECT_NAME %in% c('济南鑫中心' , '济南鑫苑名家三期北' , 
+                             '济南鑫苑名家一二期' , '济南世家公馆一期') ,
+         BILLDATE <= '2020-07-09' ,
+         (COST_STARTDATE >= '2020-01-01' | COST_ENDDATE >= '2020-01-01'))
+
+jn_stat2 <- jn_locate %>% 
+  group_by(PROJECT_NAME) %>% 
+  summarise(house_cnt = n_distinct(PK_HOUSE))
+
+
 
 # KBUFKR9Q9WRCOA2NN9VZ
 
-# 跨年的数据
+# 跨年的数据/20年跨6、7月的数据也需fix
 across_year <- chargebills_fix %>% 
   filter(start_year != end_year) %>% 
   mutate(first_year_end = as_date(paste(start_year , '-12-31')) ,
@@ -81,6 +120,9 @@ across_year_data2 <- bind_rows(across_year_data %>%
                                  rename(year = end_year ,
                                         accrued = last_year_accrued ,
                                         owe_amount = last_year_owe))
+
+cs <- chargebills_fix %>% 
+  filter(PROJECT_NAME == '济南世家公馆一期')
 
 
 
