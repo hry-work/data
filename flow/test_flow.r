@@ -5,7 +5,7 @@ source('C:/Users/Administrator/data/env.r' , encoding = 'utf8')
 
 # 查询数据
 # ROWNUM < 10 and 
-test <- dbGetQuery(net_orc , glue("SELECT house.pk_project pk_project , 
+test <- dbGetQuery(con_orc , glue("SELECT house.pk_project pk_project , 
 project_name , house.pk_build pk_build , build_name , 
 house.pk_unit pk_unit , unit_name , house.pk_floor pk_floor , 
 floor_name , house.pk_house pk_house , house_name , 

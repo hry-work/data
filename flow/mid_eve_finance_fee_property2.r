@@ -1,14 +1,11 @@
 source('C:/Users/Administrator/data/env.r' , encoding = 'utf8')
 
-print(1)
-
 author <- c('huruiyi')
 table <- 'mid_eve_finance_fee_property'      # 物业费事件表（已修正的）
 # 命名规则：表应归属库_表类型_归属部门_业务大类_表详细归类
 
 # 本年末
 year_end <- as_date(paste0(year(day) , '-12-31'))
-
 
 # -------------------- 准备基础数据 --------------------
 
