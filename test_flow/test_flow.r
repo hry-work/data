@@ -85,9 +85,9 @@ names(test) <- tolower(names(test))
 
 # 写入sql server
 # 使用此函数写入时，需注意在sql server中建好的表的字段类型，一定要适用数据，否则报错
-# 使用此函数时，一定要保证数据库中列同此表输出列一致，否则报错
+# 使用此函数时，一定要保证数据库中列同此表输出列字段一致、顺序一致、类型匹配、字段长度满足要求，否则报错
 # 此处设定append=TRUE，若为false，此函数会自行在数据库建表，类型修改麻烦，且若库中已有同名表会报错，因此建议设定append=TRUE
-# 若为增量，先执行清空表的操作，再执行入库
-sqlClear(net_sql, 'test_dim_owner_basic_info')
-sqlSave(net_sql, test, tablename = "test_dim_owner_basic_info", append=TRUE , rownames=FALSE , fast = FALSE)
+# 若为全量，先执行清空表的操作，再执行入库
+sqlClear(con_sql, 'test_dim_owner_basic_info')
+sqlSave(con_sql, test, tablename = "test_dim_owner_basic_info", append=TRUE , rownames=FALSE , fast = FALSE)
 

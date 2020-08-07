@@ -1,3 +1,11 @@
+
+# 释放内存
+gc()
+
+options(java.parameters = "-Xmx100g") 
+# 运行内存扩大
+memory.limit(102400)
+
 # install.packages('utf8')
 # install.packages('rJava')
 # install.packages('glue')
@@ -68,13 +76,15 @@ if(file.exists("D:/") == TRUE) {
              identifier.quote="\"")
 }
 
-net_orc <-dbConnect(drv,"jdbc:oracle:thin:@192.168.128.247:1521/ORCL","ls_xywy","ls_xywy")
+con_orc <-dbConnect(drv,"jdbc:oracle:thin:@192.168.128.247:1521/ORCL","ls_xywy","ls_xywy")
 
 
 # ----- 关联sql server
-net_sql <- odbcConnect('orcl', uid='sa' , pwd='xywy2020.')
+con_sql <- odbcConnect('orcl', uid='sa' , pwd='xywy2020.')
 
 
 # 日期
 today <- as_date(today())
 day <- as_date(today - 1)
+
+

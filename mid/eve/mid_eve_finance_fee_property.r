@@ -8,7 +8,7 @@ table <- 'mid_eve_finance_fee_property'      # 物业费事件表（已修正的
 # ---------- 应收表（近600万行，读约8分钟）
 # 一个pk_chargebills只会有一条记录
 print(now())
-need_recharge <- sqlQuery(net_sql , glue("select xywy_project1 , xywy_project2 ,
+need_recharge <- sqlQuery(con_sql , glue("select xywy_project1 , xywy_project2 ,
                                           xywy_project3 , xywy_project4 , xywy_project6 ,
                                           pk_project , project_name , pk_build , 
                                           build_name , pk_house , house_name ,
@@ -28,7 +28,7 @@ print(now())
 
 # ---------- 实收表（行，读约分钟）
 print(now())
-income <- sqlQuery(net_sql , glue("select pk_house , cost_startdate , cost_enddate ,
+income <- sqlQuery(con_sql , glue("select pk_house , cost_startdate , cost_enddate ,
                                    pk_chargebills , bill_date , real_amount
                                    FROM actual_charge_table"))
 print(now())
@@ -44,7 +44,7 @@ print(now())
 # ---------- 减免表（行，读约分钟）
 # （若有物业费充值活动，优惠的金额会在减免表出现）
 print(now())
-relief <- sqlQuery(net_sql , glue("select pk_house , cost_startdate , cost_enddate ,
+relief <- sqlQuery(con_sql , glue("select pk_house , cost_startdate , cost_enddate ,
                                    pk_chargebills , adjust_amount
                                    FROM relief_cost_table"))
 print(now())
@@ -59,7 +59,7 @@ print(now())
 
 # ---------- 冲抵表（行，读约分钟）
 print(now())
-offset <- sqlQuery(net_sql , glue("select pk_house , cost_startdate , cost_enddate ,
+offset <- sqlQuery(con_sql , glue("select pk_house , cost_startdate , cost_enddate ,
                                    bill_date , match_amount
                                    FROM advance_cost_table"))
 print(now())
@@ -171,4 +171,4 @@ ORDER BY PK_HOUSE , COST_STARTDATE
 
 
 # 断开sql server连接
-close(net_sql)
+close(con_sql)
