@@ -1,7 +1,10 @@
 source('C:/Users/Administrator/data/env.r' , encoding = 'utf8')
 
+author <- c('huruiyi')
+table <- 'test_dim_owner_basic_info'
 
-# table <- 'test_dim_owner_basic_info'
+print(2222)
+
 
 # 查询数据
 # ROWNUM < 10 and 
@@ -83,6 +86,8 @@ on client.PK_USERLEVEL = map_table4.PK_DATADICTIONARY")) %>%
 names(test) <- tolower(names(test))
 
 
+print(3333)
+
 # 写入sql server
 # 使用此函数写入时，需注意在sql server中建好的表的字段类型，一定要适用数据，否则报错
 # 使用此函数时，一定要保证数据库中列同此表输出列字段一致、顺序一致、类型匹配、字段长度满足要求，否则报错
@@ -91,3 +96,4 @@ names(test) <- tolower(names(test))
 sqlClear(con_sql, 'test_dim_owner_basic_info')
 sqlSave(con_sql, test, tablename = "test_dim_owner_basic_info", append=TRUE , rownames=FALSE , fast = FALSE)
 
+print('done')

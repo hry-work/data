@@ -1,8 +1,8 @@
 
 # 释放内存
-# gc()
+gc()
 
-options(java.parameters = "-Xmx100g") 
+options(java.parameters = "-Xmx100g")
 # 运行内存扩大
 memory.limit(102400)
 
@@ -87,3 +87,4 @@ con_sql <- odbcConnect('orcl', uid='sa' , pwd='xywy2020.')
 today <- as_date(today())
 day <- as_date(today - 1)
 
+print(0)
