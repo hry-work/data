@@ -70,7 +70,7 @@ if(file.exists("D:/") == TRUE) {
              "D:/u01/app/oracle/product/11.2.0/client_1/jdbc/lib/ojdbc6_g.jar",
              identifier.quote="\"")
 } else if(file.exists("G:/") == TRUE) {
-  # --- 此版适用远
+  # --- 此版适用远程
   drv <-JDBC("oracle.jdbc.driver.OracleDriver",
              "G:/app/oracle/product/11.2.0/client_1/jdbc/lib/ojdbc6_g.jar",
              identifier.quote="\"")
@@ -87,4 +87,4 @@ con_sql <- odbcConnect('orcl', uid='sa' , pwd='xywy2020.')
 today <- as_date(today())
 day <- as_date(today - 1)
 
-print(0)
+print('source env.r success')
