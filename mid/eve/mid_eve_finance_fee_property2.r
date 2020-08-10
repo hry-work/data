@@ -37,7 +37,7 @@ print(paste0('chargebills start：' , now()))
 # 一个pk_chargebills只会有一条记录
 chargebills <- dbGetQuery(con_orc , glue("select pk_chargebills , pk_house , pk_projectid ,
                                           cost_date , cost_startdate , cost_enddate ,
-                                          accrued_amount , dr
+                                          accrued_amount , dr , line_of , price
                                           from wy_bill_chargebills"))
 print(paste0('chargebills end：' , now()))
 gc()
@@ -137,18 +137,22 @@ names(eve_property) <- tolower(names(eve_property))
 eve_property_fix <- eve_property %>%
   replace_na(list(accrued_amount = as.numeric(0) , real_amount = as.numeric(0) ,
                   adjust_amount = as.numeric(0) , match_amount = as.numeric(0))) %>%
-  mutate(owe_amount = round(accrued_amount - real_amount - adjust_amount - match_amount , digits = 3)) %>%
-  select(porject1 , porject2 , porject3 , porject4 , pk_project , project_name , pk_build ,
-         build_name , pk_unit , unit_name , pk_floor , floor_name , pk_house , house_name ,
-         pk_chargebills , cost_date , cost_startdate , cost_enddate ,
+  mutate(owe_amount = round(accrued_amount - real_amount - adjust_amount - match_amount , digits = 3) ,
+         property_month = round(line_of * price , digit = 2)) %>%
+  select(porject1 , porject2 , porject3 , porject4 , pk_project , project_name , 
+         pk_build , build_name , pk_unit , unit_name , pk_floor , floor_name , pk_house , 
+         house_name , pk_chargebills , cost_date , cost_startdate , cost_enddate , 
          accrued_amount , real_amount , adjust_amount , match_amount , owe_amount ,
-         pk_projectid , projectcode , projectname , wy_cycle , pk_gathering , pk_gathering_d ,
-         gather_souse_type , pk_gathering_type , gatheringtype_code , gatheringtype_name ,
-         bill_date , bill_time , pk_receivable , pk_receivable_d , adjust_type ,
-         enableddate , enabledtime , enabled_state , pk_forward , pk_forward_d ,
-         forward_souse_type , pk_client , client_name) %>%
+         line_of , price , property_month , pk_projectid , projectcode , projectname , 
+         wy_cycle , pk_gathering , pk_gathering_d , gather_souse_type , pk_gathering_type , 
+         gatheringtype_code , gatheringtype_name , bill_date , bill_time , 
+         pk_receivable , pk_receivable_d , adjust_type , enableddate , enabledtime , 
+         enabled_state , pk_forward , pk_forward_d , forward_souse_type , pk_client , client_name) %>%
   mutate(d_t = now())
 
+
+# cs <- eve_property_fix %>% 
+#   head(2000)
 
 # names(eve_property_fix)
 
@@ -160,7 +164,7 @@ print(paste0('data done , wait for ETL：' , now()))
 # 此处设定append=TRUE，若为false，此函数会自行在数据库建表，类型修改麻烦，且若库中已有同名表会报错，因此建议设定append=TRUE
 # 若为全量，先执行清空表的操作，再执行入库
 sqlClear(con_sql, 'mid_eve_finance_fee_property')
-sqlSave(con_sql , eve_property2 , tablename = "mid_eve_finance_fee_property" ,
+sqlSave(con_sql , eve_property_fix , tablename = "mid_eve_finance_fee_property" ,
         append = TRUE , rownames = FALSE , fast = FALSE)
 
 print(paste0('ETL success：' , now()))
