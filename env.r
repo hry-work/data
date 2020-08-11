@@ -69,7 +69,7 @@ if(file.exists("G:/") == TRUE) {
   drv <-JDBC("oracle.jdbc.driver.OracleDriver",
              "G:/app/oracle/product/11.2.0/client_1/jdbc/lib/ojdbc6_g.jar",
              identifier.quote="\"")
-} else if(file.exists("G:/") == TRUE) {
+} else if(file.exists("D:/") == TRUE) {
   # --- 此版适用本地
   drv <-JDBC("oracle.jdbc.driver.OracleDriver",
              "D:/u01/app/oracle/product/11.2.0/client_1/jdbc/lib/ojdbc6_g.jar",
