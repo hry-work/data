@@ -64,17 +64,18 @@ library('xts')
 # ---------- 关联数据库
 
 # ----- 关联oracle（使用rjdbc的方式，rodbc及roracle此电脑有坑）
-if(file.exists("D:/") == TRUE) {
-  # --- 此版适用本地
-  drv <-JDBC("oracle.jdbc.driver.OracleDriver",
-             "D:/u01/app/oracle/product/11.2.0/client_1/jdbc/lib/ojdbc6_g.jar",
-             identifier.quote="\"")
-} else if(file.exists("G:/") == TRUE) {
+if(file.exists("G:/") == TRUE) {
   # --- 此版适用远程
   drv <-JDBC("oracle.jdbc.driver.OracleDriver",
              "G:/app/oracle/product/11.2.0/client_1/jdbc/lib/ojdbc6_g.jar",
              identifier.quote="\"")
+} else if(file.exists("G:/") == TRUE) {
+  # --- 此版适用本地
+  drv <-JDBC("oracle.jdbc.driver.OracleDriver",
+             "D:/u01/app/oracle/product/11.2.0/client_1/jdbc/lib/ojdbc6_g.jar",
+             identifier.quote="\"")
 }
+
 
 con_orc <-dbConnect(drv,"jdbc:oracle:thin:@192.168.128.247:1521/ORCL","ls_xywy","ls_xywy")
 
