@@ -114,11 +114,12 @@ print(paste0('get data done , wait for processing: ' , now()))
 eve_property <- chargebills %>%   #应收
   mutate(COST_STARTDATE = as_date(COST_STARTDATE) ,
          COST_ENDDATE = as_date(COST_ENDDATE)) %>%
-  filter(DR == 0 , #COST_ENDDATE >= COST_STARTDATE ,
+  filter(DR == 0 , ACCRUED_AMOUNT != 0 ,#COST_ENDDATE >= COST_STARTDATE ,
          (COST_STARTDATE <= year_end | COST_ENDDATE <= year_end)) %>%
   inner_join(property_code , by = 'PK_PROJECTID') %>%
   left_join(basic_info , by = c('PK_HOUSE' = 'pk_house')) %>%
   left_join(belong , by = c('project_name' = 'PORJECT6')) %>%
+  filter(project_name != '测试项目') %>% 
   select(-DR) %>%
   left_join(gathering %>%   #实收
               rename(bill_time = BILL_DATE) %>%
@@ -127,7 +128,7 @@ eve_property <- chargebills %>%   #应收
               filter(DR == 0 , bill_date <= year_end) %>%
               select(-DR) %>%
               inner_join(gathering_d %>%
-                           filter(DR == 0) %>%
+                           filter(DR == 0 , REAL_AMOUNT != 0 , !is.na(SOURCE)) %>%
                            select(-DR) %>%
                            rename(gather_souse_type = SOUSE_TYPE) , by = 'PK_GATHERING') , by = c('PK_CHARGEBILLS' = 'SOURCE')) %>%
   left_join(gathering_type , by = c('PK_GATHERING_TYPE' = 'PK_GATHERINGTYPE')) %>%
@@ -139,10 +140,10 @@ eve_property <- chargebills %>%   #应收
               filter(DR == 0 , ENABLED_STATE == '已启用' , ADJUST_TYPE == '实收' , enableddate <= year_end) %>%
               select(-DR) %>%
               left_join(receive_d %>%
-                          filter(DR == 0) %>%
+                          filter(DR == 0 , ADJUST_AMOUNT != 0) %>%
                           select(-DR) , by = c('PK_RECEIVABLE')) , by = c('PK_CHARGEBILLS')) %>%
   left_join(matchforward %>%   #冲抵
-              filter(DR == 0) %>%
+              filter(DR == 0 , MATCH_AMOUNT != 0) %>%
               select(-DR) %>%
               rename(PK_GATHERING_D = PK_GAHTERING_D) %>%
               inner_join(gathering_d %>%
@@ -150,21 +151,40 @@ eve_property <- chargebills %>%   #应收
                            select(PK_GATHERING_D , SOUSE_TYPE) , by = 'PK_GATHERING_D') %>%
               rename(pk_forward_d = PK_GATHERING_D),
             by = c('PK_CHARGEBILLS' = 'PK_RECERIVE')) %>%
+  filter(project_name != '测试项目') %>% 
   rename(gatheringtype_code = CODE ,
-         forward_souse_type = SOUSE_TYPE)
+         forward_souse_type = SOUSE_TYPE) %>% 
+  replace_na(list(ACCRUED_AMOUNT = as.numeric(0) , REAL_AMOUNT = as.numeric(0) ,
+                  ADJUST_AMOUNT = as.numeric(0) , MATCH_AMOUNT = as.numeric(0))) %>%
+  mutate(owe_amount = round(ACCRUED_AMOUNT - REAL_AMOUNT - ADJUST_AMOUNT - MATCH_AMOUNT , digits = 3) ,
+         property_month = round(LINE_OF * PRICE , digit = 2) ,
+         diff_month = (as.yearmon(COST_ENDDATE) - as.yearmon(COST_STARTDATE)) * 12 + 1)
 
 print(paste0('processing property done , wait for fix: ' , now()))
 
 # 列名大写替换为小写(R对大小写敏感，因此统一替换为小写)
 names(eve_property) <- tolower(names(eve_property))
 
-# 剔除应收为0的、项目名为测试项目的
-eve_property_fix <- eve_property %>%
-  replace_na(list(accrued_amount = as.numeric(0) , real_amount = as.numeric(0) ,
-                  adjust_amount = as.numeric(0) , match_amount = as.numeric(0))) %>%
-  filter(accrued_amount != 0 , project_name != '测试项目') %>% 
-  mutate(owe_amount = round(accrued_amount - real_amount - adjust_amount - match_amount , digits = 3) ,
-         property_month = round(line_of * price , digit = 2)) %>%
+
+# 周期错误的数据，此部分先不拆
+period_wrong <- eve_property %>% 
+  filter(cost_startdate > cost_enddate)
+
+# 应收周期只有一月的，不拆
+no_fix <- eve_property %>% 
+  filter(diff_month == 1 , cost_startdate <= cost_enddate)
+
+# 对跨月数据进行fix，拆为一月一行
+need_split <- eve_property %>% 
+  filter(cost_startdate <= cost_enddate , diff_month > 1) 
+
+  
+  
+
+
+
+  
+  
   select(porject1 , porject2 , porject3 , porject4 , pk_project , project_name , 
          pk_build , build_name , pk_unit , unit_name , pk_floor , floor_name , pk_house , 
          house_name , pk_chargebills , cost_date , cost_startdate , cost_enddate , 
@@ -176,6 +196,8 @@ eve_property_fix <- eve_property %>%
          enabled_state , pk_forward , pk_forward_d , forward_souse_type , pk_client , client_name) %>%
   mutate(d_t = now())
 
+
+  
 
 
 csc <- eve_property_fix %>% 
