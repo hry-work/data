@@ -6,7 +6,7 @@ table <- 'mid_eve_finance_fee_property'      # 物业费事件表(已修正的)
 
 
 # 本年末
-end <- as_date(paste0(year(day) , '-12-31'))
+year_end <- as_date(paste0(year(day) , '-12-31'))
 
 # -------------------- 准备基础数据 --------------------
 
@@ -165,23 +165,23 @@ eve_property_fix <- eve_property %>%
 
 print(paste0('data done , wait for ETL: ' , now()))
 
-# # 写入sql server
-# # 使用此函数写入时，需注意在sql server中建好的表的字段类型，一定要适用数据，否则报错
-# # 使用此函数时，一定要保证数据库中列同此表输出列字段一致、顺序一致、类型匹配、字段长度满足要求，否则报错
-# # 此处设定append=TRUE，若为false，此函数会自行在数据库建表，类型修改麻烦，且若库中已有同名表会报错，因此建议设定append=TRUE
-# # 若为全量，先执行清空表的操作，再执行入库
-# sqlClear(con_sql, 'mid_eve_finance_fee_property')
-# sqlSave(con_sql , eve_property_fix , tablename = "mid_eve_finance_fee_property" ,
-#         append = TRUE , rownames = FALSE , fast = FALSE)
-# 
-# print(paste0('ETL success: ' , now()))
-# 
-# # 清除工作区内容
-# rm(list = ls())
-# 
-# 
-# # 清内存
-# gc()
+# 写入sql server
+# 使用此函数写入时，需注意在sql server中建好的表的字段类型，一定要适用数据，否则报错
+# 使用此函数时，一定要保证数据库中列同此表输出列字段一致、顺序一致、类型匹配、字段长度满足要求，否则报错
+# 此处设定append=TRUE，若为false，此函数会自行在数据库建表，类型修改麻烦，且若库中已有同名表会报错，因此建议设定append=TRUE
+# 若为全量，先执行清空表的操作，再执行入库
+sqlClear(con_sql, 'mid_eve_finance_fee_property')
+sqlSave(con_sql , eve_property_fix , tablename = "mid_eve_finance_fee_property" ,
+        append = TRUE , rownames = FALSE , fast = FALSE)
+
+print(paste0('ETL success: ' , now()))
+
+# 清除工作区内容
+rm(list = ls())
+
+
+# 清内存
+gc()
 
 # # 应收结束在开始之前（应收周期生成错误）
 # wrong_1 <- eve_property %>%
