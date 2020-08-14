@@ -13,6 +13,10 @@ year_end <- as_date(paste0(year(day) , '-12-31'))
 
 
 # # # # # # # # # # # # # # # 准备基础数据 # # # # # # # # # # # # # # # 
+# ---------- 收费项目子表
+fmunitproject <- dbGetQuery(con_orc , glue("select pk_unitprojectid , pk_project , 
+                                            pk_house , pk_projectid , unitprice , dr
+                                            from wy_bd_fmunitproject"))
 
 # ---------- 物业费code
 property_code <- dbGetQuery(con_orc , glue("select distinct pk_projectid , projectcode , projectname
@@ -25,8 +29,8 @@ parking_code <- dbGetQuery(con_orc , glue("select distinct pk_projectid , projec
                                            where projectcode in ('006','007','008','009','72','linting')"))
 
 # ---------- 项目基础数据
-basic_info <- sqlQuery(con_sql , "select pk_house , house_name , pk_floor , floor_name , 
-                                  pk_unit , unit_name , pk_build , build_name , 
+basic_info <- sqlQuery(con_sql , "select pk_house , house_code , house_name , pk_floor , 
+                                  floor_name , pk_unit , unit_name , pk_build , build_name , 
                                   pk_project , project_name , pk_client , client_name
                                   from dim_owner_basic_info")
 
@@ -109,15 +113,22 @@ print(paste0('get data done , wait for processing: ' , now()))
 
 
 # # # # # # # # # # # # # # # 基础数据合并 # # # # # # # # # # # # # # # 
+# ---------- 物业应收户数
+property_charge <- fmunitproject %>% 
+  filter(DR == 0) %>% 
+  inner_join(property_code) %>% 
+  inner_join(basic_info , by = c('PK_HOUSE' = 'pk_house')) %>% 
+  distinct(PK_HOUSE , house_code)
 
 # ---------- 物业费明细
-eve_property <- chargebills %>%   #应收
-  mutate(COST_STARTDATE = as_date(COST_STARTDATE) ,
-         COST_ENDDATE = as_date(COST_ENDDATE)) %>%
-  filter(DR == 0 , ACCRUED_AMOUNT != 0 ,#COST_ENDDATE >= COST_STARTDATE ,
-         (COST_STARTDATE <= year_end | COST_ENDDATE <= year_end)) %>%
+eve_property <- property_charge %>% 
+  full_join(chargebills %>%   #应收
+              mutate(COST_STARTDATE = as_date(COST_STARTDATE) ,
+                     COST_ENDDATE = as_date(COST_ENDDATE)) %>%
+              filter(DR == 0 , ACCRUED_AMOUNT != 0 ,#COST_ENDDATE >= COST_STARTDATE ,
+                     (COST_STARTDATE <= year_end | COST_ENDDATE <= year_end))) %>%
   inner_join(property_code , by = 'PK_PROJECTID') %>%
-  left_join(basic_info , by = c('PK_HOUSE' = 'pk_house')) %>%
+  left_join(basic_info %>% select(-house_code) , by = c('PK_HOUSE' = 'pk_house')) %>%
   left_join(belong , by = c('project_name' = 'PORJECT6')) %>%
   filter(project_name != '测试项目') %>% 
   select(-DR) %>%
@@ -166,7 +177,7 @@ print(paste0('processing property done , wait for fix: ' , now()))
 names(eve_property) <- tolower(names(eve_property))
 
 
-# 周期错误的数据，此部分先不拆
+# 周期错误的数据，此部分先不拆，待乐软fix
 period_wrong <- eve_property %>% 
   filter(cost_startdate > cost_enddate)
 
@@ -177,6 +188,29 @@ no_fix <- eve_property %>%
 # 对跨月数据进行fix，拆为一月一行
 need_split <- eve_property %>% 
   filter(cost_startdate <= cost_enddate , diff_month > 1) 
+
+split_data <- data.frame()
+if(nrow(need_split) > 0) {
+  
+  date_list <- as.data.frame(seq.Date(as_date('2000-01-01') , as_date('3000-01-01') , by = 'month'))
+  names(date_list) <- c('month_start')
+
+  for (i in 1:nrow(need_split)) {
+    
+    i <- 1
+    print(i)
+    
+    split_process <- need_split[i,] %>% 
+      mutate(join_key = i) %>% 
+    
+    
+    split_data <- bind_rows(split_data , split_process)
+  }
+} else {
+  split_data <- need_split
+}
+
+
 
   
   
