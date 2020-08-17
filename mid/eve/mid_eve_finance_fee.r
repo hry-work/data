@@ -13,7 +13,7 @@ year_end <- as_date(paste0(year(day) , '-12-31'))
 
 
 # # # # # # # # # # # # # # # 准备基础数据 # # # # # # # # # # # # # # # 
-# ---------- 收费项目子表
+# ---------- 收费项目子表(根据此表计算收费户数，应收可能会有遗漏)
 fmunitproject <- dbGetQuery(con_orc , glue("select pk_unitprojectid , pk_project , 
                                             pk_house , pk_projectid , unitprice , dr
                                             from wy_bd_fmunitproject"))
@@ -22,6 +22,11 @@ fmunitproject <- dbGetQuery(con_orc , glue("select pk_unitprojectid , pk_project
 property_code <- dbGetQuery(con_orc , glue("select distinct pk_projectid , projectcode , projectname
                                             from wy_bd_fmproject 
                                             where projectcode in ('001','002','003','004')"))
+
+# 物业费、车位费预算暂不在此提取
+# # ---------- 物业费预算表(到项目)
+# property_budget <- dbGetQuery(con_orc , glue("select wy_project , wy_month , wy_budget
+#                                               from middle_table2"))
 
 # ---------- 车位费code
 parking_code <- dbGetQuery(con_orc , glue("select distinct pk_projectid , projectcode , projectname
@@ -169,7 +174,8 @@ eve_property <- property_charge %>%
                   ADJUST_AMOUNT = as.numeric(0) , MATCH_AMOUNT = as.numeric(0))) %>%
   mutate(owe_amount = round(ACCRUED_AMOUNT - REAL_AMOUNT - ADJUST_AMOUNT - MATCH_AMOUNT , digits = 3) ,
          property_month = round(LINE_OF * PRICE , digit = 2) ,
-         diff_month = (as.yearmon(COST_ENDDATE) - as.yearmon(COST_STARTDATE)) * 12 + 1)
+         diff_month = (as.yearmon(COST_ENDDATE) - as.yearmon(COST_STARTDATE)) * 12 + 1 ,
+         diff_day = as.integer(difftime(COST_ENDDATE , COST_STARTDATE , units = 'days')))
 
 print(paste0('processing property done , wait for fix: ' , now()))
 
@@ -189,28 +195,81 @@ no_fix <- eve_property %>%
 need_split <- eve_property %>% 
   filter(cost_startdate <= cost_enddate , diff_month > 1) 
 
+cs <- write.xlsx(need_split , '..\\data\\mid\\eve\\split.xlsx')
+
+print(paste0('fixing across the month start: ' , now()))
+
 split_data <- data.frame()
 if(nrow(need_split) > 0) {
   
-  date_list <- as.data.frame(seq.Date(as_date('2000-01-01') , as_date('3000-01-01') , by = 'month'))
+  min_date <- as_date(paste0(substr(min(need_split$cost_startdate) , 1 , 7) , '-01'))
+  date_list <- as.data.frame(seq.Date(min_date , as_date('3000-01-01') , by = 'month'))
   names(date_list) <- c('month_start')
 
   for (i in 1:nrow(need_split)) {
     
-    i <- 1
+    i <- 2868
     print(i)
     
     split_process <- need_split[i,] %>% 
-      mutate(join_key = i) %>% 
+      mutate(join_key = i ,
+             cost_month_start = as_date(paste0(substr(cost_startdate , 1 , 7) , '-01'))) %>%
+      left_join(date_list %>% mutate(join_key = i)) %>% 
+      filter(cost_month_start <= month_start ,
+             cost_enddate >= month_start) %>% 
+      rename(cost_startdate_history = cost_startdate ,
+             cost_enddate_history = cost_enddate ,
+             accrued_amount_history = accrued_amount ,
+             real_amount_history = real_amount ,
+             adjust_amount_history = adjust_amount ,
+             match_amount_history = match_amount , 
+             owe_amount_history = owe_amount) %>% 
+      mutate(cost_startdate = if_else(cost_startdate_history > month_start , cost_startdate_history , month_start , month_start) ,
+             month_end = month_start + months(1) - days(1) , 
+             cost_enddate = if_else(month_end <= cost_enddate_history , month_end , cost_enddate_history) , 
+             month_diffday = as.integer(difftime(cost_enddate , cost_startdate , units = 'days') + 1) ,
+             accrued_amount_fixing = if_else(round(accrued_amount_history/diff_day*month_diffday , 2) == 0 ,
+                                             accrued_amount_history , round(accrued_amount_history/diff_day*month_diffday , 2))) %>% 
+      arrange(cost_startdate) %>% 
+      mutate(cumsum_accrued = cumsum(accrued_amount_fixing) ,
+             accrued_amount_f = if_else(cumsum_accrued <= accrued_amount_history , accrued_amount_fixing ,
+                                        accrued_amount_fixing - (cumsum_accrued - accrued_amount_history)) ,
+             accrued_amount = if_else(accrued_amount_f <= 0 ,  as.numeric(0) , accrued_amount_f) ,
+             real_amount_fixing = if_else(cumsum_accrued <= real_amount_history , accrued_amount , 
+                                          real_amount_history - lag(cumsum_accrued)) ,
+             real_amount_f = if_else(is.na(real_amount_fixing) , real_amount_history , real_amount_fixing) ,
+             real_amount = if_else(real_amount_f <= 0 , as.numeric(0) , real_amount_f) ,
+             adjust_amount_fixing = case_when(accrued_amount == real_amount ~ as.numeric(0) , 
+                                              adjust_amount_history <= accrued_amount - real_amount ~ adjust_amount_history ,
+                                              adjust_amount_history > accrued_amount - real_amount ~ accrued_amount - real_amount) ,
+             cumsum_adjust = cumsum(adjust_amount_fixing) ,
+             adjust_amount_f = if_else(cumsum_adjust <= adjust_amount_history , adjust_amount_fixing , 
+                                       adjust_amount_history - lag(cumsum_adjust)) ,
+             adjust_amount_ff = if_else(is.na(adjust_amount_f) , adjust_amount_history , adjust_amount_f) ,
+             adjust_amount = if_else(adjust_amount_ff <= 0 , as.numeric(0) , adjust_amount_ff) ,
+             
+             match_amount_fixing = case_when(accrued_amount == real_amount + adjust_amount ~ as.numeric(0) , 
+                                             match_amount_history <= accrued_amount - real_amount - adjust_amount ~ match_amount_history ,
+                                             match_amount_history > accrued_amount - real_amount - adjust_amount ~ 
+                                               accrued_amount - real_amount - adjust_amount) ,
+             cumsum_match = cumsum(match_amount_fixing) ,
+             match_amount_f = if_else(cumsum_match <= match_amount_history , match_amount_fixing , 
+                                      match_amount_history - lag(cumsum_match)) ,
+             match_amount_ff = if_else(is.na(match_amount_f) , match_amount_history , match_amount_f) ,
+             match_amount = if_else(match_amount_ff <= 0 , as.numeric(0) , match_amount_ff) ,
+             owe_amount = accrued_amount - real_amount - adjust_amount - match_amount) %>% 
+      ungroup()
     
+    split_data <- bind_rows(split_data , split_process) 
     
-    split_data <- bind_rows(split_data , split_process)
+    cs <- write.xlsx(split_data , '..\\data\\mid\\eve\\sum3.xlsx')
+    
   }
 } else {
   split_data <- need_split
 }
 
-
+print(paste0('fixing across the month end: ' , now()))
 
   
   
