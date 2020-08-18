@@ -134,7 +134,7 @@ eve_property <- property_charge %>%
   inner_join(property_code , by = 'PK_PROJECTID') %>%
   left_join(basic_info %>% select(-house_code) , by = c('PK_HOUSE' = 'pk_house')) %>%
   left_join(belong , by = c('project_name' = 'PORJECT6')) %>%
-  filter(project_name != '测试项目') %>% 
+  filter(project_name != '??????Ŀ') %>% #测试项目
   select(-DR) %>%
   left_join(gathering %>%  
               rename(bill_time = BILL_DATE) %>%
@@ -152,7 +152,8 @@ eve_property <- property_charge %>%
               mutate(enableddate = as_date(enabledtime) ,
                      enabledtime = as_datetime(enabledtime) ,
                      ENABLED_STATE = trimws(ENABLED_STATE)) %>%
-              filter(DR == 0 , ENABLED_STATE == '已启用' , ADJUST_TYPE == '实收' , enableddate <= year_end) %>%
+              filter(DR == 0 , ENABLED_STATE == '??????' , ADJUST_TYPE == 'ʵ??' , enableddate <= year_end) %>%
+              # ENABLED_STATE == '已启用' ADJUST_TYPE == '实收'
               select(-DR) %>%
               left_join(receive_d %>%
                           filter(DR == 0 , ADJUST_AMOUNT != 0) %>%
@@ -162,11 +163,11 @@ eve_property <- property_charge %>%
               select(-DR) %>%
               rename(PK_GATHERING_D = PK_GAHTERING_D) %>%
               inner_join(gathering_d %>%
-                           filter(DR == 0 , SOUSE_TYPE == '预收') %>%
+                           filter(DR == 0 , SOUSE_TYPE == 'Ԥ??') %>% #预收
                            select(PK_GATHERING_D , SOUSE_TYPE) , by = 'PK_GATHERING_D') %>%
               rename(pk_forward_d = PK_GATHERING_D),
             by = c('PK_CHARGEBILLS' = 'PK_RECERIVE')) %>%
-  filter(project_name != '测试项目') %>% 
+  filter(project_name != '??????Ŀ') %>% #测试项目
   rename(gatheringtype_code = CODE ,
          forward_souse_type = SOUSE_TYPE) %>% 
   replace_na(list(ACCRUED_AMOUNT = as.numeric(0) , REAL_AMOUNT = as.numeric(0) ,
