@@ -2,58 +2,58 @@ source('C:/Users/Administrator/data/env.r' , encoding = 'utf8')
 
 author <- c('huruiyi')
 
-# å½“å‰è„šæœ¬ä¸­ï¼Œå…±è¾“å‡ºä¸¤ä¸ªè¡¨: ç‰©ä¸šè´¹ã€è½¦ä½è´¹
-# å‘½åè§„åˆ™: è¡¨åº”å½’å±åº“_è¡¨ç±»å‹_å½’å±éƒ¨é—¨_ä¸šåŠ¡å¤§ç±»_è¡¨è¯¦ç»†å½’ç±»
-table_1 <- 'mid_eve_finance_fee_property'      # ç‰©ä¸šè´¹äº‹ä»¶è¡¨ï¼ˆå·²ä¿®æ­£çš„ï¼‰
-table_2 <- 'mid_eve_finance_fee_parking'      # è½¦ä½è´¹äº‹ä»¶è¡¨
+# µ±Ç°½Å±¾ÖĞ£¬¹²Êä³öÁ½¸ö±í: ÎïÒµ·Ñ¡¢³µÎ»·Ñ
+# ÃüÃû¹æÔò: ±íÓ¦¹éÊô¿â_±íÀàĞÍ_¹éÊô²¿ÃÅ_ÒµÎñ´óÀà_±íÏêÏ¸¹éÀà
+table_1 <- 'mid_eve_finance_fee_property'      # ÎïÒµ·ÑÊÂ¼ş±í£¨ÒÑĞŞÕıµÄ£©
+table_2 <- 'mid_eve_finance_fee_parking'      # ³µÎ»·ÑÊÂ¼ş±í
 
 
-# æœ¬å¹´æœ«
+# ±¾ÄêÄ©
 year_end <- as_date(paste0(year(day) , '-12-31'))
 
 
-# # # # # # # # # # # # # # # å‡†å¤‡åŸºç¡€æ•°æ® # # # # # # # # # # # # # # # 
-# ---------- æ”¶è´¹é¡¹ç›®å­è¡¨(æ ¹æ®æ­¤è¡¨è®¡ç®—æ”¶è´¹æˆ·æ•°ï¼Œåº”æ”¶å¯èƒ½ä¼šæœ‰é—æ¼)
+# # # # # # # # # # # # # # # ×¼±¸»ù´¡Êı¾İ # # # # # # # # # # # # # # # 
+# ---------- ÊÕ·ÑÏîÄ¿×Ó±í(¸ù¾İ´Ë±í¼ÆËãÊÕ·Ñ»§Êı£¬Ó¦ÊÕ¿ÉÄÜ»áÓĞÒÅÂ©)
 fmunitproject <- dbGetQuery(con_orc , glue("select pk_unitprojectid , pk_project , 
                                             pk_house , pk_projectid , unitprice , dr
                                             from wy_bd_fmunitproject"))
 
-# ---------- ç‰©ä¸šè´¹code
+# ---------- ÎïÒµ·Ñcode
 property_code <- dbGetQuery(con_orc , glue("select distinct pk_projectid , projectcode , projectname
                                             from wy_bd_fmproject 
                                             where projectcode in ('001','002','003','004')"))
 
-# ç‰©ä¸šè´¹ã€è½¦ä½è´¹é¢„ç®—æš‚ä¸åœ¨æ­¤æå–
-# # ---------- ç‰©ä¸šè´¹é¢„ç®—è¡¨(åˆ°é¡¹ç›®)
+# ÎïÒµ·Ñ¡¢³µÎ»·ÑÔ¤ËãÔİ²»ÔÚ´ËÌáÈ¡
+# # ---------- ÎïÒµ·ÑÔ¤Ëã±í(µ½ÏîÄ¿)
 # property_budget <- dbGetQuery(con_orc , glue("select wy_project , wy_month , wy_budget
 #                                               from middle_table2"))
 
-# ---------- è½¦ä½è´¹code
+# ---------- ³µÎ»·Ñcode
 parking_code <- dbGetQuery(con_orc , glue("select distinct pk_projectid , projectcode , projectname
                                            from wy_bd_fmproject
                                            where projectcode in ('006','007','008','009','72','linting')"))
 
-# ---------- é¡¹ç›®åŸºç¡€æ•°æ®
+# ---------- ÏîÄ¿»ù´¡Êı¾İ
 basic_info <- sqlQuery(con_sql , "select pk_house , house_code , house_name , pk_floor , 
                                   floor_name , pk_unit , unit_name , pk_build , build_name , 
                                   pk_project , project_name , pk_client , client_name
                                   from dim_owner_basic_info")
 
-# ---------- é¡¹ç›®å½’å±åŒºåŸŸ
+# ---------- ÏîÄ¿¹éÊôÇøÓò
 belong <- dbGetQuery(con_orc , glue("select porject1 , porject2 , porject3 , porject4 , porject6 , wy_cycle
                                     from xywy_project"))
 
-# ---------- æ”¶è´¹ç±»å‹
+# ---------- ÊÕ·ÑÀàĞÍ
 gathering_type <- dbGetQuery(con_orc , glue("select pk_gatheringtype , code , name as gatheringtype_name
                                             from wy_bd_gatheringtype
                                             where dr = 0 "))
 
 
-# ä¸‹æ–¹æ˜ç»†è¡¨è¾ƒå¤§ï¼Œè®¾ç½®æ¯æ‰§è¡Œä¸€ä¸ªåæ¸…é™¤å†…å­˜å¹¶ç­‰å¾…2åˆ†é’Ÿ
+# ÏÂ·½Ã÷Ï¸±í½Ï´ó£¬ÉèÖÃÃ¿Ö´ĞĞÒ»¸öºóÇå³ıÄÚ´æ²¢µÈ´ı2·ÖÖÓ
 
 print(paste0('chargebills start: ' , now()))
 
-# ---------- åº”æ”¶æ˜ç»†è¡¨(ä¸€ä¸ªpk_chargebillsåªä¼šæœ‰ä¸€æ¡è®°å½•)
+# ---------- Ó¦ÊÕÃ÷Ï¸±í(Ò»¸öpk_chargebillsÖ»»áÓĞÒ»Ìõ¼ÇÂ¼)
 chargebills <- dbGetQuery(con_orc , glue("select pk_chargebills , pk_house , pk_projectid ,
                                           cost_date , cost_startdate , cost_enddate ,
                                           accrued_amount , dr , line_of , price
@@ -65,7 +65,7 @@ gc()
 
 print(paste0('gathering start: ' , now()))
 
-# ---------- å®æ”¶æ˜ç»†è¡¨
+# ---------- ÊµÊÕÃ÷Ï¸±í
 gathering <- dbGetQuery(con_orc , glue("select pk_gathering , bill_date , dr
                                         from wy_bill_gathering"))
 
@@ -85,7 +85,7 @@ gc()
 
 print(paste0('receive start: ' , now()))
 
-# ---------- å‡å…æ˜ç»†è¡¨
+# ---------- ¼õÃâÃ÷Ï¸±í
 receive <- dbGetQuery(con_orc , glue("select pk_receivable , enableddate , enabled_state , adjust_type , dr
                                       from wy_bd_receivable"))
 
@@ -105,7 +105,7 @@ gc()
 
 print(paste0('matchforward start: ' , now()))
 
-# ---------- å†²æŠµæ˜ç»†è¡¨
+# ---------- ³åµÖÃ÷Ï¸±í
 matchforward <- dbGetQuery(con_orc , glue("select pk_forward , pk_recerive ,
                                            pk_gahtering_d , match_amount , dr
                                            from wy_virement_matchforward"))
@@ -117,17 +117,17 @@ gc()
 print(paste0('get data done , wait for processing: ' , now()))
 
 
-# # # # # # # # # # # # # # # åŸºç¡€æ•°æ®åˆå¹¶ # # # # # # # # # # # # # # # 
-# ---------- ç‰©ä¸šåº”æ”¶æˆ·æ•°
+# # # # # # # # # # # # # # # »ù´¡Êı¾İºÏ²¢ # # # # # # # # # # # # # # # 
+# ---------- ÎïÒµÓ¦ÊÕ»§Êı
 property_charge <- fmunitproject %>% 
   filter(DR == 0) %>% 
   inner_join(property_code) %>% 
   inner_join(basic_info , by = c('PK_HOUSE' = 'pk_house')) %>% 
   distinct(PK_HOUSE , house_code)
 
-# ---------- ç‰©ä¸šè´¹æ˜ç»†
+# ---------- ÎïÒµ·ÑÃ÷Ï¸
 eve_property <- property_charge %>% 
-  full_join(chargebills %>%   #åº”æ”¶
+  full_join(chargebills %>%   #Ó¦ÊÕ
               mutate(COST_STARTDATE = as_date(COST_STARTDATE) ,
                      COST_ENDDATE = as_date(COST_ENDDATE)) %>%
               filter(DR == 0 , ACCRUED_AMOUNT != 0 ,#COST_ENDDATE >= COST_STARTDATE ,
@@ -135,9 +135,9 @@ eve_property <- property_charge %>%
   inner_join(property_code , by = 'PK_PROJECTID') %>%
   left_join(basic_info %>% select(-house_code) , by = c('PK_HOUSE' = 'pk_house')) %>%
   left_join(belong , by = c('project_name' = 'PORJECT6')) %>%
-  filter(project_name != 'æµ‹è¯•é¡¹ç›®') %>% 
+  filter(project_name != '²âÊÔÏîÄ¿') %>% 
   select(-DR) %>%
-  left_join(gathering %>%   #å®æ”¶
+  left_join(gathering %>%   #ÊµÊÕ
               rename(bill_time = BILL_DATE) %>%
               mutate(bill_date = as_date(bill_time) ,
                      bill_time = as_datetime(bill_time)) %>%
@@ -148,26 +148,26 @@ eve_property <- property_charge %>%
                            select(-DR) %>%
                            rename(gather_souse_type = SOUSE_TYPE) , by = 'PK_GATHERING') , by = c('PK_CHARGEBILLS' = 'SOURCE')) %>%
   left_join(gathering_type , by = c('PK_GATHERING_TYPE' = 'PK_GATHERINGTYPE')) %>%
-  left_join(receive %>%   #å‡å…
+  left_join(receive %>%   #¼õÃâ
               rename(enabledtime = ENABLEDDATE) %>%
               mutate(enableddate = as_date(enabledtime) ,
                      enabledtime = as_datetime(enabledtime) ,
                      ENABLED_STATE = trimws(ENABLED_STATE)) %>%
-              filter(DR == 0 , ENABLED_STATE == 'å·²å¯ç”¨' , ADJUST_TYPE == 'å®æ”¶' , enableddate <= year_end) %>%
+              filter(DR == 0 , ENABLED_STATE == 'ÒÑÆôÓÃ' , ADJUST_TYPE == 'ÊµÊÕ' , enableddate <= year_end) %>%
               select(-DR) %>%
               left_join(receive_d %>%
                           filter(DR == 0 , ADJUST_AMOUNT != 0) %>%
                           select(-DR) , by = c('PK_RECEIVABLE')) , by = c('PK_CHARGEBILLS')) %>%
-  left_join(matchforward %>%   #å†²æŠµ
+  left_join(matchforward %>%   #³åµÖ
               filter(DR == 0 , MATCH_AMOUNT != 0) %>%
               select(-DR) %>%
               rename(PK_GATHERING_D = PK_GAHTERING_D) %>%
               inner_join(gathering_d %>%
-                           filter(DR == 0 , SOUSE_TYPE == 'é¢„æ”¶') %>%
+                           filter(DR == 0 , SOUSE_TYPE == 'Ô¤ÊÕ') %>%
                            select(PK_GATHERING_D , SOUSE_TYPE) , by = 'PK_GATHERING_D') %>%
               rename(pk_forward_d = PK_GATHERING_D),
             by = c('PK_CHARGEBILLS' = 'PK_RECERIVE')) %>%
-  filter(project_name != 'æµ‹è¯•é¡¹ç›®') %>% 
+  filter(project_name != '²âÊÔÏîÄ¿') %>% 
   rename(gatheringtype_code = CODE ,
          forward_souse_type = SOUSE_TYPE) %>% 
   replace_na(list(ACCRUED_AMOUNT = as.numeric(0) , REAL_AMOUNT = as.numeric(0) ,
@@ -179,19 +179,19 @@ eve_property <- property_charge %>%
 
 print(paste0('processing property done , wait for fix: ' , now()))
 
-# åˆ—åå¤§å†™æ›¿æ¢ä¸ºå°å†™(Rå¯¹å¤§å°å†™æ•æ„Ÿï¼Œå› æ­¤ç»Ÿä¸€æ›¿æ¢ä¸ºå°å†™)
+# ÁĞÃû´óĞ´Ìæ»»ÎªĞ¡Ğ´(R¶Ô´óĞ¡Ğ´Ãô¸Ğ£¬Òò´ËÍ³Ò»Ìæ»»ÎªĞ¡Ğ´)
 names(eve_property) <- tolower(names(eve_property))
 
 
-# å‘¨æœŸé”™è¯¯çš„æ•°æ®ï¼Œæ­¤éƒ¨åˆ†å…ˆä¸æ‹†ï¼Œå¾…ä¹è½¯fix
+# ÖÜÆÚ´íÎóµÄÊı¾İ£¬´Ë²¿·ÖÏÈ²»²ğ£¬´ıÀÖÈífix
 period_wrong <- eve_property %>% 
   filter(cost_startdate > cost_enddate)
 
-# åº”æ”¶å‘¨æœŸåªæœ‰ä¸€æœˆçš„ï¼Œä¸æ‹†
+# Ó¦ÊÕÖÜÆÚÖ»ÓĞÒ»ÔÂµÄ£¬²»²ğ
 no_fix <- eve_property %>% 
   filter(diff_month == 1 , cost_startdate <= cost_enddate)
 
-# å¯¹è·¨æœˆæ•°æ®è¿›è¡Œfixï¼Œæ‹†ä¸ºä¸€æœˆä¸€è¡Œ
+# ¶Ô¿çÔÂÊı¾İ½øĞĞfix£¬²ğÎªÒ»ÔÂÒ»ĞĞ
 need_split <- eve_property %>% 
   filter(cost_startdate <= cost_enddate , diff_month > 1) 
 
@@ -210,7 +210,7 @@ if(nrow(need_split) > 0) {
   date_list <- as.data.frame(seq.Date(min_date , as_date('3000-01-01') , by = 'month'))
   names(date_list) <- c('month_start')
 
-  for (i in 1:nrow(need_split)) {
+  for (i in 1:300){#nrow(need_split)) {
     
     # i <- 20
     print(i)
@@ -265,22 +265,22 @@ if(nrow(need_split) > 0) {
     
     split_data <- bind_rows(split_data , split_process) 
     
-    # æ‹†è§£æœˆä»½çš„å…ˆå†™å…¥excelæ ¸å¯¹
-    # æµ‹è¯•äº†300è¡Œæ•°æ®æ— é—®é¢˜
-    # cs <- write.xlsx(split_data , glue('..\\data\\mid\\eve\\{Sys.Date()}æ‹†è§£æœˆä»½æ•°æ®.xlsx'))
+    # ²ğ½âÔÂ·İµÄÏÈĞ´ÈëexcelºË¶Ô
+    # ²âÊÔÁË300ĞĞÊı¾İÎŞÎÊÌâ
+    # cs <- write.xlsx(split_data , glue('..\\data\\mid\\eve\\{Sys.Date()}²ğ½âÔÂ·İÊı¾İ.xlsx'))
     
     split_data <- split_data %>% 
       select(-c(join_key , cost_month_start , month_start , month_end , month_diffday , 
                 accrued_amount_fixing , cumsum_accrued , accrued_amount_f , real_amount_fixing ,
                 real_amount_f , adjust_amount_fixing , cumsum_adjust , adjust_amount_f , 
                 adjust_amount_ff , match_amount_fixing , cumsum_match , match_amount_f , match_amount_ff)) %>% 
-      mutate(note_real = if_else(round(real_amount_history , 2) > round(accrued_amount_history , 2) , 'å®æ”¶>åº”æ”¶' , '') ,
-             note_adjust = case_when(round(adjust_amount_history , 2) > round(accrued_amount_history , 2) ~ 'å‡å…>åº”æ”¶' , 
-                                     round(accrued_amount_history - real_amount_history - adjust_amount_history , 2) > 0 ~ 'å®æ”¶+å‡å…>åº”æ”¶' ,
+      mutate(note_real = if_else(round(real_amount_history , 2) > round(accrued_amount_history , 2) , 'ÊµÊÕ>Ó¦ÊÕ' , '') ,
+             note_adjust = case_when(round(adjust_amount_history , 2) > round(accrued_amount_history , 2) ~ '¼õÃâ>Ó¦ÊÕ' , 
+                                     round(accrued_amount_history - real_amount_history - adjust_amount_history , 2) > 0 ~ 'ÊµÊÕ+¼õÃâ>Ó¦ÊÕ' ,
                                      TRUE ~ '') ,
-             note_match = case_when(round(match_amount_history , 2) > round(accrued_amount_history , 2) ~ 'å†²æŠµ>åº”æ”¶' , 
+             note_match = case_when(round(match_amount_history , 2) > round(accrued_amount_history , 2) ~ '³åµÖ>Ó¦ÊÕ' , 
                                     round(accrued_amount_history - real_amount_history - adjust_amount_history - match_amount_history , 2) > 0 ~ 
-                                      'å®æ”¶+å‡å…+å†²æŠµ>åº”æ”¶' ,
+                                      'ÊµÊÕ+¼õÃâ+³åµÖ>Ó¦ÊÕ' ,
                                     TRUE ~ ''))
 
   }
@@ -290,7 +290,7 @@ if(nrow(need_split) > 0) {
 
 print(paste0('fixing across the month end , wait for bind : ' , now()))
 
-# åˆå¹¶ç‰©ä¸šè´¹æ•°æ®
+# ºÏ²¢ÎïÒµ·ÑÊı¾İ
 property_fix <- bind_rows(period_wrong , no_fix , split_data) %>% 
   mutate(cost_month_start = as_date(paste0(substr(cost_startdate , 1 , 7) , '-01')),
          d_t = now()) %>% 
@@ -306,7 +306,8 @@ property_fix <- bind_rows(period_wrong , no_fix , split_data) %>%
          forward_souse_type , note_real , note_adjust , note_match , pk_client , 
          client_name , cost_startdate_history , cost_enddate_history , 
          accrued_amount_history ,real_amount_history , adjust_amount_history , 
-         match_amount_history , owe_amount_history , d_t)
+         match_amount_history , owe_amount_history , d_t) %>% 
+  head(3000)
 
 
 # cs <- eve_property_fix %>%
@@ -318,14 +319,14 @@ property_fix <- bind_rows(period_wrong , no_fix , split_data) %>%
 print(paste0('fix property done , wait for ETL: ' , now()))
 gc()
 
-# # # # # # # # # # # # # # # å†™å…¥sql server # # # # # # # # # # # # # # #
+# # # # # # # # # # # # # # # Ğ´Èësql server # # # # # # # # # # # # # # #
 
-# ä½¿ç”¨sqlSaveå‡½æ•°å†™å…¥æ—¶ï¼Œéœ€æ³¨æ„åœ¨sql serverä¸­å»ºå¥½çš„è¡¨çš„å­—æ®µç±»å‹ï¼Œä¸€å®šè¦é€‚ç”¨æ•°æ®ï¼Œå¦åˆ™æŠ¥é”™
-# ä½¿ç”¨sqlSaveå‡½æ•°æ—¶ï¼Œä¸€å®šè¦ä¿è¯æ•°æ®åº“ä¸­åˆ—åŒæ­¤è¡¨è¾“å‡ºåˆ—å­—æ®µä¸€è‡´ã€é¡ºåºä¸€è‡´ã€ç±»å‹åŒ¹é…ã€å­—æ®µé•¿åº¦æ»¡è¶³è¦æ±‚ï¼Œå¦åˆ™æŠ¥é”™
-# æ­¤å¤„è®¾å®šappend=TRUEï¼Œè‹¥ä¸ºfalseï¼Œæ­¤å‡½æ•°ä¼šè‡ªè¡Œåœ¨æ•°æ®åº“å»ºè¡¨ï¼Œç±»å‹ä¿®æ”¹éº»çƒ¦ï¼Œä¸”è‹¥åº“ä¸­å·²æœ‰åŒåè¡¨ä¼šæŠ¥é”™ï¼Œå› æ­¤å»ºè®®è®¾å®šappend=TRUE
-# è‹¥ä¸ºå…¨é‡ï¼Œå…ˆæ‰§è¡Œæ¸…ç©ºè¡¨çš„æ“ä½œï¼Œå†æ‰§è¡Œå…¥åº“
+# Ê¹ÓÃsqlSaveº¯ÊıĞ´ÈëÊ±£¬Ğè×¢ÒâÔÚsql serverÖĞ½¨ºÃµÄ±íµÄ×Ö¶ÎÀàĞÍ£¬Ò»¶¨ÒªÊÊÓÃÊı¾İ£¬·ñÔò±¨´í
+# Ê¹ÓÃsqlSaveº¯ÊıÊ±£¬Ò»¶¨Òª±£Ö¤Êı¾İ¿âÖĞÁĞÍ¬´Ë±íÊä³öÁĞ×Ö¶ÎÒ»ÖÂ¡¢Ë³ĞòÒ»ÖÂ¡¢ÀàĞÍÆ¥Åä¡¢×Ö¶Î³¤¶ÈÂú×ãÒªÇó£¬·ñÔò±¨´í
+# ´Ë´¦Éè¶¨append=TRUE£¬ÈôÎªfalse£¬´Ëº¯Êı»á×ÔĞĞÔÚÊı¾İ¿â½¨±í£¬ÀàĞÍĞŞ¸ÄÂé·³£¬ÇÒÈô¿âÖĞÒÑÓĞÍ¬Ãû±í»á±¨´í£¬Òò´Ë½¨ÒéÉè¶¨append=TRUE
+# ÈôÎªÈ«Á¿£¬ÏÈÖ´ĞĞÇå¿Õ±íµÄ²Ù×÷£¬ÔÙÖ´ĞĞÈë¿â
 
-# ç‰©ä¸šè´¹å…¥åº“
+# ÎïÒµ·ÑÈë¿â
 sqlClear(con_sql, 'mid_eve_finance_fee_property')
 sqlSave(con_sql , property_fix , tablename = "mid_eve_finance_fee_property" ,
         append = TRUE , rownames = FALSE , fast = FALSE)
@@ -333,8 +334,8 @@ sqlSave(con_sql , property_fix , tablename = "mid_eve_finance_fee_property" ,
 print(paste0('ETL property data success: ' , now()))
 
 
-# # ---------- è½¦ä½è´¹æ˜ç»†è¡¨
-# eve_parking <- chargebills %>%   #åº”æ”¶
+# # ---------- ³µÎ»·ÑÃ÷Ï¸±í
+# eve_parking <- chargebills %>%   #Ó¦ÊÕ
 #   mutate(COST_STARTDATE = as_date(COST_STARTDATE) ,
 #          COST_ENDDATE = as_date(COST_ENDDATE)) %>%
 #   filter(DR == 0 , #COST_ENDDATE >= COST_STARTDATE ,
@@ -343,7 +344,7 @@ print(paste0('ETL property data success: ' , now()))
 #   left_join(basic_info , by = c('PK_HOUSE' = 'pk_house')) %>%
 #   left_join(belong , by = c('project_name' = 'PORJECT6')) %>%
 #   select(-DR) %>%
-#   left_join(gathering %>%   #å®æ”¶
+#   left_join(gathering %>%   #ÊµÊÕ
 #               rename(bill_time = BILL_DATE) %>%
 #               mutate(bill_date = as_date(bill_time) ,
 #                      bill_time = as_datetime(bill_time)) %>%
@@ -354,22 +355,22 @@ print(paste0('ETL property data success: ' , now()))
 #                            select(-DR) %>%
 #                            rename(gather_souse_type = SOUSE_TYPE) , by = 'PK_GATHERING') , by = c('PK_CHARGEBILLS' = 'SOURCE')) %>%
 #   left_join(gathering_type , by = c('PK_GATHERING_TYPE' = 'PK_GATHERINGTYPE')) %>%
-#   left_join(receive %>%   #å‡å…
+#   left_join(receive %>%   #¼õÃâ
 #               rename(enabledtime = ENABLEDDATE) %>%
 #               mutate(enableddate = as_date(enabledtime) ,
 #                      enabledtime = as_datetime(enabledtime) ,
 #                      ENABLED_STATE = trimws(ENABLED_STATE)) %>%
-#               filter(DR == 0 , ENABLED_STATE == 'å·²å¯ç”¨' , ADJUST_TYPE == 'å®æ”¶' , enableddate <= year_end) %>%
+#               filter(DR == 0 , ENABLED_STATE == 'ÒÑÆôÓÃ' , ADJUST_TYPE == 'ÊµÊÕ' , enableddate <= year_end) %>%
 #               select(-DR) %>%
 #               left_join(receive_d %>%
 #                           filter(DR == 0) %>%
 #                           select(-DR) , by = c('PK_RECEIVABLE')) , by = c('PK_CHARGEBILLS')) %>%
-#   left_join(matchforward %>%   #å†²æŠµ
+#   left_join(matchforward %>%   #³åµÖ
 #               filter(DR == 0) %>%
 #               select(-DR) %>%
 #               rename(PK_GATHERING_D = PK_GAHTERING_D) %>%
 #               inner_join(gathering_d %>%
-#                            filter(DR == 0 , SOUSE_TYPE == 'é¢„æ”¶') %>%
+#                            filter(DR == 0 , SOUSE_TYPE == 'Ô¤ÊÕ') %>%
 #                            select(PK_GATHERING_D , SOUSE_TYPE) , by = 'PK_GATHERING_D') %>%
 #               rename(pk_forward_d = PK_GATHERING_D),
 #             by = c('PK_CHARGEBILLS' = 'PK_RECERIVE')) %>%
@@ -398,19 +399,19 @@ print(paste0('ETL property data success: ' , now()))
 # print(paste0('fix parking done , wait for ETL: ' , now()))
 # gc()
 # 
-# # è½¦ä½è´¹åº”æ”¶ç»“æŸåœ¨åº”æ”¶å¼€å§‹ä¹‹å‰
+# # ³µÎ»·ÑÓ¦ÊÕ½áÊøÔÚÓ¦ÊÕ¿ªÊ¼Ö®Ç°
 # cs <- eve_parking_fix %>% 
 #   filter(cost_enddate < cost_startdate)
 # 
-# write.xlsx(cs , '..\\data\\mid\\eve\\è½¦ä½è´¹åº”æ”¶ç»“æŸåœ¨å¼€å§‹ä¹‹å‰.xlsx')
+# write.xlsx(cs , '..\\data\\mid\\eve\\³µÎ»·ÑÓ¦ÊÕ½áÊøÔÚ¿ªÊ¼Ö®Ç°.xlsx')
 # 
-# # è½¦ä½è´¹åº”æ”¶<=0
+# # ³µÎ»·ÑÓ¦ÊÕ<=0
 # cs2 <- eve_parking_fix %>% 
 #   filter(accrued_amount <= 0)
 # 
-# write.xlsx(cs2 , '..\\data\\mid\\eve\\è½¦ä½è´¹åº”æ”¶å°äº0.xlsx')
+# write.xlsx(cs2 , '..\\data\\mid\\eve\\³µÎ»·ÑÓ¦ÊÕĞ¡ÓÚ0.xlsx')
 # 
-# # è½¦ä½è´¹ä¸€ä¸ªpk_chargebillså¤šæ¡è®°å½•
+# # ³µÎ»·ÑÒ»¸öpk_chargebills¶àÌõ¼ÇÂ¼
 # cs3 <- eve_parking_fix %>% 
 #   group_by(pk_chargebills) %>% 
 #   summarise(cnt = n()) %>% 
@@ -418,7 +419,7 @@ print(paste0('ETL property data success: ' , now()))
 #   left_join(eve_parking_fix , by = 'pk_chargebills') %>% 
 #   arrange(pk_chargebills)
 # 
-# write.xlsx(cs3 , '..\\data\\mid\\eve\\è½¦ä½è´¹ä¸€ä¸ªpk_chargebillså¤šè¡Œè®°å½•.xlsx')
+# write.xlsx(cs3 , '..\\data\\mid\\eve\\³µÎ»·ÑÒ»¸öpk_chargebills¶àĞĞ¼ÇÂ¼.xlsx')
 # 
 # cs4 <- eve_parking_fix %>% 
 #   group_by(pk_house) %>% 
@@ -429,21 +430,21 @@ print(paste0('ETL property data success: ' , now()))
 # cs44 <- cs4 %>% 
 #   filter(next_coststart <= cost_enddate)
 # 
-# # # # # # # # # # # # # # # # å†™å…¥sql server # # # # # # # # # # # # # # #
+# # # # # # # # # # # # # # # # Ğ´Èësql server # # # # # # # # # # # # # # #
 # 
-# # ä½¿ç”¨sqlSaveå‡½æ•°å†™å…¥æ—¶ï¼Œéœ€æ³¨æ„åœ¨sql serverä¸­å»ºå¥½çš„è¡¨çš„å­—æ®µç±»å‹ï¼Œä¸€å®šè¦é€‚ç”¨æ•°æ®ï¼Œå¦åˆ™æŠ¥é”™
-# # ä½¿ç”¨sqlSaveå‡½æ•°æ—¶ï¼Œä¸€å®šè¦ä¿è¯æ•°æ®åº“ä¸­åˆ—åŒæ­¤è¡¨è¾“å‡ºåˆ—å­—æ®µä¸€è‡´ã€é¡ºåºä¸€è‡´ã€ç±»å‹åŒ¹é…ã€å­—æ®µé•¿åº¦æ»¡è¶³è¦æ±‚ï¼Œå¦åˆ™æŠ¥é”™
-# # æ­¤å¤„è®¾å®šappend=TRUEï¼Œè‹¥ä¸ºfalseï¼Œæ­¤å‡½æ•°ä¼šè‡ªè¡Œåœ¨æ•°æ®åº“å»ºè¡¨ï¼Œç±»å‹ä¿®æ”¹éº»çƒ¦ï¼Œä¸”è‹¥åº“ä¸­å·²æœ‰åŒåè¡¨ä¼šæŠ¥é”™ï¼Œå› æ­¤å»ºè®®è®¾å®šappend=TRUE
-# # è‹¥ä¸ºå…¨é‡ï¼Œå…ˆæ‰§è¡Œæ¸…ç©ºè¡¨çš„æ“ä½œï¼Œå†æ‰§è¡Œå…¥åº“
+# # Ê¹ÓÃsqlSaveº¯ÊıĞ´ÈëÊ±£¬Ğè×¢ÒâÔÚsql serverÖĞ½¨ºÃµÄ±íµÄ×Ö¶ÎÀàĞÍ£¬Ò»¶¨ÒªÊÊÓÃÊı¾İ£¬·ñÔò±¨´í
+# # Ê¹ÓÃsqlSaveº¯ÊıÊ±£¬Ò»¶¨Òª±£Ö¤Êı¾İ¿âÖĞÁĞÍ¬´Ë±íÊä³öÁĞ×Ö¶ÎÒ»ÖÂ¡¢Ë³ĞòÒ»ÖÂ¡¢ÀàĞÍÆ¥Åä¡¢×Ö¶Î³¤¶ÈÂú×ãÒªÇó£¬·ñÔò±¨´í
+# # ´Ë´¦Éè¶¨append=TRUE£¬ÈôÎªfalse£¬´Ëº¯Êı»á×ÔĞĞÔÚÊı¾İ¿â½¨±í£¬ÀàĞÍĞŞ¸ÄÂé·³£¬ÇÒÈô¿âÖĞÒÑÓĞÍ¬Ãû±í»á±¨´í£¬Òò´Ë½¨ÒéÉè¶¨append=TRUE
+# # ÈôÎªÈ«Á¿£¬ÏÈÖ´ĞĞÇå¿Õ±íµÄ²Ù×÷£¬ÔÙÖ´ĞĞÈë¿â
 # 
-# # ç‰©ä¸šè´¹å…¥åº“
+# # ÎïÒµ·ÑÈë¿â
 # sqlClear(con_sql, 'mid_eve_finance_fee_property')
 # sqlSave(con_sql , eve_property_fix , tablename = "mid_eve_finance_fee_property" ,
 #         append = TRUE , rownames = FALSE , fast = FALSE)
 # 
 # print(paste0('ETL property data success , start ETL parking data: ' , now()))
 # 
-# # è½¦ä½è´¹å…¥åº“
+# # ³µÎ»·ÑÈë¿â
 # sqlClear(con_sql, 'mid_eve_finance_fee_parking')
 # sqlSave(con_sql , eve_parking_fix , tablename = "mid_eve_finance_fee_parking" ,
 #         append = TRUE , rownames = FALSE , fast = FALSE)
@@ -451,25 +452,25 @@ print(paste0('ETL property data success: ' , now()))
 # print(paste0('ETL parking data success: ' , now()))
 # 
 # 
-# # # # # # # # # # # # # # # # æ¸…å†…å­˜ # # # # # # # # # # # # # # #
-# # æ¸…é™¤å·¥ä½œåŒºå†…å®¹
+# # # # # # # # # # # # # # # # ÇåÄÚ´æ # # # # # # # # # # # # # # #
+# # Çå³ı¹¤×÷ÇøÄÚÈİ
 # rm(list = ls())
 # 
 # 
-# # æ¸…å†…å­˜
+# # ÇåÄÚ´æ
 # gc()
 # 
 # 
 # 
-# # åº”æ”¶ç»“æŸåœ¨å¼€å§‹ä¹‹å‰ï¼ˆåº”æ”¶å‘¨æœŸç”Ÿæˆé”™è¯¯ï¼‰
+# # Ó¦ÊÕ½áÊøÔÚ¿ªÊ¼Ö®Ç°£¨Ó¦ÊÕÖÜÆÚÉú³É´íÎó£©
 # wrong_1 <- eve_property %>%
 #   filter(cost_startdate > cost_enddate)
 # 
-# write.xlsx(wrong_1 , '..\\data\\mid\\eve\\ç‰©ä¸šè´¹åº”æ”¶ç»“æŸåœ¨å¼€å§‹ä¹‹å‰æ•°æ®.xlsx')
+# write.xlsx(wrong_1 , '..\\data\\mid\\eve\\ÎïÒµ·ÑÓ¦ÊÕ½áÊøÔÚ¿ªÊ¼Ö®Ç°Êı¾İ.xlsx')
 # 
-# # åº”æ”¶é¢ä¸º0ï¼ˆå¾…ç¡®è®¤æ˜¯å¦é‡‘é¢ç”Ÿæˆï¼‰
+# # Ó¦ÊÕ¶îÎª0£¨´ıÈ·ÈÏÊÇ·ñ½ğ¶îÉú³É£©
 # wrong_2 <- eve_property %>%
 #   filter(accrued_amount <= 0)
 # 
-# write.xlsx(wrong_2 , '..\\data\\mid\\eve\\ç‰©ä¸šè´¹åº”æ”¶å°äº0.xlsx')
+# write.xlsx(wrong_2 , '..\\data\\mid\\eve\\ÎïÒµ·ÑÓ¦ÊÕĞ¡ÓÚ0.xlsx')
 # 
