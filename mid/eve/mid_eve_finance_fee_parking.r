@@ -4,7 +4,8 @@ author <- c('huruiyi')
 
 # 当前脚本中，共输出两个表: 物业费、车位费
 # 命名规则: 表应归属库_表类型_归属部门_业务大类_表详细归类
-table <- 'mid_eve_finance_fee_property'      # 修正版本的物业费事件表
+table_1 <- 'mid_eve_finance_fee_property'      # 修正版本的物业费事件表
+table_2 <- 'mid_eve_finance_fee_parking'      # 车位费事件表
 
 # 本年末
 year_end <- as_date(paste0(year(day) , '-12-31'))
@@ -21,10 +22,15 @@ property_code <- dbGetQuery(con_orc , glue("select distinct pk_projectid , proje
                                             from wy_bd_fmproject 
                                             where projectcode in ('001','002','003','004')"))
 
-# 物业费预算暂不在此提取
+# 物业费、车位费预算暂不在此提取
 # # ---------- 物业费预算表(到项目)
 # property_budget <- dbGetQuery(con_orc , glue("select wy_project , wy_month , wy_budget
 #                                               from middle_table2"))
+
+# ---------- 车位费code
+parking_code <- dbGetQuery(con_orc , glue("select distinct pk_projectid , projectcode , projectname
+                                           from wy_bd_fmproject
+                                           where projectcode in ('006','007','008','009','72','linting')"))
 
 # ---------- 项目基础数据
 basic_info <- sqlQuery(con_sql , "select pk_house , house_code , house_name , pk_floor , 
@@ -211,7 +217,7 @@ if(nrow(need_split) > 0) {
   min_date <- as_date(paste0(substr(min(need_split$cost_startdate) , 1 , 7) , '-01'))
   date_list <- as.data.frame(seq.Date(min_date , as_date('3000-01-01') , by = 'month'))
   names(date_list) <- c('month_start')
-
+  
   for (i in 1:nrow(need_split)) {
     
     # i <- 20
@@ -284,7 +290,7 @@ if(nrow(need_split) > 0) {
                                     round(accrued_amount_history - real_amount_history - adjust_amount_history - match_amount_history , 2) < 0 ~ 
                                       '实收+减免+冲抵>应收' ,
                                     TRUE ~ NA_character_))
-
+    
   }
 } else {
   split_data <- need_split
@@ -435,8 +441,8 @@ print(paste0('ETL property data success: ' , now()))
 # 
 # # ʹ??sqlSave????д??ʱ????ע????sql server?н??õı????ֶ????ͣ?һ??Ҫ???????ݣ????򱨴?
 # # ʹ??sqlSave????ʱ??һ??Ҫ??֤???ݿ?????ͬ?˱????????ֶ?һ?¡?˳??һ?¡?????ƥ?䡢?ֶγ???????Ҫ?󣬷??򱨴?
-# # ?˴??趨append=TRUE????Ϊfalse???˺??????????????ݿ⽨?���?????޸??鷳??????????????ͬ?????ᱨ?���???˽????趨append=TRUE
-# # ??Ϊȫ��????ִ?????ձ??Ĳ???????ִ??????
+# # ?˴??趨append=TRUE????Ϊfalse???˺??????????????ݿ⽨?���?????޸??鷳??????????????ͬ?????ᱨ?���???˽????趨append=TRUE
+# # ??Ϊȫ��????ִ?????ձ??Ĳ???????ִ??????
 # 
 # # ??ҵ??????
 # sqlClear(con_sql, 'mid_eve_finance_fee_property')
