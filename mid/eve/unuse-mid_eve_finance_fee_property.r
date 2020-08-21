@@ -2,7 +2,6 @@ source('C:/Users/Administrator/data/env.r' , encoding = 'utf8')
 
 author <- c('huruiyi')
 
-# 当前脚本中，共输出两个表: 物业费、车位费
 # 命名规则: 表应归属库_表类型_归属部门_业务大类_表详细归类
 table <- 'mid_eve_finance_fee_property'      # 修正版本的物业费事件表
 
@@ -12,9 +11,10 @@ year_end <- as_date(paste0(year(day) , '-12-31'))
 
 # # # # # # # # # # # # # # # 准备基础数据 # # # # # # # # # # # # # # # 
 # ---------- 收费项目子表(根据此表计算收费户数，应收可能会有遗漏)
-fmunitproject <- dbGetQuery(con_orc , glue("select pk_unitprojectid , pk_project , 
-                                            pk_house , pk_projectid , unitprice , dr
-                                            from wy_bd_fmunitproject"))
+# 同乐软确认，从chargebills计算应收即可。此表确实部分房间数据
+# fmunitproject <- dbGetQuery(con_orc , glue("select pk_unitprojectid , pk_project , 
+#                                             pk_house , pk_projectid , unitprice , dr
+#                                             from wy_bd_fmunitproject"))
 
 # ---------- 物业费code
 property_code <- dbGetQuery(con_orc , glue("select distinct pk_projectid , projectcode , projectname
@@ -111,24 +111,18 @@ print(paste0('get data done , wait for processing: ' , now()))
 
 
 # # # # # # # # # # # # # # # 基础数据合并 # # # # # # # # # # # # # # # 
-# ---------- 物业应收户数
-property_charge <- fmunitproject %>% 
-  filter(DR == 0) %>% 
-  inner_join(property_code) %>% 
-  inner_join(basic_info , by = c('PK_HOUSE' = 'pk_house')) %>% 
-  distinct(PK_HOUSE , house_code)
 
 # ---------- 物业费明细
-eve_property <- property_charge %>% 
-  full_join(chargebills %>% 
-              mutate(COST_STARTDATE = as_date(COST_STARTDATE) ,
-                     COST_ENDDATE = as_date(COST_ENDDATE) ,
-                     ACCRUED_DATE = as_date(ACCRUED_DATE)) %>%
-              filter(DR == 0 , ACCRUED_AMOUNT != 0 ,#COST_ENDDATE >= COST_STARTDATE ,
-                     (COST_STARTDATE <= year_end | COST_ENDDATE <= year_end))) %>%
+eve_property <- chargebills %>% 
+  mutate(COST_STARTDATE = as_date(COST_STARTDATE) ,
+         COST_ENDDATE = as_date(COST_ENDDATE) ,
+         ACCRUED_DATE = as_date(ACCRUED_DATE)) %>%
+  filter(DR == 0 , ACCRUED_AMOUNT != 0 ,#COST_ENDDATE >= COST_STARTDATE ,
+         (COST_STARTDATE <= year_end | COST_ENDDATE <= year_end)) %>%
   inner_join(property_code , by = 'PK_PROJECTID') %>%
-  left_join(basic_info %>% select(-house_code) , by = c('PK_HOUSE' = 'pk_house')) %>%
+  left_join(basic_info , by = c('PK_HOUSE' = 'pk_house')) %>%
   left_join(belong , by = c('project_name' = 'PORJECT6')) %>%
+  replace_na(list(project_name = '')) %>% 
   filter(project_name != '??????Ŀ') %>% #测试项目
   select(-DR) %>%
   left_join(gathering %>%  
@@ -162,7 +156,6 @@ eve_property <- property_charge %>%
                            select(PK_GATHERING_D , SOUSE_TYPE) , by = 'PK_GATHERING_D') %>%
               rename(pk_forward_d = PK_GATHERING_D),
             by = c('PK_CHARGEBILLS' = 'PK_RECERIVE')) %>%
-  filter(project_name != '??????Ŀ') %>% #测试项目
   rename(gatheringtype_code = CODE ,
          forward_souse_type = SOUSE_TYPE) %>% 
   replace_na(list(ACCRUED_AMOUNT = as.numeric(0) , REAL_AMOUNT = as.numeric(0) ,
@@ -177,10 +170,25 @@ print(paste0('processing property done , wait for fix: ' , now()))
 # 列名大写替换为小写(R对大小写敏感，因此统一替换为小写)
 names(eve_property) <- tolower(names(eve_property))
 
+# css <- chargebills %>% 
+#   mutate(COST_STARTDATE = as_date(COST_STARTDATE) ,
+#          COST_ENDDATE = as_date(COST_ENDDATE) ,
+#          ACCRUED_DATE = as_date(ACCRUED_DATE)) %>%
+#   filter(DR == 0 , ACCRUED_AMOUNT != 0 ,#COST_ENDDATE >= COST_STARTDATE ,
+#          (COST_STARTDATE <= year_end | COST_ENDDATE <= year_end)) %>%
+#   inner_join(property_code , by = 'PK_PROJECTID') %>%
+#   left_join(basic_info %>% select(-house_code) , by = c('PK_HOUSE' = 'pk_house')) %>%
+#   left_join(belong , by = c('project_name' = 'PORJECT6')) %>%
+#   replace_na(list(project_name = '')) %>% 
+#   filter(project_name != '测试项目') %>% #测试项目
+#   select(-DR)
 
-# ----- 判断是否进行拆月
-# --- 不拆
-# 周期错误的数据，此部分先不拆，待乐软fix
+
+
+
+# ---------- 判断是否进行拆月
+# ----- 不拆
+# 周期错误的数据，待乐软fix
 period_wrong <- eve_property %>%
   filter(cost_startdate > cost_enddate)
 # cs <- write.xlsx(period_wrong , '..\\data\\mid\\eve\\周期错误.xlsx')
@@ -194,14 +202,9 @@ no_fix <- eve_property %>%
 #   filter(accrued_amount <= 0)
 # cs <- write.xlsx(charge_wrong , '..\\data\\mid\\eve\\应收小于等于0.xlsx')
 
-# --- 拆(跨月数据拆为一月一行)
+# ----- 拆(跨月数据,拆为一月一行)
 need_split <- eve_property %>% 
   filter(cost_startdate <= cost_enddate , diff_month > 1) 
-
-# cs <- write.xlsx(need_split , '..\\data\\mid\\eve\\split.xlsx')
-# cs <- need_split %>% 
-#   group_by(cost_startdate , cost_enddate) %>% 
-#   summarise(cnt = n())
 
 print(paste0('fixing across the month start: ' , now()))
 
@@ -315,9 +318,106 @@ property_fix <- bind_rows(period_wrong , no_fix , split_data) %>%
          accrued_amount_history ,real_amount_history , adjust_amount_history , 
          match_amount_history , owe_amount_history , d_t) 
 
-# print(paste0('fix property done , processing parking data: ' , now()))
 print(paste0('fix property done , wait for ETL: ' , now()))
 gc()
+
+
+# 检测数据
+# print(now())
+# accrued <- property_fix %>% 
+#   distinct(pk_chargebills , cost_month_start , accrued_amount) %>% 
+#   group_by(pk_chargebills , cost_month_start) %>% 
+#   summarise(accrued_amount = sum(accrued_amount)) %>% 
+#   ungroup()
+# 
+# print(now())
+# real <- property_fix %>% 
+#   distinct(pk_chargebills , cost_month_start , real_amount) %>% 
+#   group_by(pk_chargebills , cost_month_start) %>% 
+#   summarise(real_amount = sum(real_amount)) %>% 
+#   ungroup()
+# 
+# print(now())
+# adjust <- property_fix %>% 
+#   distinct(pk_chargebills , cost_month_start , adjust_amount) %>% 
+#   group_by(pk_chargebills , cost_month_start) %>% 
+#   summarise(adjust_amount = sum(adjust_amount)) %>% 
+#   ungroup()
+# 
+# print(now())
+# match <- property_fix %>% 
+#   distinct(pk_chargebills , cost_month_start , match_amount) %>% 
+#   group_by(pk_chargebills , cost_month_start) %>% 
+#   summarise(match_amount = sum(match_amount)) %>% 
+#   ungroup()
+#   
+# print(now())
+# 
+# data_check <- property_fix %>% 
+#   distinct(project_name , pk_house , pk_chargebills , wy_cycle) %>% 
+#   left_join(accrued) %>% 
+#   left_join(real) %>% 
+#   left_join(adjust) %>% 
+#   left_join(match)
+
+
+
+
+
+print(now()) 
+# 20年应收为1-7月，收费日期截止7.31数据
+data_check_1t7 <- property_fix %>% 
+  filter(cost_month_start >= '2020-01-01' , cost_month_start <= '2020-07-31') 
+
+print(now()) 
+data_check_1t7_detail <- data_check_1t7 %>% 
+  distinct(pk_house , pk_chargebills , accrued_amount) %>% 
+  group_by(pk_house) %>% 
+  summarise(accrued = sum(accrued_amount)) %>% 
+  left_join(data_check_1t7 %>% 
+              distinct(pk_house , pk_chargebills , real_amount , bill_date) %>% 
+              group_by(pk_house) %>% 
+              summarise(real = sum(real_amount[bill_date <= '2020-07-31']))) %>% 
+  left_join(data_check_1t7 %>% 
+              distinct(pk_house , pk_chargebills , adjust_amount , enableddate) %>% 
+              group_by(pk_house) %>% 
+              summarise(adjust = sum(adjust_amount[enableddate <= '2020-07-31']))) %>% 
+  left_join(data_check_1t7 %>% 
+              distinct(pk_house , pk_chargebills , match_amount , accrued_date) %>% 
+              group_by(pk_house) %>% 
+              summarise(match = sum(match_amount[accrued_date <= '2020-07-31']))) %>% 
+  left_join(data_check_1t7 %>% 
+              distinct(project_name , pk_house , wy_cycle)) %>% 
+  replace_na(list(accrued = 0 , real = 0 , adjust = 0 , match = 0)) %>% 
+  left_join(basic_info %>% select(pk_house , house_code)) %>% 
+  mutate(owe = round(accrued - real - adjust - match , 2)) %>% 
+  ungroup()
+
+print(now()) 
+
+data_check_1t7_stat <- data_check_1t7_detail %>% 
+  group_by(project_name , wy_cycle) %>% 
+  summarise(house_cnt = n_distinct(pk_house) ,
+            done_cnt = n_distinct(pk_house[owe <= 0]) , 
+            accrued = sum(accrued) ,
+            real = sum(real) ,
+            adjust = sum(adjust) ,
+            match = sum(match) , 
+            owe = sum(owe)) %>%
+  ungroup() %>% 
+  mutate(wy_cycle = case_when(wy_cycle == 1 ~ '半年' ,
+                              wy_cycle == 0 ~ '季度' ,
+                              TRUE ~ '未知'))
+print(now()) 
+
+cs <- write.xlsx(data_check_1t7_stat , glue('..\\data\\mid\\eve\\数据核对1-7.xlsx'))  
+
+cs <- data_check_1t7_detail %>% 
+  filter(project_name %in% c('天津汤泉世家' , '焦作鹿港花园' , '夏邑联盟新城' , '濮阳翰林居' , '郑州明天璀丽华庭' , 
+                              '郑州鑫苑鑫城' , '郑州鑫苑名城一期' , '郑州鑫家' , '昆山水岸世家' , '苏州国际城市花园' , 
+                              '滨海华芳颐景花园' , '济南鑫中心'))
+cs <- write.xlsx(cs , glue('..\\data\\mid\\eve\\dd.xlsx'))  
+  
 
 
 # # # # # # # # # # # # # # # 写入sql server # # # # # # # # # # # # # # #
