@@ -233,7 +233,7 @@ data_check_detail <- accrued %>%
   left_join(adjust) %>%
   left_join(match) %>% 
   left_join(eve_property %>%
-              distinct(project_name , pk_house , pk_chargebills , wy_cycle)) %>% 
+              distinct(project_name , pk_house , house_code , house_name , pk_chargebills , wy_cycle)) %>% 
   replace_na(list(accrued_amount = 0 , proceeds_amount = 0 , real_amount = 0 , 
                   adjust_amount = 0 , match_amount = 0)) %>% 
   mutate(gather = round(real_amount + adjust_amount + match_amount , 2) ,
@@ -242,11 +242,8 @@ data_check_detail <- accrued %>%
 print(now()) 
 
 data_check_stat <- data_check_detail %>% 
-  group_by(project_name , wy_cycle) %>% 
-  summarise(all_cnt = n_distinct(pk_house),
-            done_cnt_chargebills = n_distinct(pk_house[proceeds_amount >= accrued_amount]) ,
-            done_cnt_r = n_distinct(pk_house[owe <= 0]) ,
-            accrued = sum(accrued_amount) ,
+  group_by(project_name , pk_house , house_code , wy_cycle) %>% 
+  summarise(accrued = sum(accrued_amount) ,
             proceeds = sum(proceeds_amount) ,
             real = sum(real_amount) ,
             adjust = sum(adjust_amount) ,
@@ -258,10 +255,27 @@ data_check_stat <- data_check_detail %>%
                               wy_cycle == 0 ~ '季度' ,
                               TRUE ~ '未知'))
 
+cs <- write.xlsx(data_check_stat , glue('..\\data\\mid\\eve\\物业费房间核对1-7.xlsx'))  
 
+
+data_check_stat2 <- data_check_stat %>% 
+  group_by(project_name , wy_cycle) %>% 
+  summarise(all_cnt = n_distinct(pk_house) ,
+            done_cnt_chargebills = n_distinct(pk_house[proceeds >= accrued]) ,
+            done_cnt_r = n_distinct(pk_house[owe <= 0]) ,
+            accrued = sum(accrued) ,
+            proceeds = sum(proceeds) ,
+            real = sum(real) ,
+            adjust = sum(adjust) ,
+            match = sum(match) ,
+            gather = sum(gather) ,
+            owe = sum(owe)) %>% 
+  ungroup()
+
+cs <- write.xlsx(data_check_stat2 , glue('..\\data\\mid\\eve\\物业费数据核对1-7.xlsx'))  
 print(now()) 
 
-cs <- write.xlsx(data_check_stat , glue('..\\data\\mid\\eve\\数据核对1-7.xlsx'))  
+
 
 
 
@@ -273,10 +287,10 @@ cs <- write.xlsx(data_check_stat , glue('..\\data\\mid\\eve\\数据核对1-7.xls
 # 若为全量，先执行清空表的操作，再执行入库
 
 # 物业费入库
-sqlClear(con_sql, 'mid_eve_finance_fee_property')
-sqlSave(con_sql , property_fix , tablename = "mid_eve_finance_fee_property" ,
-        append = TRUE , rownames = FALSE , fast = FALSE)
-
-print(paste0('ETL property data success: ' , now()))
+# sqlClear(con_sql, 'mid_eve_finance_fee_property')
+# sqlSave(con_sql , property_fix , tablename = "mid_eve_finance_fee_property" ,
+#         append = TRUE , rownames = FALSE , fast = FALSE)
+# 
+# print(paste0('ETL property data success: ' , now()))
 
 
