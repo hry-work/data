@@ -82,7 +82,7 @@ gc()
 print(paste0('receive start: ' , now()))
 
 # ---------- 减免明细表
-receive <- dbGetQuery(con_orc , glue("select pk_receivable , enableddate , enabled_state , adjust_type , dr
+relief <- dbGetQuery(con_orc , glue("select pk_receivable , enableddate , enabled_state , adjust_type , dr
                                       from wy_bd_receivable"))
 
 print(paste0('receive end: ' , now()))
@@ -91,7 +91,7 @@ gc()
 
 print(paste0('receive_d start: ' , now()))
 
-receive_d <- dbGetQuery(con_orc , glue("select pk_receivable , pk_receivable_d ,
+relief_d <- dbGetQuery(con_orc , glue("select pk_receivable , pk_receivable_d ,
                                         pk_chargebills , adjust_amount , dr
                                         from wy_bd_receivable_d"))
 
@@ -187,6 +187,10 @@ names(eve_property) <- tolower(names(eve_property))
 gc()
 
 
+cs <- eve_property %>% 
+  filter(project_name == '滨海华芳颐景花园') %>% 
+  distinct(pk_house , pk_chargebills)
+
 
 # 检测数据
 # 20年应收为1-7月，收费日期截止7.31数据
@@ -202,10 +206,13 @@ accrued <- eve_property %>%
             proceeds_amount = sum(proceeds_amount[billdate <= check_end])) %>%
   ungroup()
 
+cs2 <- cs %>% 
+  left_join(accrued) 
+
 print(now())
 real <- eve_property %>%
   filter(cost_date_start >= check_start , cost_date_start <= check_end , bill_date <= check_end) %>% 
-  distinct(pk_chargebills , real_amount) %>%
+  distinct(pk_chargebills , pk_gathering_d , real_amount) %>%
   group_by(pk_chargebills) %>%
   summarise(real_amount = sum(real_amount)) %>%
   ungroup()
@@ -213,7 +220,7 @@ real <- eve_property %>%
 print(now())
 adjust <- eve_property %>%
   filter(cost_date_start >= check_start , cost_date_start <= check_end , enableddate <= check_end) %>% 
-  distinct(pk_chargebills , adjust_amount) %>%
+  distinct(pk_chargebills , pk_receivable_d , adjust_amount) %>%
   group_by(pk_chargebills) %>%
   summarise(adjust_amount = sum(adjust_amount)) %>%
   ungroup()
@@ -221,7 +228,7 @@ adjust <- eve_property %>%
 print(now())
 match <- eve_property %>%
   filter(cost_date_start >= check_start , cost_date_start <= check_end , accrued_date <= check_end) %>% 
-  distinct(pk_chargebills , match_amount) %>%
+  distinct(pk_chargebills , pk_forward , match_amount) %>%
   group_by(pk_chargebills) %>%
   summarise(match_amount = sum(match_amount)) %>%
   ungroup()
@@ -253,10 +260,12 @@ data_check_stat <- data_check_detail %>%
          owe = round(accrued - real - adjust - match , 2) ,
          wy_cycle = case_when(wy_cycle == 1 ~ '半年' ,
                               wy_cycle == 0 ~ '季度' ,
-                              TRUE ~ '未知'))
+                              TRUE ~ '未知')) %>% 
+  left_join(basic_info %>% select(pk_house , house_name , build_name , unit_name , floor_name , client_name))
 
 cs <- write.xlsx(data_check_stat , glue('..\\data\\mid\\eve\\物业费房间核对1-7.xlsx'))  
 
+# cs <- write.xlsx(basic_info , glue('..\\data\\mid\\eve\\基础信息.xlsx'))  
 
 data_check_stat2 <- data_check_stat %>% 
   group_by(project_name , wy_cycle) %>% 
