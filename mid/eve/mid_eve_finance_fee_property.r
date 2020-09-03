@@ -187,9 +187,40 @@ names(eve_property) <- tolower(names(eve_property))
 gc()
 
 
-cs <- eve_property %>% 
-  filter(project_name == '滨海华芳颐景花园') %>% 
-  distinct(pk_house , pk_chargebills)
+# 检测数据
+# # 应收<=0
+# accrued0 <- chargebills %>% 
+#   filter(DR == 0 , ACCRUED_AMOUNT <= 0) %>% 
+#   inner_join(property_code) %>% 
+#   left_join(basic_info , by = c('PK_HOUSE' = 'pk_house')) %>% 
+#   filter(project_name != '测试项目')
+# 
+# # 应收周期错误
+# chargebills_period_wrong <- chargebills %>% 
+#   inner_join(property_code) %>% 
+#   filter(DR == 0 , COST_STARTDATE > COST_ENDDATE) 
+# 
+# # 濮阳翰林居  cost_startdate 和 cost_enddate错误
+# hlj <- chargebills %>% 
+#   filter(DR == 0) %>% 
+#   inner_join(property_code) %>% 
+#   left_join(basic_info , by = c('PK_HOUSE' = 'pk_house')) %>% 
+#   filter(project_name == '濮阳翰林居') %>% 
+#   mutate(cost_date_start = as_date(paste(substr(COST_DATE , 1 , str_locate(COST_DATE , '年') - 1) , 
+#                                          substr(COST_DATE , str_locate(COST_DATE , '年') + 1 , str_locate(COST_DATE , '月') - 1) ,
+#                                          '01' , sep = '-'))) %>% 
+#   filter(substr(cost_date_start , 1 , 7) != substr(COST_STARTDATE , 1 , 7))
+# 
+# # 鑫城
+# xc <- chargebills %>% 
+#   filter(DR == 0) %>% 
+#   inner_join(property_code) %>% 
+#   left_join(basic_info , by = c('PK_HOUSE' = 'pk_house')) %>% 
+#   filter(project_name == '郑州鑫苑鑫城') %>% 
+#   mutate(cost_date_start = as_date(paste(substr(COST_DATE , 1 , str_locate(COST_DATE , '年') - 1) , 
+#                                          substr(COST_DATE , str_locate(COST_DATE , '年') + 1 , str_locate(COST_DATE , '月') - 1) ,
+#                                          '01' , sep = '-'))) %>% 
+#   filter(substr(cost_date_start , 1 , 7) != substr(COST_STARTDATE , 1 , 7))
 
 
 # 检测数据
