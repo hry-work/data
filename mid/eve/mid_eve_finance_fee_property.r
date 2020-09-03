@@ -32,7 +32,7 @@ property_code <- dbGetQuery(con_orc , glue("select distinct pk_projectid , proje
 basic_info <- sqlQuery(con_sql , "select pk_house , house_code , house_name , pk_floor , 
                                   floor_name , pk_unit , unit_name , pk_build , build_name , 
                                   pk_project , project_name , pk_client , client_name
-                                  from dim_owner_basic_info")
+                                  from mid_dim_owner_basic_info")
 
 # ---------- 项目归属
 belong <- dbGetQuery(con_orc , glue("select porject1 , porject2 , porject3 , porject4 , porject6 , wy_cycle
@@ -138,14 +138,14 @@ eve_property <- chargebills %>%
                            select(-DR) %>%
                            rename(gather_souse_type = SOUSE_TYPE) , by = 'PK_GATHERING') , by = c('PK_CHARGEBILLS' = 'SOURCE')) %>%
   left_join(gathering_type , by = c('PK_GATHERING_TYPE' = 'PK_GATHERINGTYPE')) %>%
-  left_join(receive %>% 
+  left_join(relief %>% 
               rename(enabledtime = ENABLEDDATE) %>%
               mutate(enableddate = as_date(enabledtime) ,
                      enabledtime = as_datetime(enabledtime) ,
                      ENABLED_STATE = trimws(ENABLED_STATE)) %>%
               filter(DR == 0 , ENABLED_STATE == '已启用' , ADJUST_TYPE == '实收') %>%
               select(-DR) %>%
-              left_join(receive_d %>%
+              left_join(relief_d %>%
                           filter(DR == 0 , ADJUST_AMOUNT != 0) %>%
                           select(-DR) , by = c('PK_RECEIVABLE')) , by = c('PK_CHARGEBILLS')) %>%
   left_join(matchforward %>%  
