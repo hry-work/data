@@ -18,10 +18,16 @@ parking_code <- dbGetQuery(con_orc , glue("select distinct pk_projectid , projec
                                            from wy_bd_fmproject
                                            where projectcode in ('006','007','008','009','72','linting')"))
 
+# ---------- 车位归属数据
+parking_belong <- dbGetQuery(con_orc , "select pk_house pk_parking , house_code parking_code , 
+                                        pk_belonghouse , pk_client parking_client , pk_owner
+                                        from res_house
+                                        where building_type = 1 and dr = 0")
+
 # ---------- 项目基础数据
 basic_info <- sqlQuery(con_sql , "select pk_house , house_code , house_name , pk_floor ,
                                   floor_name , pk_unit , unit_name , pk_build , build_name ,
-                                  pk_project , project_name , pk_client , client_name
+                                  pk_project , project_name , pk_client , client_name , building_type 
                                   from mid_dim_owner_basic_info")
 
 # ---------- 项目归属
@@ -42,7 +48,7 @@ print(paste0('chargebills start: ' , now()))
 chargebills <- dbGetQuery(con_orc , glue("select pk_chargebills , pk_house , pk_projectid ,
                                           cost_date , cost_startdate , cost_enddate ,
                                           accrued_date , accrued_amount , proceeds_amount , 
-                                          billdate , memo , pk_unitprojectid , dr
+                                          billdate , dr
                                           from wy_bill_chargebills"))
 
 print(paste0('chargebills end: ' , now()))
@@ -102,10 +108,15 @@ gc()
 
 print(paste0('get data done , wait for processing: ' , now()))
 
+cs <- parking_belong %>% 
+  filter(is.na(PK_BELONGHOUSE) , !is.na(PARKING_CLIENT)) %>% 
+  group_by(PARKING_CLIENT) %>% 
+  summarise(cnt = n())
 
 # # # # # # # # # # # # # # # 基础数据合并 # # # # # # # # # # # # # # # 
 # ---------- 车位费
 eve_parking <- chargebills %>%   #应收
+  inner_join(parking_code , by = 'PK_PROJECTID') %>%
   mutate(COST_STARTDATE = as_date(COST_STARTDATE) ,
          COST_ENDDATE = as_date(COST_ENDDATE) ,
          ACCRUED_DATE = as_date(ACCRUED_DATE) ,
@@ -114,10 +125,20 @@ eve_parking <- chargebills %>%   #应收
                                          substr(COST_DATE , str_locate(COST_DATE , '年') + 1 , str_locate(COST_DATE , '月') - 1) ,
                                          '01' , sep = '-'))) %>%
   filter(DR == 0 , cost_date_start <= year_end , ACCRUED_AMOUNT >= 0) %>%
-  inner_join(parking_code , by = 'PK_PROJECTID') %>%
+  left_join(basic_info %>% distinct(pk_house , pk_client , building_type) , by = c('PK_HOUSE' = 'pk_house')) 
+  
+eve_parking_match <- eve_parking %>% 
+  filter(building_type == 0) %>% 
+  left_join(parking_belong , by = c('PK_HOUSE' = 'PK_BELONGHOUSE')) %>%
+  
+  left_join(parking_belong %>% 
+              filter(is.na(PK_BELONGHOUSE) , !is.na(PARKING_CLIENT)) %>% 
+              distinct(PARKING_CLIENT , PK_PARKING , PARKING_CODE) , by = c('pk_client' = 'PARKING_CLIENT')) %>% 
+  
   left_join(basic_info , by = c('PK_HOUSE' = 'pk_house')) %>%
   left_join(belong , by = c('project_name' = 'PORJECT6')) %>%
   select(-DR) %>%
+  rename() %>% 
   left_join(gathering %>%   #实收
               rename(bill_time = BILL_DATE) %>%
               mutate(bill_date = as_date(bill_time) ,
@@ -156,7 +177,7 @@ print(paste0('processing parking done , wait for fix: ' , now()))
 names(eve_parking) <- tolower(names(eve_parking))
 
 cs <- eve_parking %>% 
-  filter(is.na(memo) | is.na(pk_unitprojectid))
+  filter(is.na(building_type))
 
 
 # 20年应收为1-7月，收费日期截止7.31数据
