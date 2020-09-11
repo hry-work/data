@@ -6,7 +6,7 @@ needer <- c('hesugang')
 
 # ----- 读取话务数据
 # 此处注意windows同mac读取文件路径时，用法不同。mac用/，windows用\\
-# call_data <- read.xlsx('xy-xx/hesugang/话务数据.xlsx' , detectDates = T)
+call_data <- read.xlsx('xy-xx/hesugang/data_report/2020.8/话务数据.xlsx' , detectDates = T)
 call_data <- read.xlsx('..\\data\\xy-xx\\hesugang\\data_report\\2020.8\\话务数据.xlsx' , detectDates = T)
 
 
@@ -41,10 +41,10 @@ call_data_process <- call_data_new %>%
   left_join(call_data_new , by = 'phone') %>% 
   group_by(uncall_id , phone) %>% 
   summarise(call_back_cnt = n_distinct(id[call_start > uncall_start & 
-                                            after_call_5 <= uncall_after_call_5 &
+                                            call_start_day <= uncall_after_call_5 &
                                             type == '呼出'] , na.rm = T) ,
             on_cnt = n_distinct(id[call_start > uncall_start & 
-                                     after_call_5 <= uncall_after_call_5 &
+                                     call_start_day <= uncall_after_call_5 &
                                      call_status == '已接通'] , na.rm = T))
 
 # 关联数据写出
@@ -52,5 +52,5 @@ call_data_fix <- call_data_new %>%
   left_join(call_data_process , by = c('id' = 'uncall_id' , 'phone'))
 
 
-write.xlsx(call_data_fix , 'xy-xx/hesugang/400话务数据.xlsx')
+write.xlsx(call_data_fix , 'xy-xx/hesugang/data_report/2020.8/400话务数据.xlsx')
 
