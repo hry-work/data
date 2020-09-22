@@ -166,10 +166,11 @@ eve_property <- chargebills %>%
                   ADJUST_AMOUNT = as.numeric(0) , MATCH_AMOUNT = as.numeric(0) ,
                   project_name = '')) %>%
   mutate(property_month = round(LINE_OF * PRICE , digit = 2) ,
+         year = year(cost_date_start) ,
          d_t = now()) %>% 
   select(PORJECT1 , PORJECT2 , PORJECT3 , PORJECT4 , pk_project , project_name , 
          pk_build , build_name , pk_unit , unit_name , pk_floor , floor_name , PK_HOUSE , 
-         house_code , house_name , PK_CHARGEBILLS , COST_DATE , cost_date_start , 
+         house_code , house_name , PK_CHARGEBILLS , COST_DATE , cost_date_start , year ,
          COST_STARTDATE , COST_ENDDATE , ACCRUED_DATE , ACCRUED_AMOUNT , 
          REAL_AMOUNT , ADJUST_AMOUNT , MATCH_AMOUNT , WY_CYCLE , PROCEEDS_AMOUNT , 
          BILLDATE , LINE_OF , PRICE , property_month , PK_PROJECTID , PROJECTCODE , 
@@ -225,24 +226,26 @@ gc()
 
 # 检测数据
 # 20年应收为1-7月，收费日期截止7.31数据
-check_start <- as_date('2020-01-01')
-check_end <- as_date('2020-07-31')
+# check_start <- as_date('2020-01-01')
+# check_end <- as_date('2020-07-31')
+
+# 检测2020.8.31之前所有应收，收费日期截止2020.8.31
+check_end <- as_date('2020-08-31')
 
 print(now())
 accrued <- eve_property %>%
-  filter(cost_date_start >= check_start , cost_date_start <= check_end) %>% 
+  filter(#cost_date_start >= check_start , 
+    cost_date_start <= check_end) %>% 
   distinct(pk_chargebills , accrued_amount , proceeds_amount , billdate) %>%
   group_by(pk_chargebills) %>%
   summarise(accrued_amount = sum(accrued_amount) ,
             proceeds_amount = sum(proceeds_amount[billdate <= check_end])) %>%
   ungroup()
 
-cs2 <- cs %>% 
-  left_join(accrued) 
-
 print(now())
 real <- eve_property %>%
-  filter(cost_date_start >= check_start , cost_date_start <= check_end , bill_date <= check_end) %>% 
+  filter(#cost_date_start >= check_start , 
+    cost_date_start <= check_end , bill_date <= check_end) %>% 
   distinct(pk_chargebills , pk_gathering_d , real_amount) %>%
   group_by(pk_chargebills) %>%
   summarise(real_amount = sum(real_amount)) %>%
@@ -250,7 +253,8 @@ real <- eve_property %>%
 
 print(now())
 adjust <- eve_property %>%
-  filter(cost_date_start >= check_start , cost_date_start <= check_end , enableddate <= check_end) %>% 
+  filter(#cost_date_start >= check_start , 
+    cost_date_start <= check_end , enableddate <= check_end) %>% 
   distinct(pk_chargebills , pk_receivable_d , adjust_amount) %>%
   group_by(pk_chargebills) %>%
   summarise(adjust_amount = sum(adjust_amount)) %>%
@@ -258,7 +262,8 @@ adjust <- eve_property %>%
 
 print(now())
 match <- eve_property %>%
-  filter(cost_date_start >= check_start , cost_date_start <= check_end , accrued_date <= check_end) %>% 
+  filter(#cost_date_start >= check_start , 
+    cost_date_start <= check_end , accrued_date <= check_end) %>% 
   distinct(pk_chargebills , pk_forward , match_amount) %>%
   group_by(pk_chargebills) %>%
   summarise(match_amount = sum(match_amount)) %>%
@@ -294,7 +299,10 @@ data_check_stat <- data_check_detail %>%
                               TRUE ~ '未知')) %>% 
   left_join(basic_info %>% select(pk_house , house_name , build_name , unit_name , floor_name , client_name))
 
-cs <- write.xlsx(data_check_stat , glue('..\\data\\mid\\eve\\物业费房间核对1-7.xlsx'))  
+cs <- write.xlsx(data_check_stat , glue('..\\data\\mid\\eve\\物业费房间核对.xlsx'))  
+
+# cs <- data_check_stat %>% 
+#   filter(project_name == '郑州国际新城')
 
 # cs <- write.xlsx(basic_info , glue('..\\data\\mid\\eve\\基础信息.xlsx'))  
 
@@ -312,7 +320,7 @@ data_check_stat2 <- data_check_stat %>%
             owe = sum(owe)) %>% 
   ungroup()
 
-cs <- write.xlsx(data_check_stat2 , glue('..\\data\\mid\\eve\\物业费数据核对1-7.xlsx'))  
+cs <- write.xlsx(data_check_stat2 , glue('..\\data\\mid\\eve\\物业费数据核对.xlsx'))  
 print(now()) 
 
 
@@ -333,4 +341,75 @@ print(now())
 # 
 # print(paste0('ETL property data success: ' , now()))
 
+# cs <- chargebills %>% 
+#   distinct(COST_DATE)
+# 
+# 
+# cs2 <- chargebills %>% 
+#   distinct(ACCRUED_DATE)
 
+may_wrong_house <- read.xlsx('..\\data\\mid\\eve\\工作簿3.xlsx')
+
+may_wrong_data <- eve_property %>% 
+  inner_join(may_wrong_house)
+
+may_wrong_accrued <- may_wrong_data %>%
+  filter(#cost_date_start >= check_start , 
+    cost_date_start <= check_end) %>% 
+  distinct(pk_chargebills , cost_date_start , accrued_amount , proceeds_amount , billdate) %>%
+  group_by(pk_chargebills , cost_date_start) %>%
+  summarise(accrued_amount = sum(accrued_amount) ,
+            proceeds_amount = sum(proceeds_amount[billdate <= check_end])) %>%
+  ungroup()
+
+may_wrong_real <- may_wrong_data %>%
+  filter(#cost_date_start >= check_start , 
+    cost_date_start <= check_end , bill_date <= check_end) %>% 
+  distinct(pk_chargebills , cost_date_start , pk_gathering_d , real_amount) %>%
+  group_by(pk_chargebills , cost_date_start) %>%
+  summarise(real_amount = sum(real_amount)) %>%
+  ungroup()
+
+may_wrong_adjust <- may_wrong_data %>%
+  filter(#cost_date_start >= check_start , 
+    cost_date_start <= check_end , enableddate <= check_end) %>% 
+  distinct(pk_chargebills , cost_date_start , pk_receivable_d , adjust_amount) %>%
+  group_by(pk_chargebills , cost_date_start) %>%
+  summarise(adjust_amount = sum(adjust_amount)) %>%
+  ungroup()
+
+may_wrong_match <- may_wrong_data %>%
+  filter(#cost_date_start >= check_start , 
+    cost_date_start <= check_end , accrued_date <= check_end) %>% 
+  distinct(pk_chargebills , cost_date_start , pk_forward , match_amount) %>%
+  group_by(pk_chargebills , cost_date_start) %>%
+  summarise(match_amount = sum(match_amount)) %>%
+  ungroup()
+
+may_wrong_detail <- may_wrong_accrued %>% 
+  left_join(may_wrong_real) %>%
+  left_join(may_wrong_adjust) %>%
+  left_join(may_wrong_match) %>% 
+  left_join(eve_property %>%
+              distinct(project_name , pk_house , house_code , house_name , pk_chargebills , wy_cycle)) %>% 
+  replace_na(list(accrued_amount = 0 , proceeds_amount = 0 , real_amount = 0 , 
+                  adjust_amount = 0 , match_amount = 0)) %>% 
+  mutate(gather = round(real_amount + adjust_amount + match_amount , 2) ,
+         owe = round(accrued_amount - real_amount - adjust_amount - match_amount , 2))
+
+may_wrong_stat <- may_wrong_detail %>% 
+  group_by(project_name , pk_house , house_code , wy_cycle , cost_date_start) %>% 
+  summarise(accrued = sum(accrued_amount) ,
+            proceeds = sum(proceeds_amount) ,
+            real = sum(real_amount) ,
+            adjust = sum(adjust_amount) ,
+            match = sum(match_amount)) %>% 
+  ungroup() %>% 
+  mutate(gather = round(real + adjust + match , 2) ,
+         owe = round(accrued - real - adjust - match , 2) ,
+         wy_cycle = case_when(wy_cycle == 1 ~ '半年' ,
+                              wy_cycle == 0 ~ '季度' ,
+                              TRUE ~ '未知')) %>% 
+  left_join(basic_info %>% select(pk_house , house_name , build_name , unit_name , floor_name , client_name))
+
+cs <- write.xlsx(may_wrong_stat , glue('..\\data\\mid\\eve\\物业费问题房间核对.xlsx'))  
