@@ -10,12 +10,11 @@ project_data <- read.xlsx('..\\data\\mid\\dim\\项目层级表.xlsx' , detectDat
          operate_date = as_date(operate_time) ,
          handover_date = as_date(handover_date) ,
          operator = as.character(operator)) %>% 
-  select(id , pk_project , project_name , project5 , project4 , project3 , project2 , 
-         project1 , belong , province , city , county , project_from , handover_date ,
-         is_focus , is_terminate , fdproject_property_a , is_detail_property_a ,
+  select(id , project_name , project5 , project4 , project3 , project2 , project1 , 
+         belong , province , city , county , project_from , handover_date ,
+         is_focus , is_terminate , terminate_date , fdproject_property_a , is_detail_property_a ,
          fdproject_property_h , is_detail_property_h , fdproject_car , is_detail_car ,
-         fdproject_business , is_detail_business , is_value , operate_date ,
-         operate_time , operator)
+         fdproject_business , is_detail_business , operate_date , operate_time , operator)
 
 
 
