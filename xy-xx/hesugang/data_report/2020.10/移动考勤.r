@@ -10,50 +10,31 @@ punch_data <- read.xlsx('xy-xx/hesugang/data_report/2020.10/移动考勤.xlsx' ,
   mutate(id = gsub("'", "", id) ,
          user_id = gsub("'", "", user_id) ,
          compose_id = gsub("'", "", compose_id) ,
-         tenant_id = gsub("'", "", tenant_id))
+         tenant_id = gsub("'", "", tenant_id),
+         punch_dt = gsub("-", " ", punch_dt) ,
+         attendance_dt = gsub("-", " ", attendance_dt))
+
+punch_data[is.na(punch_data)] <- ''
+
+# ----- 拿最新的记录及有记录的手机mac地址
+punch_data_deal <- punch_data %>% 
+  distinct() %>% 
+  group_by(user_id , user_name , compose_id , should_dt , is_onduty , number) %>% 
+  summarise(address = first(address[is_latest == 1]) ,
+            longitude = first(longitude[is_latest == 1]) ,
+            latitude = first(latitude[is_latest == 1]) ,
+            punch_type = max(punch_type[is_latest == 1]) ,
+            duration = max(duration[is_latest == 1]) ,
+            punch_dt = first(punch_dt[is_latest == 1]) ,
+            attendance_dt = first(attendance_dt[is_latest == 1]) ,
+            phone_model = glue_collapse(unique(phone_model) , sep = ';') ,
+            mac = glue_collapse(unique(mac) , sep = ';') ,
+            project = glue_collapse(unique(project) , sep = ';')) %>% 
+  ungroup() %>% 
+  left_join(punch_data %>% 
+              distinct(user_id , project))
 
 
-# ----- 对时间进行计算
-call_data_new <- call_data %>% 
-  rename(phone = `电话号码` , type = `呼叫方式` , call_status = `接通状态` ,
-         call_start = `呼叫开始时间` , callon_start = `接通时间` , end = `挂机时间` ,
-         work_number = `坐席工号` , name = `坐席姓名` , satisfy = `满意度`) %>% 
-  mutate(phone = str_replace_all(phone, "[^[:alnum:]]", " ") ,
-         call_start = as_datetime(call_start) ,
-         callon_start = as_datetime(callon_start) ,
-         end = as_datetime(end) ,
-         call_start_day = as_date(call_start) ,
-         callon_start_day = as_date(callon_start) ,
-         end_day = as_date(end) ,
-         call_diff = difftime(end , callon_start , units = 'secs') ,
-         wait_diff = difftime(end , call_start , units = 'secs') ,
-         month_belong = substr(call_start_day , 1 , 7) ,
-         week = weekdays(call_start_day) ,
-         hour = hour(call_start) ,
-         after_call_5 = call_start_day + days(5) , 
-         id = row_number())
 
-# 呼入未接通的数据，在5日内是否有接通或呼出数据（无论是呼入还是呼出）
-call_data_process <- call_data_new %>% 
-  filter(type == '呼入' , call_status == '未接通') %>% 
-  select(id , phone , call_start , call_start_day , after_call_5) %>% 
-  rename(uncall_id = id ,
-         uncall_start = call_start ,
-         uncall_start_day = call_start_day ,
-         uncall_after_call_5 = after_call_5) %>% 
-  left_join(call_data_new , by = 'phone') %>% 
-  group_by(uncall_id , phone) %>% 
-  summarise(call_back_cnt = n_distinct(id[call_start > uncall_start & 
-                                            call_start_day <= uncall_after_call_5 &
-                                            type == '呼出'] , na.rm = T) ,
-            on_cnt = n_distinct(id[call_start > uncall_start & 
-                                     call_start_day <= uncall_after_call_5 &
-                                     call_status == '已接通'] , na.rm = T))
-
-# 关联数据写出
-call_data_fix <- call_data_new %>% 
-  left_join(call_data_process , by = c('id' = 'uncall_id' , 'phone'))
-
-
-write.xlsx(call_data_fix , 'xy-xx/hesugang/data_report/2020.8/400话务数据.xlsx')
+write.xlsx(punch_data_deal , 'xy-xx/hesugang/data_report/2020.10/考勤数据fix.xlsx')
 
