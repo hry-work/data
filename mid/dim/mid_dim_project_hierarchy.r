@@ -24,10 +24,8 @@ print(paste0('ETL project hierarchy success: ' , now()))
 
 
 
-# 入库
-newData <- project_data[,utfCol:=iconv(gbkCol,from="gbk",to="utf-8")]
-
-# 注意表名一定要大写
+# 入库，注意表名一定要大写
+# newData <- project_data[,utfCol:=iconv(gbkCol,from="gbk",to="utf-8")]
 dbWriteTable(con_orc , 'MID_DIM_PROJECT_HIERARCHY' , project_data , overwrite=TRUE)
 
 
