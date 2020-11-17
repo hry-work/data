@@ -30,6 +30,7 @@ memory.limit(102400)
 # install.packages("xts")
 # install.packages("sqldf")
 # install.packages("class")
+# install.packages("RMySQL")
 
 
 # 加载包
@@ -40,6 +41,7 @@ library('RODBC')
 library('RJDBC')
 library('sqldf')
 library('RSQLite')
+library('RMySQL')
 library('glue')
 library('tidyr')
 library('plyr')
@@ -82,6 +84,10 @@ con_orc <-dbConnect(drv,"jdbc:oracle:thin:@192.168.128.247:1521/ORCL","ls_xywy",
 
 # ----- 关联sql server
 con_sql <- odbcConnect('orcl', uid='sa' , pwd='xywy2020.')
+
+
+# ----- 关联mysql
+con_mysql <- dbConnect(MySQL(), dbname = "clound", username="xywy", password="xywy2020.", host="192.168.128.133", port=3306)
 
 
 # 日期

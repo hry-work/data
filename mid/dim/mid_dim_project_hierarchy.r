@@ -10,8 +10,8 @@ project_data <- read.xlsx('..\\data\\mid\\dim\\项目层级表.xlsx' , detectDat
          operate_date = as_date(operate_time) ,
          operator = as.character(operator)) %>% 
   select(id , project_name , project4 , project3 , project2 , project1 , belong , wy_cycle ,
-         csd_project , fdproject_property_h , fdproject_property_a , fdproject_car , 
-         fdproject_business , operate_date , operate_time , operator)
+         phone_project , csd_project , fdproject_property_h , fdproject_property_a , 
+         fdproject_car , fdproject_business , operate_date , operate_time , operator)
 
 
 
