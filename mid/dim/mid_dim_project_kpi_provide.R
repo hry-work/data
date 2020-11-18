@@ -25,20 +25,20 @@ provide_data <- read.xlsx('..\\data\\mid\\dim\\基础资源.xlsx' , detectDates 
          parking_cnt,title_parking_cnt,civil_defence_parking_cnt,
          elevator_cnt,d_t)
 
+# 替换na为字符型的na，负责入库oracle时报错
+provide_data[is.na(provide_data)] <- NA_character_
 
 
-# 入库
+# sqlserver入库
 sqlClear(con_sql, table)
 sqlSave(con_sql , provide_data , tablename = table ,
         append = TRUE , rownames = FALSE , fast = FALSE)
 
-print(paste0('ETL project kpi provide success: ' , now()))
+print(paste0('ETL project kpi provide SQL success: ' , now()))
 
 
+# oracle入库，注意表名一定要大写
+dbWriteTable(con_orc , toupper(table) , provide_data , overwrite=TRUE)
 
-# 入库，注意表名一定要大写
-# newData <- project_data[,utfCol:=iconv(gbkCol,from="gbk",to="utf-8")]
-# dbWriteTable(con_orc , 'MID_DIM_PROJECT_HIERARCHY' , project_data , overwrite=TRUE)
+print(paste0('ETL project kpi provide oracle success: ' , now()))
 
-
-# print(paste0('ETL project hierarchy success: ' , now()))
