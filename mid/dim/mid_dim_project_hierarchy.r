@@ -6,7 +6,7 @@ author <- c('huruiyi')
 table <- 'mid_dim_project_hierarchy'      # 项目层级表
 
 project_data <- read.xlsx('..\\data\\mid\\dim\\项目层级表.xlsx' , detectDates = TRUE) %>% 
-  mutate(operate_time = now() ,
+  mutate(operate_time = if_else(is.na(operator) , as.character(now()) , as.character(paste0('2020/11/16 ', '18:02:50'))) ,
          operate_date = as_date(operate_time) ,
          operator = as.character(operator)) %>% 
   select(id , project_name , project4 , project3 , project2 , project1 , belong , wy_cycle ,
