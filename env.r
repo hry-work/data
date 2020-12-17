@@ -79,7 +79,7 @@ if(file.exists("G:/") == TRUE) {
 }
 
 
-con_orc <-dbConnect(drv,"jdbc:oracle:thin:@192.168.128.247:1521/ORCL","ls_xywy","ls_xywy")
+con_orc <-dbConnect(drv,"jdbc:oracle:thin:@192.168.128.215:1521/ORCL","ls_xywy","ls_xywy")
 
 
 # ----- 关联sql server

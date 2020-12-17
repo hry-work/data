@@ -13,19 +13,18 @@ project_id <- dbGetQuery(con_orc , glue("select pk_project , project_name
 names(project_id) <- tolower(names(project_id))
 
 # ---------- 项目归属
-belong <- sqlQuery(con_sql , glue("select porject5 , porject6
-                                   from xywy_project"))
+belong <- sqlQuery(con_sql , glue("select project_name , fdproject_car
+                                   from mid_dim_project_hierarchy"))
 
 # ---------- 税率
 tax_data <- read.xlsx('..\\data\\mid\\dim\\税率表.xlsx' , detectDates = TRUE) %>% 
   left_join(project_id , by = 'project_name') %>% 
-  left_join(belong , by = c('project_name' = 'porject6')) %>% 
+  left_join(belong , by = 'project_name') %>% 
   arrange(tax_type , pk_project) %>% 
   mutate(d_t = now() ,
          id = row_number() ,
          is_project = if_else(is.na(pk_project) , 0 , 1)) %>% 
-  rename(project5 = porject5) %>% 
-  select(id , pk_project , project_name , project5 , is_project , tax_type , tax_ratio , d_t)
+  select(id , pk_project , project_name , fdproject_car , is_project , tax_type , tax_ratio , d_t)
 
 
 # 入库
