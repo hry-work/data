@@ -2,9 +2,9 @@
 # 释放内存
 gc()
 
-options(java.parameters = "-Xmx100g")
-# 运行内存扩大
-memory.limit(102400)
+# options(java.parameters = "-Xmx100g")
+# # 运行内存扩大
+# memory.limit(102400)
 
 # install.packages('utf8')
 # install.packages('rJava')
