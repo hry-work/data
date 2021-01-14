@@ -1,4 +1,4 @@
-source('C:/Users/Administrator/data/env.r' , encoding = 'utf8')
+source('env_centos.r' , encoding = 'utf8')
 
 author <- c('huruiyi')
 

@@ -1,4 +1,6 @@
 
+print(1)
+
 # 释放内存
 gc()
 
@@ -62,6 +64,8 @@ library('xml2')
 library('rvest')
 library('xts')
 
+print('package library success')
+
 
 # ---------- 关联数据库
 
@@ -78,13 +82,18 @@ if(file.exists("G:/") == TRUE) {
              identifier.quote="\"")
 }
 
+print('jdbc input success')
 
 con_orc <-dbConnect(drv,"jdbc:oracle:thin:@192.168.128.215:1521/ORCL","ls_xywy","ls_xywy")
+
+print('oracle link success')
 
 
 # ----- 关联sql server
 con_sql <- odbcConnect('orcl', uid='sa' , pwd='xywy2020.')
 
+
+print('sqlserver link success')
 
 # ----- 关联mysql
 # 乐软考勤
@@ -92,6 +101,7 @@ con_punch <- dbConnect(MySQL(), dbname = "clound", username="xywy", password="xy
 # dm展示层
 con_xywy <- dbConnect(MySQL(), dbname = "dm", username="xywy", password="XYwy2020.", host="192.168.128.234", port=3306)
 
+print('mysql link success')
 
 # 日期
 today <- as_date(today())
