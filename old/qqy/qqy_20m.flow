@@ -1,0 +1,23 @@
+config:
+  # command被执行的目录，即R工程的工作目录
+  working.dir: ${WD}
+
+nodes:
+
+  - name: qqy@start
+    type: noop
+
+# - name: mid_eve_iyx_qqy_dk
+#  type: command
+#   dependsOn:
+#    - qqy@start
+#   config:
+#     command: ${RD}/Rscript mid/eve/iyx/mid_eve_iyx_qqy_dk.R ${PARAMS}
+      
+# - name: mid_eve_iyx_qqy_staff_list
+#   type: command
+#   dependsOn:
+#     - qqy@start
+#   config:
+#     command: ${RD}/Rscript mid/eve/iyx/mid_eve_iyx_qqy_staff_list.R ${PARAMS}      
+

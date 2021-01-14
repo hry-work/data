@@ -1,0 +1,202 @@
+config:
+  # command被执行的目录，即R工程的工作目录
+  working.dir: ${WD}
+
+nodes:
+
+  - name: start
+    type: noop
+    
+  - name: afd_start
+    type: noop
+    dependsOn:
+      - start
+      
+  - name: afd_voicerecord
+    type: command
+    dependsOn:
+      - afd_start
+    config:
+      command: ${RD}/Rscript dk/afd_voicerecord.R -rt 'D' -m 'orgs=all' -p 'NOW' ${PARAMS}
+
+  - name: afd_referral
+    type: command
+    dependsOn:
+      - afd_start
+    config:
+      command: ${RD}/Rscript dk/afd_referral.R -rt 'D,W,M' -m 'orgs=all,zq,group,staff' -p 'NOW' ${PARAMS}  
+
+  - name: afd_transaction_package
+    type: command
+    dependsOn:
+      - afd_start
+    config:
+      command: ${RD}/Rscript dk/afd_transaction_package.R -rt 'D' -m 'self&org=all' -p 'NOW' ${PARAMS}  
+      
+  #- name: afd_consume
+    #type: command
+    #dependsOn:
+      #- afd_start
+    #config:
+      #command: ${RD}/Rscript dk/afd_consume.R -rt 'D' -m 'self&org=all' -p 'NOW' ${PARAMS}
+
+#  - name: afd_follow
+#    type: command
+#    dependsOn:
+#      - afd_start
+#    config:
+#      command: ${RD}/Rscript dk/afd_follow.R -rt 'D' -m 'self&org=all' -p 'NOW' ${PARAMS}
+# 需求停用，下线byliyao
+
+#  - name: afd_time_table
+#    type: command
+#    dependsOn:
+#      - afd_start
+#    config:
+#      command: ${RD}/Rscript dk/afd_time_table.R -rt 'D,W,M' -m 'orgs=all,zq,group,staff' -p 'NOW' #${PARAMS}
+# 已重构，下线by liyao
+
+  - name: afd_signup
+    type: command
+    dependsOn:
+      - afd_start
+    config:
+      command: ${RD}/Rscript dk/afd_signup.R -rt 'D,W,M' -m 'orgs=all' -p 'NOW' ${PARAMS}
+      
+  - name: afd_state_se
+    type: command
+    dependsOn:
+      - afd_start
+    config:
+      command: ${RD}/Rscript dk/afd_state_se.R -rt 'D' -m 'self&org=all' -p 'NOW' ${PARAMS}
+      
+  #- name: afd_transaction
+  #  type: command
+  #  dependsOn:
+  #    - afd_start
+  #  config:
+  #    command: ${RD}/Rscript dk/afd_transaction.R -rt 'D' -m 'self&org=all' -p 'NOW' ${PARAMS}
+      
+  # - name: afd_transfer
+  # type: command
+  # dependsOn:
+  #   - afd_start
+  # config:
+  #   command: ${RD}/Rscript dk/afd_transfer.R -rt 'D' -m 'self&org=all' -p 'NOW' ${PARAMS}
+      
+  # - name: afd_potential
+  # type: command
+  # dependsOn:
+  #   - afd_start
+  # config:
+  #   command: ${RD}/Rscript dk/afd_potential.R -rt 'D' -m 'orgs=all' -p 'NOW' ${PARAMS} 
+      
+  - name: afd_lesson_session
+    type: command
+    dependsOn:
+      - afd_start
+    config:
+      command: ${RD}/Rscript dk/afd_lesson_session.R -rt 'D,W,M' -m 'orgs=all,zq,group' -p 'NOW' ${PARAMS} 
+      
+#  - name: afd_free_lesson
+#    type: command
+#    dependsOn:
+#      - afd_start
+#    config:
+#      command: ${RD}/Rscript dk/afd_free_lesson.R -rt 'D' -m 'self&org=all' -p 'NOW' ${PARAMS} 
+# 不再使用重构，下线byliyao
+
+  - name: afd_performance_new
+    type: command
+    dependsOn:
+      - afd_start
+    config:
+      command: ${RD}/Rscript dk/afd_performance_new.R -rt 'D,W,M' -m 'orgs=all,zq,group,staff' -p 'NOW' ${PARAMS} 
+      
+#  - name: afd_transation_new
+#    type: command
+#    dependsOn:
+#      - afd_start
+#    config:
+#      command: ${RD}/Rscript dk/afd_transation_new.R -rt 'D,W,M' -m 'orgs=all,zq,group,staff' -p 'NOW' ${PARAMS}
+      
+#  - name: afd_transfer_new
+#    type: command
+#    dependsOn:
+#      - afd_start
+#    config:
+#      command: ${RD}/Rscript dk/afd_transfer_new.R -rt 'D' -m 'orgs=all,zq,group,staff' -p 'NOW' ${PARAMS}
+
+  - name: afd_on_pay
+    type: command
+    dependsOn:
+      - afd_start
+    config:
+      command: ${RD}/Rscript dk/afd_on_pay.R -rt 'D,W,M' -m 'orgs=all,zq,group,staff' -p 'NOW' ${PARAMS}
+      
+#  - name: afd_free_lesson_new
+#    type: command
+#    dependsOn:
+#      - afd_start
+#    config:
+#      command: ${RD}/Rscript dk/afd_free_lesson_new.R -rt 'D,W,M' -m 'orgs=all,zq,group,staff&lesson_type=all,self' -p 'NOW' ${PARAMS}
+# 不再使用重构，下线byliyao
+      
+#  - name: afd_consume_new
+#    type: command
+#    dependsOn:
+#      - afd_start
+#    config:
+#      command: ${RD}/Rscript dk/afd_consume_new.R -rt 'D,W,M' -m 'orgs=all,zq,group,staff' -p 'NOW' ${PARAMS}
+# 不再使用重构，下线byliyao
+      
+  - name: afd_follow_new
+    type: command
+    dependsOn:
+      - afd_start
+    config:
+      command: ${RD}/Rscript dk/afd_follow_new.R -rt 'D,W,M' -m 'orgs=all,zq,group,staff' -p 'NOW' ${PARAMS}
+
+#  - name: afd_voicerecord_new
+#    type: command
+#    dependsOn:
+#      - afd_start
+#    config:
+#      command: ${RD}/Rscript dk/afd_voicerecord_new.R -rt 'D,W,M' -m 'orgs=all,zq,group,staff&statuses=all,self' -p 'NOW' ${PARAMS}
+# 需求停用，下线byliyao
+      
+#  - name: afd_service_todo
+#    type: command
+#    dependsOn:
+#      - afd_start
+#    config:
+#      command: ${RD}/Rscript dk/afd_service_todo.R -rt 'D' -m "orgs=all,zq,group,staff&do_s=all,self&do_typ#e=all,self&doing_s=all,self&task_type=all,self&recent=15" ${PARAMS} 
+# 需求停用，下线byliyao
+
+  - name: dk_out_wiki
+    type: command
+    dependsOn:
+      - afd_voicerecord
+      - afd_referral
+      - afd_transaction_package
+#     - afd_consume
+#     - afd_follow
+#     - afd_time_table
+      - afd_signup
+      - afd_state_se
+#     - afd_transaction
+#     - afd_transfer
+#     - afd_potential
+      - afd_lesson_session
+#     - afd_free_lesson
+      - afd_performance_new
+#     - afd_transation_new
+#     - afd_transfer_new
+      - afd_on_pay
+#     - afd_free_lesson_new
+#      - afd_consume_new
+      - afd_follow_new
+#     - afd_voicerecord_new
+#     - afd_service_todo
+    config:
+      command: ${RD}/Rscript dk/dk_out_wiki.R ${PARAMS}

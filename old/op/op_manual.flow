@@ -1,0 +1,15 @@
+config:
+  # command被执行的目录，即R工程的工作目录
+  working.dir: ${WD}
+
+nodes:
+
+  - name: op@start
+    type: noop
+
+  - name: io_op_app
+    type: command
+    dependsOn:
+      - op@start
+    config:
+      command: ${RD}/Rscript  op/io_op_app.R -m 'server=server' ${PARAMS}

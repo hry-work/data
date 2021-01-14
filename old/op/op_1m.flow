@@ -1,0 +1,22 @@
+config:
+  # command被执行的目录，即R工程的工作目录
+  working.dir: ${WD}
+
+nodes:
+
+  - name: op@start
+    type: noop
+
+  - name: clean_tmp_files
+    type: command
+    dependsOn:
+      - op@start
+    config:
+      command: /bin/sh flow/sys/clean.sh ${WD}
+
+#  - name: mid_map_test_data
+#    type: command
+#    dependsOn:
+#      - op@start
+#    config:
+#      command: ${RD}/Rscript mid/map/mid_map_test_data.R -p 'NOW' ${PARAMS}

@@ -1,0 +1,61 @@
+config:
+  # command被执行的目录，即R工程的工作目录
+  working.dir: ${WD}
+
+nodes:
+
+  - name: sys_start
+    type: noop
+
+  - name: back_up_schema
+    type: command
+    dependsOn:
+      - backup_db_structure_flow
+    config:
+      command: /bin/sh flow/sys/git.sh ${WD}
+
+  - name: backup_db_structure_flow
+    type: flow
+    dependsOn:
+      - sys_start
+    #config:
+    nodes:
+    - name: afd_rpt
+      type: command
+      config:
+        command: /bin/sh flow/sys/backup_db_structure.sh ${DB_HOST} ${DB_PORT} ${DB_USER} ${DB_PASS} afd_rpt
+
+    - name: ods
+      type: command
+      config:
+        command: /bin/sh flow/sys/backup_db_structure.sh ${DB_HOST} ${DB_PORT} ${DB_USER} ${DB_PASS} ods
+
+    - name: mid
+      type: command
+      config:
+        command: /bin/sh flow/sys/backup_db_structure.sh ${DB_HOST} ${DB_PORT} ${DB_USER} ${DB_PASS} mid
+
+    - name: tag
+      type: command
+      config:
+        command: /bin/sh flow/sys/backup_db_structure.sh ${DB_HOST} ${DB_PORT} ${DB_USER} ${DB_PASS} tag
+
+    - name: rpt
+      type: command
+      config:
+        command: /bin/sh flow/sys/backup_db_structure.sh ${DB_HOST} ${DB_PORT} ${DB_USER} ${DB_PASS} rpt
+
+    - name: pri
+      type: command
+      config:
+        command: /bin/sh flow/sys/backup_db_structure.sh ${DB_HOST} ${DB_PORT} ${DB_USER} ${DB_PASS} pri
+
+    - name: biz
+      type: command
+      config:
+        command: /bin/sh flow/sys/backup_db_structure.sh ${DB_HOST} ${DB_PORT} ${DB_USER} ${DB_PASS} biz
+
+    - name: api_afd
+      type: command
+      config:
+        command: /bin/sh flow/sys/backup_db_structure.sh ${DB_HOST} ${DB_PORT} ${DB_USER} ${DB_PASS} api_afd

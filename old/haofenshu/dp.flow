@@ -1,0 +1,23 @@
+##地面业务大屏
+config:
+  # command被执行的目录，即R工程的工作目录
+  working.dir: ${WD}
+
+nodes:
+
+  - name: rpt_dmyw_dp_index
+    type: command
+    config:
+      command: ${RD}/Rscript rpt/dmyw/dp/rpt_dmyw_dp_index.R -rt 'D,W,M,Q,HY,Y' ${PARAMS}
+
+  - name: api_boss_dp_dmyw_data
+    type: command
+    dependsOn:
+      - rpt_dmyw_dp_index
+    config:
+      command: ${RD}/Rscript api/boss/api_boss_dp_dmyw_data.R ${PARAMS}
+
+  - name: rpt_dmyw_dp_net_amount_on_org
+    type: command
+    config:
+      command: ${RD}/Rscript rpt/dmyw/dp/rpt_dmyw_dp_net_amount_on_org.R -rt 'D,W,M' ${PARAMS}

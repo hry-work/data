@@ -1,0 +1,1005 @@
+# 用于brush history数据的flow
+config:
+  # command被执行的目录，即R工程的工作目录
+  working.dir: ${WD}
+
+nodes:
+
+  - name: sign_up_info_brush_historical
+    type: command
+    config:
+      command: ${RD}/Rscript action/sign_up_info_brush_historical.R ${PARAMS}
+
+  - name: voice_s_duration_bursh_historical
+    type: command
+    config:
+      command: ${RD}/Rscript action/voice_s_duration_bursh_historical.R ${PARAMS}
+
+  - name: assignment_brush_historical
+    type: command
+    config:
+      command: ${RD}/Rscript action/assignment_brush_historical.R ${PARAMS}
+
+  - name: assignment_brush_historical_2
+    type: command
+    config:
+      command: ${RD}/Rscript action/assignment_brush_historical_2.R ${PARAMS}
+
+  - name: assignment_delete
+    type: command
+    config:
+      command: ${RD}/Rscript action/assignment_delete.R ${PARAMS}
+
+  - name: assignment_brush_historical_3
+    type: command
+    config:
+      command: ${RD}/Rscript action/assignment_brush_historical_3.R ${PARAMS}
+
+      #先放此处刷历史数据，刷完放30m
+  - name: mid_eve_afd_bigsales_assignment
+    type: command
+    config:
+      command: ${RD}/Rscript mid/eve/afd_bigsales/mid_eve_afd_bigsales_assignment.R -p 'NOW' ${PARAMS}
+
+  - name: bigsales_assign_brush_historical_un_zhiliandui_1
+    type: command
+    config:
+      command: ${RD}/Rscript action/bigsales_assign_brush_historical_un_zhiliandui_1.R ${PARAMS}
+
+  - name: bigsales_assign_brush_zhiliandui_2
+    type: command
+    config:
+      command: ${RD}/Rscript action/bigsales_assign_brush_zhiliandui_2.R ${PARAMS}
+
+  - name: bigsales_assign_fix_zdbm_3
+    type: command
+    config:
+      command: ${RD}/Rscript action/bigsales_assign_fix_zdbm_3.R ${PARAMS}
+
+  - name: mid_eve_afd_bigsales_zdbm_assignment
+    type: command
+    config:
+      command: ${RD}/Rscript mid/eve/afd_bigsales/mid_eve_afd_bigsales_zdbm_assignment.R -p 'NOW' ${PARAMS}
+
+  - name: mid_eve_afd_sales_performance
+    type: command
+    config:
+      command: ${RD}/Rscript mid/eve/afd/mid_eve_afd_sales_performance.R ${PARAMS}
+
+  - name: api_afd_transaction
+    type: command
+    config:
+      command: ${RD}/Rscript api/afd/api_afd_transaction.R ${PARAMS}
+
+  - name: sign_up_info_delete_repetition
+    type: command
+    config:
+      command: ${RD}/Rscript action/sign_up_info_delete_repetition.R ${PARAMS}
+
+  - name: mid_eve_afd_consume
+    type: command
+    config:
+      command: ${RD}/Rscript mid/eve/afd/mid_eve_afd_consume.R ${PARAMS}
+      
+  - name: mid_eve_afd_consume2
+    type: command
+    config:
+      command: ${RD}/Rscript mid/eve/afd/mid_eve_afd_consume2.R ${PARAMS}
+
+  - name: mid_eve_afd_sales_transaction_package
+    type: command
+    config:
+      command: ${RD}/Rscript mid/eve/afd/mid_eve_afd_sales_transaction_package.R ${PARAMS}
+
+  - name: rpt_afd_sales_yixiang
+    type: command
+    config:
+      command: ${RD}/Rscript rpt/afd/sales/rpt_afd_sales_yixiang.R ${PARAMS}
+
+  - name: fr_afd_sales_kanban
+    type: command
+    config:
+      command: ${RD}/Rscript fr/afd_sales_kanban/fr_afd_sales_kanban.R -p 'NOW' ${PARAMS}
+
+  - name: fr_afd_sales_kanban_out
+    type: command
+    config:
+      command: ${RD}/Rscript fr/afd_sales_kanban/fr_afd_sales_kanban_out.R -p 'NOW' ${PARAMS}
+
+  - name: mid_eve_afd_lesson_process_approval
+    type: command
+    dependsOn:
+    config:
+      command: ${RD}/Rscript mid/eve/afd/mid_eve_afd_lesson_process_approval.R ${PARAMS}
+
+  - name: yy_import_pay_leads_brush
+    type: command
+    config:
+      command: ${RD}/Rscript action/yy_import_pay_leads_brush.R ${PARAMS}
+
+  - name: mid_eve_afd_free_lesson
+    type: command
+    dependsOn:
+    config:
+      command: ${RD}/Rscript mid/eve/afd/mid_eve_afd_free_lesson.R ${PARAMS}
+
+  - name: mid_eve_afd_session_in_out
+    type: command
+    dependsOn:
+    config:
+      command: ${RD}/Rscript mid/eve/afd/mid_eve_afd_session_in_out.R ${PARAMS}
+
+  - name: yy_import_pay_leads_brush2
+    type: command
+    config:
+      command: ${RD}/Rscript action/yy_import_pay_leads_brush2.R ${PARAMS}
+
+  - name: import2
+    type: command
+    config:
+      command: ${RD}/Rscript action/import2.R ${PARAMS}
+
+  - name: mid_eve_afd_yy_import_leads_call
+    type: command
+    config:
+      command: ${RD}/Rscript mid/eve/afd/mid_eve_afd_yy_import_leads_call.R ${PARAMS}
+
+  - name: mid_eve_afd_follow
+    type: command
+    config:
+      command: ${RD}/Rscript mid/eve/afd/mid_eve_afd_follow.R ${PARAMS}
+
+  - name: mid_eve_afd_assignment
+    type: command
+    config:
+      command: ${RD}/Rscript mid/eve/afd/mid_eve_afd_assignment.R -p 'NOW' ${PARAMS}
+
+  - name: mid_eve_afd_yy_import_leads
+    type: command
+    config:
+      command: ${RD}/Rscript mid/eve/afd/mid_eve_afd_yy_import_leads.R ${PARAMS}
+
+  - name: yy_import_leads_add_list
+    type: command
+    config:
+      command: ${RD}/Rscript action/yy_import_leads_add_list.R ${PARAMS}
+
+  - name: yy_import_leads_add_isvalid
+    type: command
+    config:
+      command: ${RD}/Rscript action/yy_import_leads_add_isvalid.R ${PARAMS}
+
+  - name: yy_import_leads_b3
+    type: command
+    config:
+      command: ${RD}/Rscript action/yy_import_leads_b3.R ${PARAMS}
+
+  - name: mid_eve_afd_yy_import_leads_call_brush
+    type: command
+    config:
+      command: ${RD}/Rscript action/mid_eve_afd_yy_import_leads_call_brush.R ${PARAMS}
+
+  - name: brush10_import_leads
+    type: command
+    config:
+      command: ${RD}/Rscript action/brush10_import_leads.R ${PARAMS}
+
+  - name: brush_10_import_leads_2
+    type: command
+    config:
+      command: ${RD}/Rscript action/brush_10_import_leads_2.R ${PARAMS}
+
+  - name: brush_10_import_leads_3
+    type: command
+    config:
+      command: ${RD}/Rscript action/brush_10_import_leads_3.R ${PARAMS}
+
+
+  - name: mid_eve_afd_assignment_import_leads
+    type: command
+    config:
+      command: ${RD}/Rscript action/mid_eve_afd_assignment_import_leads.R ${PARAMS}
+
+  - name: brush_10_import_leads_4
+    type: command
+    config:
+      command: ${RD}/Rscript action/brush_10_import_leads_4.R ${PARAMS}
+
+  - name: mid_map_district_textbook
+    type: command
+    config:
+      command: ${RD}/Rscript mid/map/mid_map_district_textbook.R ${PARAMS}
+
+  - name: rpt_afd_sales_on_days
+    type: command
+    config:
+      command: ${RD}/Rscript rpt/afd/sales/rpt_afd_sales_on_days.R ${PARAMS}
+
+  - name: rpt_afd_head_correct_goal_prop
+    type: command
+    config:
+      command: ${RD}/Rscript rpt/afd/head/rpt_afd_head_correct_goal_prop.R ${PARAMS}
+
+  - name: mid_eve_afd_user_student_sign_up_info_brush
+    type: command
+    config:
+      command: ${RD}/Rscript action/mid_eve_afd_user_student_sign_up_info_brush.R ${PARAMS}
+
+  - name: rpt_afd_head_correct_goal_prop_week
+    type: command
+    config:
+      command: ${RD}/Rscript rpt/afd/head/rpt_afd_head_correct_goal_prop_week.R ${PARAMS}
+
+  - name: 20191122-mid_eve_afd_yy_import_leads
+    type: command
+    config:
+      command: ${RD}/Rscript action/20191122-mid_eve_afd_yy_import_leads.R ${PARAMS}
+
+  - name: 20191122-import_leads_is_import
+    type: command
+    config:
+      command: ${RD}/Rscript action/20191122-import_leads_is_import.R ${PARAMS}
+
+
+
+  - name: dm_hfs_app_gg_index_brush
+    type: command
+    config:
+      command: ${RD}/Rscript action/dm_hfs_app_gg_index_brush.R ${PARAMS}
+
+
+  - name: tag_afd_student_status_potential
+    type: command
+    config:
+      command: ${RD}/Rscript tag/afd_student/tag_afd_student_status_potential.R ${PARAMS}
+      
+  - name: yy_import_leads_fix_bug1
+    type: command
+    config:
+      command: ${RD}/Rscript action/yy_import_leads_fix_bug1.R ${PARAMS}
+      
+  - name: yy_import_leads_add_tab_till_1115
+    type: command
+    config:
+      command: ${RD}/Rscript action/yy_import_leads_add_tab_till_1115.R ${PARAMS}
+      
+  - name: fr_afd_dashboard_cc_manager
+    type: command
+    config:
+      command: ${RD}/Rscript fr/afd_dashboard/fr_afd_dashboard_cc_manager.R ${PARAMS}
+      
+  - name: 20191207-mid_eve_afd_tmk_assignment
+    type: command
+    config:
+      command: ${RD}/Rscript data/chenyulan/20191207-mid_eve_afd_tmk_assignment.R #${PARAMS}
+      
+  - name: rpt_afd_head_correct_goal_prop_lesson
+    type: command
+    config:
+      command: ${RD}/Rscript rpt/afd/head/rpt_afd_head_correct_goal_prop_lesson.R ${PARAMS}
+      
+  - name: mid_dim_afd_goal
+    type: command
+    config:
+      command: ${RD}/Rscript mid/dim/afd/mid_dim_afd_goal.R ${PARAMS}
+
+  - name: fr_afd_dashboard_cc
+    type: command
+    config:
+      command: ${RD}/Rscript fr/afd_dashboard/fr_afd_dashboard_cc.R -p 'NOW' ${PARAMS}
+      
+  - name: mid_eve_hfs_transaction_brush
+    type: command
+    config:
+      command: ${RD}/Rscript action/mid_eve_hfs_transaction_brush.R ${PARAMS}
+      
+  - name: mid_dim_hfs_student_papers
+    type: command
+    config:
+      command: ${RD}/Rscript mid/dim/hfs/mid_dim_hfs_student_papers.R ${PARAMS}
+      
+  - name: mid_eve_afd_lesson_online_courseware_knowledge
+    type: command
+    config:
+      command: ${RD}/Rscript mid/eve/afd/mid_eve_afd_lesson_online_courseware_knowledge.R ${PARAMS}
+
+  - name: api_afd_student_on_2019year
+    type: command
+    config:
+      command: ${RD}/Rscript api/afd/api_afd_student_on_2019year.R ${PARAMS}
+      
+      
+  - name: rpt_afd_leads_reassign
+    type: command
+    config:
+      command: ${RD}/Rscript rpt/afd/leads/rpt_afd_leads_reassign.R ${PARAMS}
+      
+  - name: mid_eve_afd_aiclue_grade_brush
+    type: command
+    config:
+      command: ${RD}/Rscript action/mid_eve_afd_aiclue_grade_brush.R ${PARAMS}
+
+  - name: tag_afd_student_on_2019year_score
+    type: command
+    config:
+      command: ${RD}/Rscript tag/afd_student/tag_afd_student_on_2019year_score.R ${PARAMS}
+      
+  - name: brush_transaction_follower
+    type: command
+    config:
+      command: ${RD}/Rscript data/mahongpan/brush_transaction_follower.R ${PARAMS}
+      
+  - name: fill_iyx_performance
+    type: command
+    config:
+      command: ${RD}/Rscript fill/fill_iyx_performance.R ${PARAMS}
+      
+  - name: 20191230-fill_iyx_performance
+    type: command
+    config:
+      command: ${RD}/Rscript data/chenyulan/20191230-fill_iyx_performance.R ${PARAMS}
+      
+  - name: mid_dim_ctb_dmyw_product_plan
+    type: command
+    config:
+      command: ${RD}/Rscript mid/dim/ctb/mid_dim_ctb_dmyw_product_plan.R ${PARAMS}
+      
+  - name: mid_eve_ctb_task_brush
+    type: command
+    config:
+      command: ${RD}/Rscript action/mid_eve_ctb_task_brush.R ${PARAMS}
+      
+  - name: 20200103fill_dmyw_jianyu_tender
+    type: command
+    config:
+      command: ${RD}/Rscript data/chenyulan/20200103fill_dmyw_jianyu_tender.R ${PARAMS}
+      
+  - name: fr_indicator_documentation
+    type: command
+    config:
+      command: ${RD}/Rscript fr/fr_indicator_documentation.R ${PARAMS}
+      
+  - name: api_afd_student_score_ascension
+    type: command
+    config:
+      command: ${RD}/Rscript api/afd/api_afd_student_score_ascension.R ${PARAMS}
+      
+  - name: fr_afd_sales_funnel
+    type: command
+    config:
+      command: ${RD}/Rscript fr/afd_sales/fr_afd_sales_funnel.R ${PARAMS}
+
+#   不使用了    
+#  - name: rpt_afd_xgs_roster
+#    type: command
+#    config:
+#      command: ${RD}/Rscript rpt/afd/xgs/rpt_afd_xgs_roster.R ${PARAMS}
+      
+  - name: rpt_afd_leads_half_year_funnel
+    type: command
+    config:
+      command: ${RD}/Rscript rpt/afd/leads/rpt_afd_leads_half_year_funnel.R ${PARAMS}
+
+  - name: mid_eve_afd_student_on_score
+    type: command
+    config:
+      command: ${RD}/Rscript mid/eve/afd/mid_eve_afd_student_on_score.R ${PARAMS}  
+
+  - name: mid_dim_bookonline_exams_detail
+    type: command
+    config:
+      command: ${RD}/Rscript mid/dim/bookonline/mid_dim_bookonline_exams_detail.R ${PARAMS}
+
+  - name: mid_eve_afd_teacher_last_jw_evaluation
+    type: command
+    config:
+      command: ${RD}/Rscript mid/eve/afd_teacher/mid_eve_afd_teacher_last_jw_evaluation.R ${PARAMS}
+
+  - name: mid_eve_afd_teacher_last_teaching_evaluation
+    type: command
+    config:
+      command: ${RD}/Rscript mid/eve/afd_teacher/mid_eve_afd_teacher_last_teaching_evaluation.R ${PARAMS}
+      
+  - name: mid_eve_afd_teacher_last_usability_evaluation
+    type: command
+    config:
+      command: ${RD}/Rscript mid/eve/afd_teacher/mid_eve_afd_teacher_last_usability_evaluation.R ${PARAMS}
+      
+  - name: mid_dim_boss_bpm_meeting_record
+    type: command
+    config:
+      command: ${RD}/Rscript data/chenyulan/20200217-刘晓烨-会议记录线下表导入.R ${PARAMS}
+      
+  - name: fix_dashboard_cc
+    type: command
+    config:
+      command: ${RD}/Rscript data/huruiyi/661/fix_dashboard_cc.R ${PARAMS}
+      
+  - name: mid_dim_dmyw_assessment
+    type: command
+    config:
+      command: ${RD}/Rscript mid/dim/dmyw/mid_dim_dmyw_assessment.R ${PARAMS}
+      
+      
+  - name: api_afd_hui_leads_fudao_brush
+    type: command
+    config:
+      command: ${RD}/Rscript api/afd/api_afd_hui_leads_fudao_brush.R ${PARAMS}
+      
+  - name: rpt_afd_head_budget_new
+    type: command
+    config:
+      command: ${RD}/Rscript rpt/afd/head/rpt_afd_head_budget_new.R ${PARAMS}
+      
+#  - name: mid_eve_afd_tmk_arrange_class
+#    type: command
+#    config:
+#      command: ${RD}/Rscript mid/eve/afd/mid_eve_afd_tmk_arrange_class.R ${PARAMS}
+      
+      
+#  - name: mid_eve_afd_tmk_arrange_class_brush
+#    type: command
+#    config:
+#      command: ${RD}/Rscript mid/eve/afd/mid_eve_afd_tmk_arrange_class_brush.R ${PARAMS}
+      
+#  - name: fr_afd_tmk_funnel
+#   type: command
+#    config:
+#      command: ${RD}/Rscript fr/afd_tmk/fr_afd_tmk_funnel.R ${PARAMS}
+      
+  - name: api_afd_sales_transaction_package
+    type: command
+    config:
+      command: ${RD}/Rscript api/afd/api_afd_sales_transaction_package.R ${PARAMS}
+      
+  - name: rpt_dmyw_head_budget
+    type: command
+    config:
+      command: ${RD}/Rscript rpt/dmyw/rpt_dmyw_head_budget.R ${PARAMS}
+      
+  - name: mid_eve_afd_custom_assign_merge
+    type: command
+    config:
+      command: ${RD}/Rscript mid/eve/afd/mid_eve_afd_custom_assign_merge.R ${PARAMS}
+      
+  - name: mid_eve_iyx_qqy_dk
+    type: command
+    config:
+      command: ${RD}/Rscript mid/eve/iyx/mid_eve_iyx_qqy_dk.R ${PARAMS}
+      
+#  - name: mid_dim_afd_tmk_arrange_group_goal
+#    type: command
+#    config:
+#      command: ${RD}/Rscript mid/dim/afd/mid_dim_afd_tmk_arrange_group_goal.R ${PARAMS}
+      
+  - name: mid_eve_afd_yy_import_leads_brush
+    type: command
+    config:
+      command: ${RD}/Rscript mid/eve/afd/mid_eve_afd_yy_import_leads_brush.R ${PARAMS}
+
+#  - name: mid_eve_afd_tmk_work_staff
+#     type: command
+#  config:
+#      command: ${RD}/Rscript mid/eve/afd/mid_eve_afd_tmk_work_staff.R ${PARAMS}   
+
+
+#  - name: rpt_afd_head_budget_fudao
+#    type: command
+#    config:
+#      command: ${RD}/Rscript rpt/afd/head/rpt_afd_head_budget_fudao.R ${PARAMS}
+      
+  - name: rpt_afd_head_budget_jxjy
+    type: command
+    config:
+      command: ${RD}/Rscript rpt/afd/head/rpt_afd_head_budget_jxjy.R ${PARAMS}
+
+
+  - name: api_afd_tmk_leads_brush
+    type: command
+    config:
+      command: ${RD}/Rscript api/afd/api_afd_tmk_leads_brush.R ${PARAMS}
+      
+  - name: api_afd_tmk_leads_on_funnel
+    type: command
+    config:
+      command: ${RD}/Rscript api/afd/api_afd_tmk_leads_on_funnel.R ${PARAMS}
+      
+  - name: tag_afd_student_baoding
+    type: command
+    config:
+      command: ${RD}/Rscript tag/afd_student/tag_afd_student_baoding.R ${PARAMS} 
+      
+  - name: mid_dim_afd_yy_user_goal
+    type: command
+    config:
+      command: ${RD}/Rscript mid/dim/afd/mid_dim_afd_yy_user_goal.R ${PARAMS} 
+ 
+  - name: tag_hfs_student
+    type: command
+    config:
+      command: ${RD}/Rscript tag/hfs/tag_hfs_student.R ${PARAMS} 
+      
+      
+  - name: mid_eve_hfs_student_paper_score
+    type: command
+    config:
+      command: ${RD}/Rscript mid/eve/hfs/mid_eve_hfs_student_paper_score.R ${PARAMS}
+      
+  - name: mid_eve_afd_yy_tag_split
+    type: command
+    config:
+      command: ${RD}/Rscript mid/eve/afd/mid_eve_afd_yy_tag_split.R ${PARAMS}
+      
+  - name: mid_eve_afd_user_student_sign_up_info_all
+    type: command
+    config:
+      command: ${RD}/Rscript mid/eve/afd/mid_eve_afd_user_student_sign_up_info_all.R ${PARAMS}
+  
+  - name: fill_hr_target
+    type: command
+    config:
+      command: ${RD}/Rscript fill/hr/fill_hr_target.R ${PARAMS}
+      
+  - name: api_afd_hui_leads_tag
+    type: command
+    config:
+      command: ${RD}/Rscript api/afd/api_afd_hui_leads_tag.R ${PARAMS}
+      
+  - name: mid_eve_hr_invite_info_brush
+    type: command
+    config:
+      command: ${RD}/Rscript mid/eve/hr/mid_eve_hr_invite_info_brush.R ${PARAMS}
+      
+  - name: fr_hr_history_index
+    type: command
+    config:
+      command: ${RD}/Rscript fr/hr/fr_hr_history_index.R ${PARAMS}
+      
+  - name: mid_eve_hr_remain_train_brush
+    type: command
+    config:
+      command: ${RD}/Rscript mid/eve/hr/mid_eve_hr_remain_train_brush.R ${PARAMS}
+      
+  - name: bp_actual_interview_brush
+    type: command
+    config:
+      command: ${RD}/Rscript data/mahongpan/BP招聘/bp_actual_interview_brush.R ${PARAMS}
+      
+  - name: tag_afd_student_sales_on_assignment
+    type: command
+    config:
+      command: ${RD}/Rscript tag/afd_student/tag_afd_student_sales_on_assignment.R ${PARAMS}
+      
+  - name: fr_afd_dashboard_xueguan_student
+    type: command
+    config:
+      command: ${RD}/Rscript fr/afd_dashboard/fr_afd_dashboard_xueguan_student.R ${PARAMS}  
+
+  - name: jianyu2
+    type: command
+    config:
+      command: ${RD}/Rscript data/tianye/jianyu2.R ${PARAMS}
+      
+  - name: api_afd_sales_transaction_summary
+    type: command
+    config:
+      command: ${RD}/Rscript api/afd/api_afd_sales_transaction_summary.R ${PARAMS}
+      
+  - name: fr_afd_tmk_high_intention_funnel
+    type: command
+    config:
+      command: ${RD}/Rscript fr/afd_tmk/fr_afd_tmk_high_intention_funnel.R ${PARAMS}
+      
+  - name: fr_dashboard_yy
+    type: command
+    config:
+      command: ${RD}/Rscript fr/afd_dashboard/fr_dashboard_yy.R ${PARAMS}
+
+  - name: mid_eve_afd_lesson_video_log
+    type: command
+    config:
+      command: ${RD}/Rscript mid/eve/afd/mid_eve_afd_lesson_video_log.R ${PARAMS}
+      
+  - name: mid_eve_afd_referral_student_all
+    type: command
+    config:
+      command: ${RD}/Rscript mid/eve/afd/mid_eve_afd_referral_student_all.R ${PARAMS}
+
+  - name: afd_xg_daily_record
+    type: command
+    config:
+      command: ${RD}/Rscript rpt/afd/xgs/afd_xg_daily_record.R -p 'NOW' ${PARAMS} 
+      
+  - name: rpt_afd_leads_referral_student_funnel
+    type: command
+    config:
+      command: ${RD}/Rscript rpt/afd/leads/rpt_afd_leads_referral_student_funnel.R ${PARAMS}
+      
+  - name: rpt_afd_sales_yixiang_re.R
+    type: command
+    config:
+      command: ${RD}/Rscript rpt/afd/sales/rpt_afd_sales_yixiang_re.R ${PARAMS}
+      
+  - name: mid_dim_hfs_student_baoding
+    type: command
+    config:
+      command: ${RD}/Rscript mid/dim/hfs/mid_dim_hfs_student_baoding.R ${PARAMS}      
+
+  - name: mid_dim_afd_teaching_material
+    type: command
+    config:
+      command: ${RD}/Rscript mid/dim/afd/mid_dim_afd_teaching_material.R ${PARAMS}
+      
+      
+  - name: ods_afd_student_status_incremental
+    type: command
+    config:
+      command: ${RD}/Rscript ods/afd/ods_afd_student_status_incremental.R ${PARAMS}
+
+  - name: rpt_afd_teacher_index_on_time_copy
+    type: command
+    config:
+      command: ${RD}/Rscript rpt/afd/teacher/rpt_afd_teacher_index_on_time_copy.R ${PARAMS}
+      
+  - name: mid_eve_afd_formal_lesson_knowledge_copy
+    type: command
+    config:
+      command: ${RD}/Rscript mid/eve/afd/mid_eve_afd_formal_lesson_knowledge_copy.R ${PARAMS}
+      
+      
+  - name: api_afd_eve_rance_tag
+    type: command
+    config:
+      command: ${RD}/Rscript api/afd/api_afd_eve_rance_tag.R ${PARAMS}
+      
+  - name: api_afd_rpt_sales_todo_follow_funnel
+    type: command
+    config:
+      command: ${RD}/Rscript api/afd/api_afd_rpt_sales_todo_follow_funnel.R ${PARAMS}
+      
+      
+  - name: api_afd_eve_performance_tag
+    type: command
+    config:
+      command: ${RD}/Rscript api/afd/api_afd_eve_performance_tag.R ${PARAMS}
+      
+  - name: api_afd_eve_assignment_tag
+    type: command
+    config:
+      command: ${RD}/Rscript api/afd/api_afd_eve_assignment_tag.R ${PARAMS}
+      
+  - name: api_afd_free_lesson_done_tag
+    type: command
+    config:
+      command: ${RD}/Rscript api/afd/api_afd_free_lesson_done_tag.R ${PARAMS}
+      
+  - name: api_afd_rpt_transaction_tag
+    type: command
+    config:
+      command: ${RD}/Rscript api/afd/api_afd_rpt_transaction_tag.R ${PARAMS}
+      
+  - name: api_afd_eve_free_lesson_apply_tag
+    type: command
+    config:
+      command: ${RD}/Rscript api/afd/api_afd_eve_free_lesson_apply_tag.R ${PARAMS}
+      
+  - name: api_afd_leads_view
+    type: command
+    config:
+      command: ${RD}/Rscript api/afd/api_afd_leads_view.R ${PARAMS}
+      
+  - name: tag_hr_recruit_invite_on_info_brush
+    type: command
+    config:
+      command: ${RD}/Rscript data/chenyulan/tag_hr_recruit_invite_on_info_brush.R ${PARAMS}
+      
+  - name: api_afd_hui_student_exam
+    type: command
+    config:
+      command: ${RD}/Rscript api/afd/api_afd_hui_student_exam.R ${PARAMS}
+      
+  - name: fr_yejiguanli_afd_calls_follow
+    type: command
+    config:
+      command: ${RD}/Rscript fr/yejiguanli_afd/fr_yejiguanli_afd_calls_follow.R ${PARAMS}
+      
+  - name: tag_afd_student_freelesson_follow_info
+    type: command
+    config:
+      command: ${RD}/Rscript tag/afd/tag_afd_student_freelesson_follow_info.R -p 'NOW' ${PARAMS}
+
+  - name: mid_dim_afd_user_teacher_free_time
+    type: command
+    config:
+      command: ${RD}/Rscript mid/dim/afd-user/mid_dim_afd_user_teacher_free_time.R -p 'PAST' ${PARAMS}
+      
+  - name: api_afd_lesson_done_tag
+    type: command
+    config:
+      command: ${RD}/Rscript api/afd/api_afd_lesson_done_tag.R ${PARAMS}
+      
+  - name: api_afd_eve_follow_tag
+    type: command
+    config:
+      command: ${RD}/Rscript api/afd/api_afd_eve_follow_tag.R ${PARAMS}
+      
+  - name: fill_yyzx_school_event
+    type: command
+    config:
+      command: ${RD}/Rscript fill/fill_yyzx_school_event.R ${PARAMS}
+    
+  - name: mid_eve_afd_assignment_api
+    type: command
+    config:
+      command: ${RD}/Rscript mid/eve/afd/mid_eve_afd_assignment_api.R ${PARAMS}     
+
+  - name: mid_eve_afd_follow_api
+    type: command
+    config:
+      command: ${RD}/Rscript mid/eve/afd/mid_eve_afd_follow_api.R ${PARAMS}      
+
+  - name: rpt_afd_xgs_follow_exe
+    type: command
+    config:
+      command: ${RD}/Rscript rpt/afd/xgs/rpt_afd_xgs_follow_exe.R -p 'NOW' ${PARAMS}
+      
+  - name: rpt_dim_fr_use_log
+    type: command
+    config:
+      command: ${RD}/Rscript op/fr/rpt_dim_fr_use_log.R ${PARAMS}
+      
+  - name: rpt_afd_xgs_consume_count
+    type: command
+    config:
+      command: ${RD}/Rscript rpt/afd/xgs/rpt_afd_xgs_consume_count.R ${PARAMS}
+      
+  - name: rpt_afd_xgs_extend_count
+    type: command
+    config:
+      command: ${RD}/Rscript rpt/afd/xgs/rpt_afd_xgs_extend_count.R ${PARAMS}
+      
+  - name: rpt_afd_xgs_resume_class
+    type: command
+    config:
+      command: ${RD}/Rscript rpt/afd/xgs/rpt_afd_xgs_resume_class.R ${PARAMS}
+  
+  - name: mid_eve_afd_free_lesson_on_teaching_info
+    type: command
+    config:
+      command: ${RD}/Rscript action/mid_eve_afd_free_lesson_on_teaching_info.R ${PARAMS}
+      
+  - name: mid_eve_afd_consume_on_teaching_info
+    type: command
+    config:
+      command: ${RD}/Rscript action/mid_eve_afd_consume_on_teaching_info.R ${PARAMS}
+      
+  - name: mid_eve_afd_lesson_session_on_teaching_info
+    type: command
+    config:
+      command: ${RD}/Rscript action/mid_eve_afd_lesson_session_on_teaching_info.R ${PARAMS}
+
+  - name: tag_demander_characteristic
+    type: command
+    config:
+      command: ${RD}/Rscript tag/tag_demander_characteristic.R ${PARAMS}
+      
+  - name: rpt_afd_xgs_follow_bind_student
+    type: command
+    config:
+      command: ${RD}/Rscript rpt/afd/xgs/rpt_afd_xgs_follow_bind_student.R -p 'NOW' ${PARAMS}
+      
+  - name: rpt_afd_xgs_stop_finish_student
+    type: command
+    config:
+      command: ${RD}/Rscript rpt/afd/xgs/rpt_afd_xgs_stop_finish_student.R ${PARAMS}
+      
+      
+  - name: rpt_afd_sales_on_assignment_leads
+    type: command
+    config:
+      command: ${RD}/Rscript rpt/afd_sales/rpt_afd_sales_on_assignment_leads.R ${PARAMS}
+      
+  - name: rpt_afd_sales_on_all
+    type: command
+    config:
+      command: ${RD}/Rscript rpt/afd_sales/rpt_afd_sales_on_all.R ${PARAMS}
+      
+  - name: mid_eve_boss_bpm_process_approve_brush
+    type: command
+    config:
+      command: ${RD}/Rscript mid/eve/boss-bpm/mid_eve_boss_bpm_process_approve_brush.R ${PARAMS}
+
+  - name: mid_dim_hfs_teacher_copy
+    type: command
+    config:
+      command: ${RD}/Rscript mid/dim/hfs/mid_dim_hfs_teacher_copy.R ${PARAMS}
+      
+  - name: map_date_temp
+    type: command
+    config:
+      command: ${RD}/Rscript data/zhanghong/backups/map_date_temp.R ${PARAMS}
+
+  - name: tag_teacher_afd_by_snapshot
+    type: command
+    config:
+      command: ${RD}/Rscript action/tag_teacher_afd_by_snapshot.R ${PARAMS}
+      
+  - name: rpt_afd_xgs_active_resume_subsistence
+    type: command
+    config:
+      command: ${RD}/Rscript rpt/afd/xgs/rpt_afd_xgs_active_resume_subsistence.R ${PARAMS}
+      
+  - name: rpt_afd_leads_year_on_funnel
+    type: command
+    config:
+      command: ${RD}/Rscript rpt/afd/leads/rpt_afd_leads_year_on_funnel.R ${PARAMS}
+      
+  - name: mid_dim_afd_stu_refund
+    type: command
+    config:
+      command: ${RD}/Rscript mid/dim/afd/mid_dim_afd_stu_refund.R ${PARAMS}
+
+  - name: 2020-07-18-mid_eve_afd_lesson_session
+    type: command
+    config:
+      command: ${RD}/Rscript action/2020-07-18-mid_eve_afd_lesson_session.R ${PARAMS}  
+      
+  - name: fr_afd_xgs_keypoint
+    type: command
+    config:
+      command: ${RD}/Rscript fr/afd_xgs/fr_afd_xgs_keypoint.R ${PARAMS}
+      
+  - name: rpt_afd_xgs_referral_count
+    type: command
+    config:
+      command: ${RD}/Rscript rpt/afd/xgs/rpt_afd_xgs_referral_count.R ${PARAMS} 
+      
+  - name: mid_eve_hx_voice_record
+    type: command
+    config:
+      command: ${RD}/Rscript mid/eve/hx_room/mid_eve_hx_voice_record.R ${PARAMS} 
+      
+  - name: rpt_iyx_daka_on_staff
+    type: command
+    config:
+      command: ${RD}/Rscript rpt/iyx/rpt_iyx_daka_on_staff.R ${PARAMS}
+      
+  - name: mid_eve_hx_allocate
+    type: command
+    config:
+      command: ${RD}/Rscript mid/eve/hx_room/mid_eve_hx_allocate.R ${PARAMS}
+    
+  - name: mid_dim_hx_org_user
+    type: command
+    config:
+      command: ${RD}/Rscript mid/dim/hx_room/mid_dim_hx_org_user.R ${PARAMS}
+      
+  - name: rpt_hx_duty_daka
+    type: command
+    config:
+      command: ${RD}/Rscript rpt/hx_room/rpt_hx_duty_daka.R ${PARAMS}
+      
+  - name: rpt_hx_leads_count
+    type: command
+    config:
+      command: ${RD}/Rscript rpt/hx_room/rpt_hx_leads_count.R ${PARAMS}
+      
+  - name: rpt_hx_free_lesson_count
+    type: command
+    config:
+      command: ${RD}/Rscript rpt/hx_room/rpt_hx_free_lesson_count.R ${PARAMS}
+      
+  - name: rpt_hx_order_count
+    type: command
+    config:
+      command: ${RD}/Rscript rpt/hx_room/rpt_hx_order_count.R ${PARAMS}
+
+  - name: mid_eve_afd_student_transfer_history_brush
+    type: command
+    config:
+      command: ${RD}/Rscript mid/eve/afd/mid_eve_afd_student_transfer_history_brush.R ${PARAMS}
+      
+  - name: mid_eve_afd_lesson_online_courseware_category
+    type: command
+    config:
+      command: ${RD}/Rscript mid/eve/afd/mid_eve_afd_lesson_online_courseware_category.R ${PARAMS}
+      
+  - name: mid_dim_afd_operation_user_info
+    type: command
+    config:
+      command: ${RD}/Rscript mid/dim/afd/mid_dim_afd_operation_user_info.R  ${PARAMS}      
+
+  - name: mid_dim_afd_operation_user_info_brush
+    type: command
+    config:
+      command: ${RD}/Rscript mid/dim/afd/mid_dim_afd_operation_user_info_brush.R  ${PARAMS}
+      
+  - name: rpt_afd_xgs_refund_count
+    type: command
+    config:
+      command: ${RD}/Rscript rpt/afd/xgs/rpt_afd_xgs_refund_count.R ${PARAMS}
+      
+  - name: mid_eve_afd_student_finish
+    type: command
+    config:
+      command: ${RD}/Rscript mid/eve/afd/mid_eve_afd_student_finish.R ${PARAMS}
+      
+  - name: rpt_afd_leads_operation_user_info
+    type: command
+    config:
+      command: ${RD}/Rscript rpt/afd/leads/rpt_afd_leads_operation_user_info.R -rt 'D,W,M,MW' ${PARAMS}
+      
+  - name: rpt_afd_xgs_consume_distribution
+    type: command
+    config:
+      command: ${RD}/Rscript rpt/afd/xgs/rpt_afd_xgs_consume_distribution.R ${PARAMS}
+      
+  - name: mid_eve_afd_log_xszy
+    type: command
+    config:
+      command: ${RD}/Rscript mid/eve/afd/mid_eve_afd_log_xszy.R ${PARAMS}
+      
+  - name: rpt_afd_xszy
+    type: command
+    config:
+      command: ${RD}/Rscript rpt/afd/rpt_afd_xszy.R ${PARAMS}
+      
+  - name: rpt_afd_teacher_new_index
+    type: command
+    config:
+      command: ${RD}/Rscript action/rpt_afd_teacher_new_index.R ${PARAMS}
+      
+  - name: mid_eve_afd_sentence_interaction
+    type: command
+    config:
+      command: ${RD}/Rscript mid/eve/afd/mid_eve_afd_sentence_interaction.R ${PARAMS}
+      
+  - name: mid_eve_afd_bookonline_order_info_brush
+    type: command
+    config:
+      command: ${RD}/Rscript mid/eve/afd/mid_eve_afd_bookonline_order_info_brush.R ${PARAMS}
+      
+  - name: mid_eve_afd_teacher_teaching_evaluation_copy
+    type: command
+    config:
+      command: ${RD}/Rscript action/mid_eve_afd_teacher_teaching_evaluation_copy.R ${PARAMS}
+      
+  - name: mid_eve_afd_teacher_jw_evaluation_copy
+    type: command
+    config:
+      command: ${RD}/Rscript action/mid_eve_afd_teacher_jw_evaluation_copy.R ${PARAMS}
+  
+  - name: ods_afd_user_student_grade_sd_brushh_grage
+    type: command
+    config:
+      command: ${RD}/Rscript action/ods_afd_user_student_grade_sd_brushh_grage.R ${PARAMS}
+      
+  - name: rpt_hfs_school-grade_reg_fam_cnt_i1
+    type: command
+    config:
+      command: ${RD}/Rscript rpt/grade/rpt_hfs_school-grade_reg_fam_cnt_i1.R ${PARAMS}
+      
+  - name: mid_eve_hfs_transaction_test
+    type: command
+    config:
+      command: ${RD}/Rscript mid/eve/hfs/mid_eve_hfs_transaction_test.R ${PARAMS}
+      
+  - name: rpt_afd_xgs_free_finish_count
+    type: command
+    config:
+      command: ${RD}/Rscript rpt/afd/xgs/rpt_afd_xgs_free_finish_count.R ${PARAMS}
+      
+  - name: mid_dim_dmyw_check_in_brush
+    type: command
+    config:
+      command: ${RD}/Rscript mid/dim/dmyw/mid_dim_dmyw_check_in_brush.R ${PARAMS}
+      
+  - name: rpt_yy_qw_group
+    type: command
+    config:
+      command: ${RD}/Rscript rpt/yy/rpt_yy_qw_group.R ${PARAMS}
+      
+  - name: mid_dim_afd_yy_user_month_goal
+    type: command
+    config:
+      command: ${RD}/Rscript mid/dim/afd/mid_dim_afd_yy_user_month_goal.R ${PARAMS}
