@@ -72,10 +72,12 @@ print('package library success')
 # ----- 关联mysql
 # 乐软考勤
 con_punch <- dbConnect(MySQL(), dbname = "clound", username="xywy", password="xywy2020.", host="192.168.128.133", port=3306)
+print('connect con_punch success')
+
 # dm展示层
 con_xywy <- dbConnect(MySQL(), dbname = "dm", username="xywy", password="XYwy2020.", host="192.168.128.234", port=3306)
 
-print('mysql link success')
+print('connect con_xywy success')
 
 
 # ----- 关联oracle（使用rjdbc的方式，rodbc及roracle此电脑有坑）
