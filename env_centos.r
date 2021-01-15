@@ -83,6 +83,7 @@ print('connect con_xywy success')
 # ----- 关联sql server
 con_sql <- odbcConnect('orcl', uid='sa' , pwd='xywy2020.')
 
+cs <- sqlQuery(con_sql , "select top 1 * from mid_dim_owner_basic_info")
 
 print('sqlserver link success')
 
