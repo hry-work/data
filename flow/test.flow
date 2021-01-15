@@ -5,4 +5,4 @@ nodes:
   - name: dm_phone_test
     type: command
     config:
-      command: /usr/lib64/R/bin/Rscript root/data/dm/dm_phone_test.R 
+      command: /usr/lib64/R/bin/Rscript root/data/dm/dm_phone_test.r 
