@@ -75,7 +75,7 @@ con_punch <- dbConnect(MySQL(), dbname = "clound", username="xywy", password="xy
 print('connect con_punch success')
 
 # dm展示层
-con_xywy <- dbConnect(MySQL(), dbname = "dm", username="xywy", password="XYwy2020.", host="192.168.128.234", port=3306)
+con_xywy <- dbConnect(MySQL(), dbname = "dm", username="root", password="XYwy2020.", host="192.168.128.234", port=3306)
 
 print('connect con_xywy success')
 
