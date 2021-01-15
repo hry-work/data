@@ -80,6 +80,13 @@ con_xywy <- dbConnect(MySQL(), dbname = "dm", username="root", password="XYwy202
 print('connect con_xywy success')
 
 
+# ----- 关联sql server
+con_sql <- odbcConnect('orcl', uid='sa' , pwd='xywy2020.')
+
+
+print('sqlserver link success')
+
+
 # ----- 关联oracle（使用rjdbc的方式，rodbc及roracle此电脑有坑）
 if(file.exists("G:/") == TRUE) {
   # --- 此版适用远程
@@ -98,13 +105,6 @@ print('jdbc input success')
 con_orc <-dbConnect(drv,"jdbc:oracle:thin:@192.168.128.215:1521/ORCL","ls_xywy","ls_xywy")
 
 print('oracle link success')
-
-
-# ----- 关联sql server
-con_sql <- odbcConnect('orcl', uid='sa' , pwd='xywy2020.')
-
-
-print('sqlserver link success')
 
 
 # 日期
