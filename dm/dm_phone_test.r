@@ -1,4 +1,6 @@
-source('env_centos.r' , encoding = 'utf8')
+print('phone flow start')
+
+source('data/env_centos.r' , encoding = 'utf8')
 
 author <- c('huruiyi')
 
