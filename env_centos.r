@@ -69,6 +69,15 @@ print('package library success')
 
 # ---------- 关联数据库
 
+# ----- 关联mysql
+# 乐软考勤
+con_punch <- dbConnect(MySQL(), dbname = "clound", username="xywy", password="xywy2020.", host="192.168.128.133", port=3306)
+# dm展示层
+con_xywy <- dbConnect(MySQL(), dbname = "dm", username="xywy", password="XYwy2020.", host="192.168.128.234", port=3306)
+
+print('mysql link success')
+
+
 # ----- 关联oracle（使用rjdbc的方式，rodbc及roracle此电脑有坑）
 if(file.exists("G:/") == TRUE) {
   # --- 此版适用远程
@@ -95,13 +104,6 @@ con_sql <- odbcConnect('orcl', uid='sa' , pwd='xywy2020.')
 
 print('sqlserver link success')
 
-# ----- 关联mysql
-# 乐软考勤
-con_punch <- dbConnect(MySQL(), dbname = "clound", username="xywy", password="xywy2020.", host="192.168.128.133", port=3306)
-# dm展示层
-con_xywy <- dbConnect(MySQL(), dbname = "dm", username="xywy", password="XYwy2020.", host="192.168.128.234", port=3306)
-
-print('mysql link success')
 
 # 日期
 today <- as_date(today())
