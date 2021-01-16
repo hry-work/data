@@ -73,7 +73,7 @@ print('package library success')
 # 乐软考勤
 con_punch <- dbConnect(MySQL(), dbname = "clound", username="xywy", password="xywy2020.", host="192.168.128.133", port=3306)
 
-punch_t <- dbGetQuery(con_punch , glue("select top 1 * from punch_record"))
+punch_t <- dbGetQuery(con_punch , glue("select * from punch_record limit 1"))
 
 print('connect con_punch success')
 
