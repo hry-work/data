@@ -80,7 +80,7 @@ print('connect con_punch success')
 # dm展示层
 con_dm <- dbConnect(MySQL(), dbname = "dm", username="root", password="XYwy2020.", host="192.168.128.234", port=3306)
 
-dm_t <- dbGetQuery(con_dm , glue("select * from punch_record"))
+dm_t <- dbGetQuery(con_dm , glue("select * from test"))
 
 print('connect con_dm success')
 
