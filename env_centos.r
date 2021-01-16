@@ -73,14 +73,16 @@ print('package library success')
 # 乐软考勤
 con_punch <- dbConnect(MySQL(), dbname = "clound", username="xywy", password="xywy2020.", host="192.168.128.133", port=3306)
 
-punch_t <- dbGetQuery(con_punch , glue("select * from punch_record limit 1"))
+# 测试看查询是否成功
+# punch_t <- dbGetQuery(con_punch , glue("select * from punch_record limit 1"))
 
 print('connect con_punch success')
 
 # dm展示层
 con_dm <- dbConnect(MySQL(), dbname = "dm", username="root", password="XYwy2020.", host="192.168.128.234", port=3306)
 
-dm_t <- dbGetQuery(con_dm , glue("select * from test"))
+# 测试看查询是否成功
+# dm_t <- dbGetQuery(con_dm , glue("select * from test"))
 
 print('connect con_dm success')
 
