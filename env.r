@@ -83,14 +83,14 @@ con_orc <-dbConnect(drv,"jdbc:oracle:thin:@192.168.128.215:1521/ORCL","ls_xywy",
 
 
 # ----- 关联sql server
-con_sql <- odbcConnect('orcl', uid='sa' , pwd='xywy2020.')
+con_sqls <- odbcConnect('orcl', uid='sa' , pwd='xywy2020.')
 
 
 # ----- 关联mysql
 # 乐软考勤
 con_punch <- dbConnect(MySQL(), dbname = "clound", username="xywy", password="xywy2020.", host="192.168.128.133", port=3306)
 # dm展示层
-con_xywy <- dbConnect(MySQL(), dbname = "dm", username="xywy", password="XYwy2020.", host="192.168.128.234", port=3306)
+con_dm <- dbConnect(MySQL(), dbname = "dm", username="root", password="XYwy2020.", host="192.168.128.234", port=3306)
 
 
 # 日期
