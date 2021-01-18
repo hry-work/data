@@ -88,7 +88,7 @@ print('connect con_dm success')
 
 
 # ----- 关联sql server
-con_sqls <- odbcConnect('orcl', uid='sa' , pwd='xywy2020.')
+con_sqls <- odbcConnect('con_sqls', uid='sa' , pwd='xywy2020.')
 
 cs <- sqlQuery(con_sqls , "select top 1 * from mid_dim_owner_basic_info")
 
