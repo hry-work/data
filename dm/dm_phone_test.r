@@ -3,7 +3,7 @@ print('phone flow start')
 # 本地使用
 source('C:/Users/Administrator/data/env.r' , encoding = 'utf8')
 
-调度使用
+# 调度使用
 source('/root/data/env_centos.r' , encoding = 'utf8')
 
 author <- c('huruiyi')
