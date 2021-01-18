@@ -90,29 +90,30 @@ print('connect con_dm success')
 # ----- 关联sql server
 con_sqls <- odbcConnect('con_sqls', uid='sa' , pwd='xywy2020.')
 
-cs <- sqlQuery(con_sqls , "select top 1 * from mid_dim_owner_basic_info")
+# cs <- sqlQuery(con_sqls , "select top 1 * from mid_dim_owner_basic_info")
 
 print('sqlserver link success')
 
 
-# ----- 关联oracle（使用rjdbc的方式，rodbc及roracle此电脑有坑）
-if(file.exists("G:/") == TRUE) {
-  # --- 此版适用远程
-  drv <-JDBC("oracle.jdbc.driver.OracleDriver",
-             "G:/app/oracle/product/11.2.0/client_1/jdbc/lib/ojdbc6_g.jar",
-             identifier.quote="\"")
-} else if(file.exists("D:/") == TRUE) {
-  # --- 此版适用本地
-  drv <-JDBC("oracle.jdbc.driver.OracleDriver",
-             "D:/u01/app/oracle/product/11.2.0/client_1/jdbc/lib/ojdbc6_g.jar",
-             identifier.quote="\"")
-}
-
-print('jdbc input success')
-
-con_orc <-dbConnect(drv,"jdbc:oracle:thin:@192.168.128.215:1521/ORCL","ls_xywy","ls_xywy")
-
-print('oracle link success')
+# # oracle当前暂不需
+# # ----- 关联oracle（使用rjdbc的方式，rodbc及roracle此电脑有坑）
+# if(file.exists("G:/") == TRUE) {
+#   # --- 此版适用远程
+#   drv <-JDBC("oracle.jdbc.driver.OracleDriver",
+#              "G:/app/oracle/product/11.2.0/client_1/jdbc/lib/ojdbc6_g.jar",
+#              identifier.quote="\"")
+# } else if(file.exists("D:/") == TRUE) {
+#   # --- 此版适用本地
+#   drv <-JDBC("oracle.jdbc.driver.OracleDriver",
+#              "D:/u01/app/oracle/product/11.2.0/client_1/jdbc/lib/ojdbc6_g.jar",
+#              identifier.quote="\"")
+# }
+# 
+# print('jdbc input success')
+# 
+# con_orc <-dbConnect(drv,"jdbc:oracle:thin:@192.168.128.215:1521/ORCL","ls_xywy","ls_xywy")
+# 
+# print('oracle link success')
 
 
 # 日期
