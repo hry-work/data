@@ -2,7 +2,20 @@ config:
   # command被执行的目录，即R工程的工作目录
 
 nodes:
+  
+  - name: start
+    type: noop
+    
+  - name: noop_start@0430
+    type: command
+    dependsOn:
+      - start
+    config:
+      command: /usr/lib64/R/bin/Rscript /root/data/flow/noop/noop_start.r -n '04:30'
+
   - name: dm_phone_property_related
     type: command
+    dependsOn:
+      - noop_start@0430
     config:
-      command: /usr/lib64/R/bin/Rscript /root/data/dm/phone/dm_phone_property_related.r 
+      command: /usr/lib64/R/bin/Rscript /root/data/dm/phone/dm_phone_property_related.r ${PARAMS}

@@ -1,5 +1,14 @@
+# *********************************
+#Sys.setlocale(category = "LC_ALL", locale="UTF-8")
+# 全局设置时区，辅导业务库mongodb使用的是UTC时间
+# 局部可根据具体时区单独设置
+Sys.setenv(TZ="PRC")
 
-print(1)
+# 取消科学计数法显示数字
+options(scipen = 200)
+options(encoding = 'utf-8')
+options(lubridate.week.start = 1)
+options(stringsAsFactors = FALSE)
 
 # 释放内存
 gc()
@@ -7,6 +16,9 @@ gc()
 # options(java.parameters = "-Xmx100g")
 # # 运行内存扩大
 # memory.limit(102400)
+
+
+
 
 # install.packages('utf8')
 # install.packages('rJava')
@@ -78,7 +90,7 @@ con_punch <- dbConnect(MySQL(), dbname = "clound", username="xywy", password="xy
 
 print('connect con_punch success')
 
-# dm展示层
+# 鑫苑物业dm展示层
 con_dm <- dbConnect(MySQL(), dbname = "dm", username="root", password="XYwy2020.", host="192.168.128.234", port=3306)
 
 # 测试看查询是否成功
@@ -120,4 +132,4 @@ print('sqlserver link success')
 today <- as_date(today())
 day <- as_date(today - 1)
 
-print('source env.r success')
+print('source env success')
