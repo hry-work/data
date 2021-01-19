@@ -20,14 +20,22 @@ gc()
 # 加载包
 source('/root/data/env/packages.r', encoding = "utf-8")
 
+# 每次连库前先关闭数据库连接，否则连接过多时会报错
+source('/root/data/env/killconnection.r', encoding = "utf-8")
+
 # 关联数据库
 source('/root/data/env/connect.r', encoding = "utf-8")
 
+# 参数
+source('/root/data/env/param.r', encoding = "utf-8")
 
-
+# 函数
+source('/root/data/env/function.r', encoding = "utf-8")
 
 # 日期
-today <- as_date(today())
-day <- as_date(today - 1)
+source('/root/data/env/date.r', encoding = "utf-8")
+
+
+
 
 print('source env success')

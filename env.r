@@ -22,6 +22,8 @@ memory.limit(102400)
 # 加载包
 source('C:/Users/Administrator/data/env/packages.r', encoding = "utf-8")
 
+# 每次连库前先关闭数据库连接，否则连接过多时会报错
+source('C:/Users/Administrator/data/env/killconnection.r', encoding = "utf-8")
 
 
 # ---------- 关联数据库---------------
@@ -54,8 +56,14 @@ con_punch <- dbConnect(MySQL(), dbname = "clound", username="xywy", password="xy
 con_dm <- dbConnect(MySQL(), dbname = "dm", username="root", password="XYwy2020.", host="192.168.128.234", port=3306)
 
 
-# 日期
-today <- as_date(today())
-day <- as_date(today - 1)
+# 参数
+source('C:/Users/Administrator/data/env/param.r', encoding = "utf-8")
 
-print('source env.r success')
+# 函数
+source('C:/Users/Administrator/data/env/function.r', encoding = "utf-8")
+
+# 日期
+source('C:/Users/Administrator/data/env/date.r', encoding = "utf-8")
+
+
+print('source env success')
