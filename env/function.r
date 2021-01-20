@@ -63,11 +63,23 @@ get_day_start_end <- function(day, pd_type) {
   if (pd_type == 'D') {
     start <- day
     end <- day
-  } else if (pd_type %in% c('W' , 'M' , 'Q' , 'HY' , 'Y')) {
-    start <- as_date(dim_date$start_date)
-    end <- as_date(dim_date$end_date)
-  } 
+  } else if (pd_type == 'W') {
+    start <- as_date(dim_date$week_start)
+    end <- as_date(dim_date$week_end)
+  } else if (pd_type == 'M') {
+    start <- as_date(dim_date$month_start)
+    end <- as_date(dim_date$month_end)
+  } else if (pd_type == 'Q') {
+    start <- as_date(dim_date$quarter_start)
+    end <- as_date(dim_date$quarter_end)
+  } else if (pd_type == 'HY') {
+    start <- as_date(dim_date$halfyear_start)
+    end <- as_date(dim_date$halfyear_end)
+  } else if (pd_type == 'Y') {
+    start <- as_date(dim_date$year_start)
+    end <- as_date(dim_date$year_end)
+  }
+  
   return(data.frame(start = start, end = end))
 }
 
-cs <- get_day_start_end(as_date('2020-11-10') , 'Q')
