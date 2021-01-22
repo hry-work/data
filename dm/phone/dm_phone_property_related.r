@@ -66,15 +66,6 @@ for (day in days) {
     distinct(cost_datestart) %>% 
     mutate(cost_datestart = as_date(cost_datestart))
   
-  # 最早、晚的物业费应收日期
-  property_start <- min(property_date$cost_datestart)
-  
-  # map_date
-  map_date <- sqlQuery(con_sqls , glue("select day , month_start , month_end , year_start , year_end ,
-                                     year_start_thb , year_end_thb
-                                     from mid_map_date
-                                     where day between '{property_start}' and '{year_end}'"))
-  
   
   # ---------- 物业费户、金额
   # 今年应收的物业费，在今年及之前的收缴情况
@@ -188,8 +179,9 @@ for (day in days) {
     left_join(property_house) %>% 
     full_join(recovered) %>% 
     mutate(day = day ,
-           start_date = year_start ,
-           end_date = month_end ,
+           ys_start = year_start ,
+           ys_end = year_end ,
+           get_end = month_end ,
            pd_type = 'M' ,
            pd_type_value = month_value ,
            is_complete = if_else(day == month_end , 1 , 0))
@@ -200,26 +192,24 @@ for (day in days) {
   # 设置重复
   property_related <- property_related %>% 
     rbind(property_related %>% 
-            mutate(end_date = quarter_end ,
+            mutate(get_end = quarter_end ,
                    pd_type = 'Q' ,
                    pd_type_value = quarter_value ,
                    is_complete = if_else(day == quarter_end , 1 , 0))) %>% 
     rbind(property_related %>% 
-            mutate(end_date = halfyear_end ,
+            mutate(get_end = halfyear_end ,
                    pd_type = 'HY' ,
                    pd_type_value = halfyear_value ,
                    is_complete = if_else(day == halfyear_end , 1 , 0))) %>% 
     rbind(property_related %>% 
-            mutate(end_date = year_end ,
+            mutate(get_end = year_end ,
                    pd_type = 'Y' ,
                    pd_type_value = year_value ,
                    is_complete = if_else(day == year_end , 1 , 0))) %>% 
     mutate(d_t = now()) 
-  
-  # Encoding(property_related$project_name) <- "gbk" ##转换成UTF-8
-  # Encoding(property_related$pd_type) <- "UTF-8" ##转换成UTF-8
-  # Encoding(property_related$pd_type_value) <- "UTF-8" ##转换成UTF-8
 
+
+  # ---------- 入库
   # 连接mysql dm层
   conn <- dbConnect(con_dm)
   
@@ -228,7 +218,7 @@ for (day in days) {
   delete_old <- dbGetQuery(conn , glue("delete from {table} where day = '{day}'"))
   print('delete success')
   
-  # 今日新跑数据写入(windows会报错，带中文的字符串需改为gbk)
+  # 今日新跑数据写入(windows会报错，带中文的字符串需改为gbk。线上跑数无问题，因此可直接放线上测试)
   dbWriteTable(conn , table , property_related , append = T , row.names = F)
   print('write success')
   
