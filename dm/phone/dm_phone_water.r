@@ -1,7 +1,7 @@
 # 本地使用
-source('C:/Users/Administrator/data/env.r' , encoding = 'utf8')
+# source('C:/Users/Administrator/data/env.r' , encoding = 'utf8')
 # 调度使用
-# source('/root/data/env_centos.r' , encoding = 'utf8')
+source('/root/data/env_centos.r' , encoding = 'utf8')
 # 水费逻辑：上月末所属的年初至上月末的应收，截至本月末的收缴情况
 
 author <- c('huruiyi')
@@ -107,30 +107,28 @@ for (day in days) {
   # 合并
   water_data <- water %>% 
     mutate(day = day ,
-           start_date = ys_start ,
-           end_date = month_end ,
+           ys_start = ys_start ,
+           ys_end = ys_end ,
+           get_end = month_end ,
            pd_type = 'M' ,
            pd_type_value = month_value ,
            is_complete = if_else(day == month_end , 1 , 0))
   
   # 替换空值
-  property_related[is.na(property_related)] <- 0
+  water_data[is.na(water_data)] <- 0
   
   # 设置重复
-  property_related <- property_related %>% 
-    rbind(property_related %>% 
-            mutate(end_date = quarter_end ,
-                   pd_type = 'Q' ,
+  water_data <- water_data %>% 
+    rbind(water_data %>% 
+            mutate(pd_type = 'Q' ,
                    pd_type_value = quarter_value ,
                    is_complete = if_else(day == quarter_end , 1 , 0))) %>% 
-    rbind(property_related %>% 
-            mutate(end_date = halfyear_end ,
-                   pd_type = 'HY' ,
+    rbind(water_data %>% 
+            mutate(pd_type = 'HY' ,
                    pd_type_value = halfyear_value ,
                    is_complete = if_else(day == halfyear_end , 1 , 0))) %>% 
-    rbind(property_related %>% 
-            mutate(end_date = year_end ,
-                   pd_type = 'Y' ,
+    rbind(water_data %>% 
+            mutate(pd_type = 'Y' ,
                    pd_type_value = year_value ,
                    is_complete = if_else(day == year_end , 1 , 0))) %>% 
     mutate(d_t = now()) 
@@ -146,7 +144,7 @@ for (day in days) {
   print('delete success')
   
   # 今日新跑数据写入(windows会报错，带中文的字符串需改为gbk)
-  dbWriteTable(conn , table , property_related , append = T , row.names = F)
+  dbWriteTable(conn , table , water_data , append = T , row.names = F)
   print('write success')
   
 }
