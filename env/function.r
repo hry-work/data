@@ -83,3 +83,26 @@ get_day_start_end <- function(day, pd_type) {
   return(data.frame(start = start, end = end))
 }
 
+# 获取某一天对应的 Y HY Q M W 的pd_type_value
+get_pd_type_value <- function(day, pd_type) {
+  day <- as_date(day)
+  
+  if (pd_type == 'W') {
+    pd_type_value <-sqlQuery(con_sqls,glue("select week from mid_map_date where day = '{day}'"))
+    pd_type_value <- pd_type_value$week
+  } else if (pd_type == 'M') {
+    pd_type_value <-sqlQuery(con_sqls,glue("select month from mid_map_date where day = '{day}'"))
+    pd_type_value <- pd_type_value$month
+  } else if (pd_type == 'Q') {
+    pd_type_value <-sqlQuery(con_sqls,glue("select quarter_value from mid_map_date where day = '{day}'"))
+    pd_type_value <- pd_type_value$quarter_value
+  } else if (pd_type == 'HY') {
+    pd_type_value <-sqlQuery(con_sqls,glue("select halfyear from mid_map_date where day = '{day}'"))
+    pd_type_value <- pd_type_value$halfyear
+  } else if (pd_type == 'Y') {
+    pd_type_value <-sqlQuery(con_sqls,glue("select year from mid_map_date where day = '{day}'"))
+    pd_type_value <- pd_type_value$year
+  }
+  
+  return(pd_type_value)
+}

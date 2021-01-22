@@ -1,10 +1,9 @@
 # 本地使用
-source('C:/Users/Administrator/data/env.r' , encoding = 'utf8')
+# source('C:/Users/Administrator/data/env.r' , encoding = 'utf8')
 # 调度使用
-# source('/root/data/env_centos.r' , encoding = 'utf8')
+source('/root/data/env_centos.r' , encoding = 'utf8')
 
 author <- c('huruiyi')
-print(author)
 table <- 'dm_phone_property_related'
 
 for (day in days) {
@@ -78,7 +77,7 @@ for (day in days) {
   
   
   # ---------- 物业费户、金额
-  # 今年应收的物业费，在今年及之前的收缴
+  # 今年应收的物业费，在今年及之前的收缴情况
   print(now())
   property <- chargebills %>% 
     filter(cost_datestart >= year_start ,
@@ -119,7 +118,7 @@ for (day in days) {
     summarise(owe_amount = sum(owe_amount)) %>% 
     group_by(project_name) %>% 
     summarise(house_cnt = n_distinct(pk_house) ,
-              get_cnt = n_distinct(pk_house[owe_amount <= 0]))
+              takeover_cnt = n_distinct(pk_house[owe_amount <= 0]))
   print(now())
   
   
@@ -182,21 +181,56 @@ for (day in days) {
     left_join(recovery) %>% 
     mutate(recovery = replace_na(recovery , 0))
   
-  # 判断日期，设置重复(截至年、半年、季度、月末的数据)
   
+  # ---------- 合并物业费及清欠数据，再判断日期设置重复(截至年、半年、季度、月末的数据)
+  # 合并
+  property_related <- property_amount %>% 
+    left_join(property_house) %>% 
+    full_join(recovered) %>% 
+    mutate(day = day ,
+           start_date = year_start ,
+           end_date = month_end ,
+           pd_type = 'M' ,
+           pd_type_value = month_value ,
+           is_complete = if_else(day == month_end , 1 , 0))
+  
+  # 替换空值
+  property_related[is.na(property_related)] <- 0
+  
+  # 设置重复
+  property_related <- property_related %>% 
+    rbind(property_related %>% 
+            mutate(end_date = quarter_end ,
+                   pd_type = 'Q' ,
+                   pd_type_value = quarter_value ,
+                   is_complete = if_else(day == quarter_end , 1 , 0))) %>% 
+    rbind(property_related %>% 
+            mutate(end_date = halfyear_end ,
+                   pd_type = 'HY' ,
+                   pd_type_value = halfyear_value ,
+                   is_complete = if_else(day == halfyear_end , 1 , 0))) %>% 
+    rbind(property_related %>% 
+            mutate(end_date = year_end ,
+                   pd_type = 'Y' ,
+                   pd_type_value = year_value ,
+                   is_complete = if_else(day == year_end , 1 , 0))) %>% 
+    mutate(d_t = now()) 
+  
+  # Encoding(property_related$project_name) <- "gbk" ##转换成UTF-8
+  # Encoding(property_related$pd_type) <- "UTF-8" ##转换成UTF-8
+  # Encoding(property_related$pd_type_value) <- "UTF-8" ##转换成UTF-8
 
-  # # 连接mysql，写入数据
-  # 
-  # # 连接mysql dm层
-  # conn <- dbConnect(con_dm)
-  # 
-  # # test_2 <- dbGetQuery(conn , "select * from test")
-  # 
-  # print('start write')
-  # 
-  # 删除
-  # 
-  # # 写入
-  # dbWriteTable(conn , 'test' , test_write , append = T , row.names = F)
+  # 连接mysql dm层
+  conn <- dbConnect(con_dm)
+  
+  # 删除除新跑数据外，非月末、季末、半年末、年末的数据(is_complete为0的)
+  delete_uncomplete <- dbGetQuery(conn , glue("delete from {table} where is_complete = 0"))
+  delete_old <- dbGetQuery(conn , glue("delete from {table} where day = '{day}'"))
+  print('delete success')
+  
+  # 今日新跑数据写入(windows会报错，带中文的字符串需改为gbk)
+  dbWriteTable(conn , table , property_related , append = T , row.names = F)
+  print('write success')
+  
 }
 
