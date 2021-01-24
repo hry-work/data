@@ -9,6 +9,7 @@ table <- 'dm_phone_property_related'
 for (day in days) {
   
   day <- as_date(day)
+  print(day)
   
   # ---------- 从sql server取物业费相关表
   # 应收

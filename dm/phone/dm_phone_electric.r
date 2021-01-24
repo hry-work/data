@@ -12,6 +12,7 @@ table <- 'dm_phone_electric'
 for (day in days) {
   
   day <- as_date(day)
+  print(day)
   
   # ---------- 电费相关日期
   ys_end <- month_start - days(1)
