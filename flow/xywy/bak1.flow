@@ -15,24 +15,21 @@ nodes:
 
   - name: dm_phone_property_related
     type: command
-    paramd=${d}
     dependsOn:
       - noop_start@0300
     config:
-      command: /usr/lib64/R/bin/Rscript /root/data/dm/phone/dm_phone_property_related.r ${paramd}
+      command: /usr/lib64/R/bin/Rscript /root/data/dm/phone/dm_phone_property_related.r
       
   - name: dm_phone_water
     type: command
-    paramd=${d}
     dependsOn:
       - dm_phone_property_related
     config:
-      command: /usr/lib64/R/bin/Rscript /root/data/dm/phone/dm_phone_water.r ${paramd}
+      command: /usr/lib64/R/bin/Rscript /root/data/dm/phone/dm_phone_water.r
       
   - name: dm_phone_electric
     type: command
-    paramd=${d}
     dependsOn:
       - dm_phone_property_related
     config:
-      command: /usr/lib64/R/bin/Rscript /root/data/dm/phone/dm_phone_electric.r ${paramd}
+      command: /usr/lib64/R/bin/Rscript /root/data/dm/phone/dm_phone_electric.r
