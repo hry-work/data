@@ -26,11 +26,11 @@ source('/root/data/env/killconnection.r', encoding = "utf-8")
 # 关联数据库
 source('/root/data/env/connect.r', encoding = "utf-8")
 
-# 参数
-source('/root/data/env/param.r', encoding = "utf-8")
-
 # 函数
 source('/root/data/env/function.r', encoding = "utf-8")
+
+# 参数
+source('/root/data/env/param.r', encoding = "utf-8")
 
 # 日期
 source('/root/data/env/date.r', encoding = "utf-8")
