@@ -80,8 +80,8 @@ if (is_blank(opt$noop_start) == 0) {
 }
 
 #  -m "recent=15"
-if(gp(RECENT) != ''){
-  start <- today() - as.numeric(gp(RECENT))
-  etl_start <- start
-}
+# if(gp(RECENT) != ''){
+#   start <- today() - as.numeric(gp(RECENT))
+#   etl_start <- start
+# }
 day <- days[1]

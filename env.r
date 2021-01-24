@@ -56,14 +56,19 @@ con_punch <- dbConnect(MySQL(), dbname = "clound", username="xywy", password="xy
 con_dm <- dbConnect(MySQL(), dbname = "dm", username="root", password="XYwy2020.", host="192.168.128.234", port=3306)
 
 
-# 参数
-source('C:/Users/Administrator/data/env/param.r', encoding = "utf-8")
-
 # 函数
 source('C:/Users/Administrator/data/env/function.r', encoding = "utf-8")
 
+# 参数
+source('C:/Users/Administrator/data/env/param.r', encoding = "utf-8")
+
+# 公共函数
+source('C:/Users/Administrator/data/env/function_pub.r', encoding = "utf-8")
+
 # 日期
 source('C:/Users/Administrator/data/env/date.r', encoding = "utf-8")
+
+
 
 
 print('source env success')
