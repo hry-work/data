@@ -1,6 +1,6 @@
 # 日期
 today <- as_date(today())
-day <- as_date(today - 1)
+day <- as_date(days)
 
 
 # 常用日期
