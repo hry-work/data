@@ -18,18 +18,18 @@ nodes:
     dependsOn:
       - noop_start@0300
     config:
-      command: /usr/lib64/R/bin/Rscript /root/data/dm/phone/dm_phone_property_related.r 
+      command: /usr/lib64/R/bin/Rscript /root/data/dm/phone/dm_phone_property_related.r ${PARAMS}
       
   - name: dm_phone_water
     type: command
     dependsOn:
       - dm_phone_property_related
     config:
-      command: /usr/lib64/R/bin/Rscript /root/data/dm/phone/dm_phone_water.r 
+      command: /usr/lib64/R/bin/Rscript /root/data/dm/phone/dm_phone_water.r ${PARAMS} 
       
   - name: dm_phone_electric
     type: command
     dependsOn:
       - dm_phone_property_related
     config:
-      command: /usr/lib64/R/bin/Rscript /root/data/dm/phone/dm_phone_electric.r 
+      command: /usr/lib64/R/bin/Rscript /root/data/dm/phone/dm_phone_electric.r ${PARAMS} 
