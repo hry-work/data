@@ -116,12 +116,12 @@ day_data <- day %>%
   rename(get_end_utilities = month_end)
 
 
-# sqlserver入库
-sqlClear(con_sql, table)
-sqlSave(con_sql , day_data , tablename = table ,
-        append = TRUE , rownames = FALSE , fast = FALSE)
-
-print(paste0('ETL map day_data2 success: ' , now()))
+# # sqlserver入库(sql server早先已入库，因此注掉不再入库)
+# sqlClear(con_sqls, table)
+# sqlSave(con_sqls , day_data , tablename = table ,
+#         append = TRUE , rownames = FALSE , fast = FALSE)
+# 
+# print(paste0('ETL map day_data success: ' , now()))
 
 
 # MySQL入库

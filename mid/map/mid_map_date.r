@@ -96,12 +96,12 @@ day_data <- day %>%
 
 
 
-# sqlserver入库
-sqlClear(con_sql, table)
-sqlSave(con_sql , day_data , tablename = table ,
-        append = TRUE , rownames = FALSE , fast = FALSE)
-
-print(paste0('ETL map day_data success: ' , now()))
+# # sqlserver入库(sql server早先已入库，因此注掉不再入库)
+# sqlClear(con_sqls, table)
+# sqlSave(con_sqls , day_data , tablename = table ,
+#         append = TRUE , rownames = FALSE , fast = FALSE)
+# 
+# print(paste0('ETL map day_data success: ' , now()))
 
 
 # oracle暂未入库
