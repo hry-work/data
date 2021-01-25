@@ -100,19 +100,43 @@ for (day in days) {
   print(now())
   
   print(now())
+  # 金额
   property_amount <- property %>% 
     group_by(project_name) %>% 
     summarise(accrued_amount = sum(accrued_amount , na.rm = T) ,
-              takeover_amount = sum(get_amount , na.rm = T))
+              takeover_amount = sum(get_amount , na.rm = T) ,
+              accrued_amount_business = sum(accrued_amount[projectname == '商业物业费'] , na.rm = T) ,
+              takeover_amount_business = sum(get_amount[projectname == '商业物业费'] , na.rm = T) ,
+              accrued_amount_house = sum(accrued_amount[projectname == '住宅物业费'] , na.rm = T) ,
+              takeover_amount_house = sum(get_amount[projectname == '住宅物业费'] , na.rm = T) ,
+              accrued_amount_office = sum(accrued_amount[projectname == '写字楼物业费'] , na.rm = T) ,
+              takeover_amount_office = sum(get_amount[projectname == '写字楼物业费'] , na.rm = T) ,
+              accrued_amount_pubfacilities = sum(accrued_amount[projectname == '公建配套物业费'] , na.rm = T) ,
+              takeover_amount_pubfacilities = sum(get_amount[projectname == '公建配套物业费'] , na.rm = T))
   
+  print(now())
+
+  # 户
   property_house <- property %>% 
     group_by(project_name , pk_house) %>% 
     summarise(owe_amount = sum(owe_amount)) %>% 
     group_by(project_name) %>% 
     summarise(house_cnt = n_distinct(pk_house) ,
-              takeover_cnt = n_distinct(pk_house[owe_amount <= 0]))
+              takeover_cnt = n_distinct(pk_house[owe_amount <= 0])) %>% 
+    left_join(property %>% 
+                group_by(project_name , pk_house , projectname) %>% 
+                summarise(owe_amount = sum(owe_amount)) %>% 
+                group_by(project_name) %>% 
+                summarise(house_cnt_business = n_distinct(pk_house[projectname == '商业物业费'] , na.rm = T) ,
+                          takeover_cnt_business = n_distinct(pk_house[owe_amount <= 0 & projectname == '商业物业费'] , na.rm = T) ,
+                          house_cnt_house = n_distinct(pk_house[projectname == '住宅物业费'] , na.rm = T) ,
+                          takeover_cnt_house = n_distinct(pk_house[owe_amount <= 0 & projectname == '住宅物业费'] , na.rm = T) ,
+                          house_cnt_office = n_distinct(pk_house[projectname == '写字楼物业费'] , na.rm = T) ,
+                          takeover_cnt_office = n_distinct(pk_house[owe_amount <= 0 & projectname == '写字楼物业费'] , na.rm = T) ,
+                          house_cnt_pubfacilities = n_distinct(pk_house[projectname == '公建配套物业费'] , na.rm = T) ,
+                          takeover_cnt_pubfacilities = n_distinct(pk_house[owe_amount <= 0 & projectname == '公建配套物业费'] , na.rm = T)))
   print(now())
-  
+
   
   # ---------- 清欠
   # 应收：每年1日之前的应收，在该年1日之前未收的
