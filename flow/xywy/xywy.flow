@@ -6,6 +6,13 @@ nodes:
   - name: start
     type: noop
     
+  - name: mid_dim_project_hierarchy
+    type: command
+    dependsOn:
+      - start
+    config:
+      command: /usr/lib64/R/bin/Rscript /root/data/mid/dim/mid_dim_project_hierarchy.r
+    
   - name: noop_start@0300
     type: command
     dependsOn:

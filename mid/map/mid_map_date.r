@@ -1,7 +1,8 @@
-source('C:/Users/Administrator/data/env.r' , encoding = 'utf8')
-
+# 本地使用
+# source('C:/Users/Administrator/data/env.r' , encoding = 'utf8')
+# 调度使用
+source('/root/data/env_centos.r' , encoding = 'utf8')
 author <- c('huruiyi')
-
 # 命名规则: 表应归属库_表类型_归属部门_业务大类_表详细归类
 table <- 'mid_map_date'      # 日期表
 
@@ -100,7 +101,7 @@ sqlClear(con_sql, table)
 sqlSave(con_sql , day_data , tablename = table ,
         append = TRUE , rownames = FALSE , fast = FALSE)
 
-lprint(paste0('ETL map day_data success: ' , now()))
+print(paste0('ETL map day_data success: ' , now()))
 
 
 # oracle暂未入库
@@ -108,3 +109,11 @@ lprint(paste0('ETL map day_data success: ' , now()))
 # newData <- project_data[,utfCol:=iconv(gbkCol,from="gbk",to="utf-8")]
 # dbWriteTable(con_orc , 'MID_DIM_PROJECT_HIERARCHY' , day_data , overwrite=TRUE)
 # print(paste0('ETL map day_data success: ' , now()))
+
+
+# MySQL入库
+conn <- dbConnect(con_dm)
+
+dbWriteTable(conn , table , day_data , append = F , row.names = F)
+
+print(paste0('MySQL ETL day_data success: ' , now()))

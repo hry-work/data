@@ -1,0 +1,22 @@
+config:
+  # command被执行的目录，即R工程的工作目录
+  # 非自动调度的flow，如需更新，手动操作
+
+nodes:
+  
+  - name: start
+    type: noop
+    
+  - name: mid_map_date
+    type: command
+    dependsOn:
+      - start
+    config:
+      command: /usr/lib64/R/bin/Rscript /root/data/mid/map/mid_map_date.r
+      
+  - name: mid_map_date2
+    type: command
+    dependsOn:
+      - start
+    config:
+      command: /usr/lib64/R/bin/Rscript /root/data/mid/map/mid_map_date2.r
