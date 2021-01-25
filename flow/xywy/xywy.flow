@@ -40,3 +40,10 @@ nodes:
       - dm_phone_property_related
     config:
       command: /usr/lib64/R/bin/Rscript /root/data/dm/phone/dm_phone_electric.r
+      
+  - name: dm_phone_car
+    type: command
+    dependsOn:
+      - dm_phone_property_related
+    config:
+      command: /usr/lib64/R/bin/Rscript /root/data/dm/phone/dm_phone_car.r
