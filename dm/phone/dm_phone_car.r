@@ -78,7 +78,7 @@ for (day in days) {
             mutate(ys_end = year_end ,
                    get_end = year_end ,
                    pd_type = 'Y' ,
-                   pd_type_value = year_value ,
+                   pd_type_value = paste0(year_value , '年') ,
                    is_complete = if_else(day == year_end , 1 , 0))) %>% 
     mutate(d_t = now()) 
   
