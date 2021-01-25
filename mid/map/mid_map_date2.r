@@ -125,7 +125,7 @@ day_data <- day %>%
 
 
 # MySQL入库
-conn <- dbConnect(con_dm)
+conn <- dbConnect(con_mid)
 
 dbWriteTable(conn , table , day_data , append = F , row.names = F)
 

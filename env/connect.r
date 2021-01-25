@@ -8,6 +8,10 @@ print('connect con_punch success')
 con_dm <- dbConnect(MySQL(), dbname = "dm", username="root", password="XYwy2020.", host="192.168.128.234", port=3306)
 print('connect con_dm success')
 
+# 鑫苑物业mid中间层
+con_mid <- dbConnect(MySQL(), dbname = "mid", username="root", password="XYwy2020.", host="192.168.128.234", port=3306)
+print('connect con_dm success')
+
 
 # --------------- 关联sql server ---------------
 con_sqls <- odbcConnect('con_sqls', uid='sa' , pwd='xywy2020.')
