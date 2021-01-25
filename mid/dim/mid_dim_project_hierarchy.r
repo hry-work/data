@@ -16,5 +16,5 @@ project_data <- sqlQuery(con_sqls , glue("select * from mid_dim_project_hierarch
 # MySQL入库
 conn <- dbConnect(con_mid)
 
-dbWriteTable(conn , table , project_data , append = F , row.names = F)
+dbWriteTable(conn , table , project_data , overwrite=TRUE)
 print(paste0('MySQL ETL project hierarchy success: ' , now()))

@@ -114,6 +114,6 @@ day_data <- day %>%
 # MySQL入库
 conn <- dbConnect(con_mid)
 
-dbWriteTable(conn , table , day_data , append = F , row.names = F)
+dbWriteTable(conn , table , day_data , overwrite=TRUE)
 
 print(paste0('MySQL ETL day_data success: ' , now()))
