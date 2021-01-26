@@ -65,30 +65,33 @@ print(paste0('电费冲抵结束：' , now()))
 
 
 # ---------- 电费日期计算
-property_date <- chargebills %>% 
+electric_date <- chargebills %>% 
   distinct(cost_datestart) %>% 
-  mutate(cost_datestart = as_date(cost_datestart)) %>% 
-  filter(cost_datestart < year_start)
+  mutate(cost_datestart = as_date(cost_datestart)) 
 
 # 电费收费截止月末
 date <- sqlQuery(con_sqls , "select day , month_end from mid_map_date") %>% 
   mutate(day = as_date(day) ,
          month_end = as_date(month_end)) %>% 
-  filter(day >= min(property_date$cost_datestart) , 
-         day < year_start) %>% 
+  filter(day >= min(electric_date$cost_datestart) , 
+         day < month_start) %>% 
   distinct(month_end)
 
 
-for (day in days) {
+for (day in date$month_end) {
   
   day <- as_date(day)
+  # day <- as_date('2006-10-31')
   print(day)
   
   # ---------- 电费相关日期
+  se_m <- get_day_start_end(day , 'M')
+  month_start <- se_m$start
+  month_end <- se_m$end
+  month_value <- get_pd_type_value(day , 'M')
+  print(paste0(month_end , '   ' , month_value))
+  
   ys_end <- month_start - days(1)
-  
-  
-  
   
   
   # ---------- 大额电欠费
@@ -96,18 +99,22 @@ for (day in days) {
   # 存在应收为0，实收+减免+冲抵大于0的情况；存在实收+减免+冲抵大于应收的情况
   print(now())
   large_owe <- chargebills %>% 
+    filter(cost_datestart < month_start) %>% 
     left_join(gathering %>% 
-                filter(bill_date <= month_end) %>% 
+                filter(cost_datestart < month_start ,
+                       bill_date <= month_end) %>% 
                 group_by(pk_chargebills) %>% 
                 summarise(lm_real_amount = sum(real_amount[bill_date < month_start] , na.rm = T) ,
                           now_real_amount = sum(real_amount , na.rm = T))) %>% 
     left_join(relief %>% 
-                filter(enableddate <= month_end) %>% 
+                filter(cost_datestart < month_start ,
+                       enableddate <= month_end) %>% 
                 group_by(pk_chargebills) %>% 
                 summarise(lm_adjust_amount = sum(adjust_amount[enableddate < month_start] , na.rm = T) ,
                           now_adjust_amount = sum(adjust_amount , na.rm = T))) %>% 
     left_join(match %>% 
-                filter(bill_date <= month_end) %>% 
+                filter(cost_datestart < month_start ,
+                       bill_date <= month_end) %>% 
                 group_by(pk_chargebills) %>% 
                 summarise(lm_match_amount = sum(match_amount[bill_date < month_start] , na.rm = T) ,
                           now_match_amount = sum(match_amount , na.rm = T))) %>% 
