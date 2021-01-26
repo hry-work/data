@@ -148,5 +148,8 @@ for (day in days) {
   dbWriteTable(conn , table , water_data , append = T , row.names = F)
   print('write success')
   
+  # 断开连接
+  dbDisconnect(conn)
+  
 }
 

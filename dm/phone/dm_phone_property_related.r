@@ -247,5 +247,8 @@ for (day in days) {
   dbWriteTable(conn , table , property_related , append = T , row.names = F)
   print('write success')
   
+  # 断开连接
+  dbDisconnect(conn)
+  
 }
 

@@ -164,5 +164,8 @@ for (day in days) {
   dbWriteTable(conn , table , electric_large_owe , append = T , row.names = F)
   print('write success')
   
+  # 断开连接
+  dbDisconnect(conn)
+  
 }
 

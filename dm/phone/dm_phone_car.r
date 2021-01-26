@@ -96,5 +96,8 @@ for (day in days) {
   dbWriteTable(conn , table , car , append = T , row.names = F)
   print('write car data success')
   
+  # 断开连接
+  dbDisconnect(conn)
+  
 }
 
