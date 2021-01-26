@@ -13,23 +13,23 @@ nodes:
     config:
       command: /usr/lib64/R/bin/Rscript /root/data/history/history_dm_phone_property_related.r
       
-  - name: dm_phone_water
+  - name: history_dm_phone_water
     type: command
     dependsOn:
-      - dm_phone_property_related
+      - history_dm_phone_property_related
     config:
-      command: /usr/lib64/R/bin/Rscript /root/data/dm/phone/dm_phone_water.r
+      command: /usr/lib64/R/bin/Rscript /root/data/history/history_dm_phone_water.r
       
-  - name: dm_phone_electric
+  - name: history_dm_phone_electric
     type: command
     dependsOn:
-      - dm_phone_property_related
+      - history_dm_phone_property_related
     config:
-      command: /usr/lib64/R/bin/Rscript /root/data/dm/phone/dm_phone_electric.r
+      command: /usr/lib64/R/bin/Rscript /root/data/history/history_dm_phone_electric.r
       
-  - name: dm_phone_car
+  - name: history_dm_phone_car
     type: command
     dependsOn:
-      - dm_phone_property_related
+      - history_dm_phone_property_related
     config:
-      command: /usr/lib64/R/bin/Rscript /root/data/dm/phone/dm_phone_car.r
+      command: /usr/lib64/R/bin/Rscript /root/data/history/history_dm_phone_car.r
