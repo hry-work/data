@@ -1,0 +1,35 @@
+config:
+  # command被执行的目录，即R工程的工作目录
+
+nodes:
+  
+  - name: start
+    type: noop
+
+  - name: history_dm_phone_property_related
+    type: command
+    dependsOn:
+      - start
+    config:
+      command: /usr/lib64/R/bin/Rscript /root/data/history/history_dm_phone_property_related.r
+      
+  - name: dm_phone_water
+    type: command
+    dependsOn:
+      - dm_phone_property_related
+    config:
+      command: /usr/lib64/R/bin/Rscript /root/data/dm/phone/dm_phone_water.r
+      
+  - name: dm_phone_electric
+    type: command
+    dependsOn:
+      - dm_phone_property_related
+    config:
+      command: /usr/lib64/R/bin/Rscript /root/data/dm/phone/dm_phone_electric.r
+      
+  - name: dm_phone_car
+    type: command
+    dependsOn:
+      - dm_phone_property_related
+    config:
+      command: /usr/lib64/R/bin/Rscript /root/data/dm/phone/dm_phone_car.r
