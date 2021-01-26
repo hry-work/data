@@ -47,9 +47,9 @@ for (day in date$month_end) {
   # day <- as_date('2013-10-31')
   print(day)
   
-  # 水费逻辑：上月末所属的年初至上月末的应收，截至本月末的收缴情况
+  # 停车费逻辑：本年初-本月末应收的停车费，截至本月末的收费情况
   
-  # ---------- 水费相关日期
+  # ---------- 停车费相关日期
   se_m <- get_day_start_end(day , 'M')
   month_end <- se_m$end
   month_value <- get_pd_type_value(day , 'M')
