@@ -1,5 +1,6 @@
 config:
   # command被执行的目录，即R工程的工作目录
+  # 当前azkaban传参有问题，为及时上线，创建一个专门跑历史数据的flow
 
 nodes:
   
