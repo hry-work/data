@@ -13,17 +13,17 @@ nodes:
     config:
       command: /usr/lib64/R/bin/Rscript /root/data/mid/dim/mid_dim_project_hierarchy.r
     
-  - name: noop_start@0300
+  - name: noop_start@0400
     type: command
     dependsOn:
       - start
     config:
-      command: /usr/lib64/R/bin/Rscript /root/data/flow/noop/noop_start.r -n '03:00'
+      command: /usr/lib64/R/bin/Rscript /root/data/flow/noop/noop_start.r -n '04:00'
 
   - name: dm_phone_property_related
     type: command
     dependsOn:
-      - noop_start@0300
+      - noop_start@0400
     config:
       command: /usr/lib64/R/bin/Rscript /root/data/dm/phone/dm_phone_property_related.r
       
