@@ -79,19 +79,19 @@ for (day in days) {
     left_join(gathering %>% 
                 filter(cost_datestart >= ys_start ,
                        cost_datestart <= ys_end ,
-                       bill_date <= month_end) %>% 
+                       bill_date <= day) %>% 
                 group_by(pk_chargebills) %>% 
                 summarise(real_amount = sum(real_amount , na.rm = T))) %>% 
     left_join(relief %>% 
                 filter(cost_datestart >= ys_start ,
                        cost_datestart <= ys_end ,
-                       enableddate <= month_end) %>% 
+                       enableddate <= day) %>% 
                 group_by(pk_chargebills) %>% 
                 summarise(adjust_amount = sum(adjust_amount , na.rm = T))) %>% 
     left_join(match %>% 
                 filter(cost_datestart >= ys_start ,
                        cost_datestart <= ys_end ,
-                       bill_date <= month_end) %>% 
+                       bill_date <= day) %>% 
                 group_by(pk_chargebills) %>% 
                 summarise(match_amount = sum(match_amount , na.rm = T))) %>% 
     mutate(real_amount = round(replace_na(real_amount , 0),2) ,

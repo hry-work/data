@@ -77,19 +77,19 @@ for (day in days) {
     left_join(gathering %>% 
                 filter(cost_datestart >= year_start ,
                        cost_datestart <= year_end ,
-                       bill_date <= month_end) %>% 
+                       bill_date <= day) %>% 
                 group_by(pk_chargebills) %>% 
                 summarise(real_amount = sum(real_amount , na.rm = T))) %>% 
     left_join(relief %>% 
                 filter(cost_datestart >= year_start ,
                        cost_datestart <= year_end ,
-                       enableddate <= month_end) %>% 
+                       enableddate <= day) %>% 
                 group_by(pk_chargebills) %>% 
                 summarise(adjust_amount = sum(adjust_amount , na.rm = T))) %>% 
     left_join(match %>% 
                 filter(cost_datestart >= year_start ,
                        cost_datestart <= year_end ,
-                       bill_date <= month_end) %>% 
+                       bill_date <= day) %>% 
                 group_by(pk_chargebills) %>% 
                 summarise(match_amount = sum(match_amount , na.rm = T))) %>% 
     mutate(real_amount = round(replace_na(real_amount , 0),2) ,
@@ -173,17 +173,17 @@ for (day in days) {
   # 今年截至日期所属月末的清欠
   recovery <- gathering %>% 
     filter(cost_datestart < year_start ,
-           bill_date >= year_start , bill_date <= month_end) %>% 
+           bill_date >= year_start , bill_date <= day) %>% 
     group_by(project_name) %>% 
     summarise(real_amount = sum(real_amount , na.rm = T)) %>% 
     full_join(relief %>% 
                 filter(cost_datestart < year_start ,
-                       enableddate >= year_start , enableddate <= month_end) %>% 
+                       enableddate >= year_start , enableddate <= day) %>% 
                 group_by(project_name) %>% 
                 summarise(adjust_amount = sum(adjust_amount , na.rm = T))) %>% 
     full_join(match %>% 
                 filter(cost_datestart < year_start ,
-                       bill_date >= year_start , bill_date <= month_end) %>% 
+                       bill_date >= year_start , bill_date <= day) %>% 
                 group_by(project_name) %>% 
                 summarise(match_amount = sum(match_amount , na.rm = T))) %>% 
     mutate(real_amount = replace_na(real_amount , 0) ,

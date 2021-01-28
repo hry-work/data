@@ -78,17 +78,17 @@ for (day in days) {
   print(now())
   large_owe <- chargebills %>% 
     left_join(gathering %>% 
-                filter(bill_date <= month_end) %>% 
+                filter(bill_date <= day) %>% 
                 group_by(pk_chargebills) %>% 
                 summarise(lm_real_amount = sum(real_amount[bill_date < month_start] , na.rm = T) ,
                           now_real_amount = sum(real_amount , na.rm = T))) %>% 
     left_join(relief %>% 
-                filter(enableddate <= month_end) %>% 
+                filter(enableddate <= day) %>% 
                 group_by(pk_chargebills) %>% 
                 summarise(lm_adjust_amount = sum(adjust_amount[enableddate < month_start] , na.rm = T) ,
                           now_adjust_amount = sum(adjust_amount , na.rm = T))) %>% 
     left_join(match %>% 
-                filter(bill_date <= month_end) %>% 
+                filter(bill_date <= day) %>% 
                 group_by(pk_chargebills) %>% 
                 summarise(lm_match_amount = sum(match_amount[bill_date < month_start] , na.rm = T) ,
                           now_match_amount = sum(match_amount , na.rm = T))) %>% 

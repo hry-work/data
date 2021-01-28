@@ -32,7 +32,7 @@ for (day in days) {
                                          where tax_type = 'parking'"))
   
   # 停车费收费情况
-  # 本年初-本月末应收的停车费，截至本月末的收费情况
+  # 本年初-本月末应收的停车费，截至当前的收费情况
   car <- car_data %>% 
     filter(cost_datestart <= month_end) %>% 
     distinct(project_name , pk_chargebills , accrued_amount) %>% 
@@ -41,7 +41,7 @@ for (day in days) {
     left_join(car_data %>% 
                 filter(cost_datestart <= month_end) %>% 
                 group_by(project_name , pk_chargebills) %>% 
-                summarise(real_amount = sum(real_amount[bill_date <= month_end] , na.rm = T))) %>% 
+                summarise(real_amount = sum(real_amount[bill_date <= day] , na.rm = T))) %>% 
     group_by(project_name) %>% 
     summarise(accrued_amount = sum(accrued_amount , na.rm = T) ,
               takeover_amount = sum(real_amount , na.rm = T)) %>% 
