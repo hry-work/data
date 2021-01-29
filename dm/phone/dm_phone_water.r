@@ -20,9 +20,9 @@ for (day in days) {
   # ---------- 从sql server取水费相关表
   # 应收
   print(paste0('水费应收开始：' , now()))
-  chargebills <- sqlQuery(con_sqls , glue("select pk_project , project_name , 
-                                          pk_house , house_code , house_name , 
-                                          pk_chargebills , cost_datestart , accrued_amount
+  chargebills <- sqlQuery(con_sqls , glue("select pk_project , project_name , pk_house , 
+                                          house_code , house_name , pk_chargebills , 
+                                          cost_datestart , accrued_amount , projectname
                                           from mid_eve_fee_utilities_chargebills
                                           where cost_datestart < '{month_start}'
                                           and fee_type = '水费'")) %>% 
@@ -94,13 +94,23 @@ for (day in days) {
                        bill_date <= day) %>% 
                 group_by(pk_chargebills) %>% 
                 summarise(match_amount = sum(match_amount , na.rm = T))) %>% 
-    mutate(real_amount = round(replace_na(real_amount , 0),2) ,
+    mutate(accrued = round(replace_na(accrued_amount , 0),2) ,
+           real_amount = round(replace_na(real_amount , 0),2) ,
            adjust_amount = round(replace_na(adjust_amount , 0),2) ,
            match_amount = round(replace_na(match_amount , 0),2) ,
-           get_amount = round(real_amount + adjust_amount + match_amount,2)) %>% 
+           get_amount = round(real_amount + adjust_amount + match_amount,2) ,
+           project_type = case_when(grepl('住宅' , projectname) ~ '住宅' ,
+                                    grepl('商业' , projectname) ~ '商业' ,
+                                    TRUE ~ '其他')) %>% 
     group_by(project_name) %>% 
-    summarise(accrued_amount = sum(accrued_amount , na.rm = T) ,
-              takeover_amount = sum(get_amount , na.rm = T))
+    summarise(accrued_amount = sum(accrued , na.rm = T) ,
+              takeover_amount = sum(get_amount , na.rm = T) ,
+              accrued_amount_house = sum(accrued[project_type == '住宅'] , na.rm = T) ,
+              takeover_amount_house = sum(get_amount[project_type == '住宅'] , na.rm = T) ,
+              accrued_amount_bussiness = sum(accrued[project_type == '商业'] , na.rm = T) ,
+              takeover_amount_bussiness = sum(get_amount[project_type == '商业'] , na.rm = T) ,
+              accrued_amount_other = sum(accrued[project_type == '其他'] , na.rm = T) ,
+              takeover_amount_other = sum(get_amount[project_type == '其他'] , na.rm = T)) 
   print(now())
 
   
