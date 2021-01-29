@@ -142,8 +142,8 @@ for (day in days) {
     group_by(project_name , owe_type) %>% 
     summarise(house_cnt = n_distinct(pk_house) ,
               owe_amount = sum(owe_amount , na.rm = T)) %>% 
-    mutate(key = 'reason') %>% 
-    rename(value = owe_type)
+    mutate(key_d = 'reason') %>% 
+    rename(value_d = owe_type)
   
   owe_along <-  clear %>% 
     mutate(last_period = (as.yearmon(day)-as.yearmon(first_owe))*12 ,
@@ -153,8 +153,8 @@ for (day in days) {
     group_by(project_name , owe_along) %>% 
     summarise(house_cnt = n_distinct(pk_house) ,
               owe_amount = sum(owe_amount , na.rm = T)) %>% 
-    mutate(key = 'along') %>% 
-    rename(value = owe_along)
+    mutate(key_d = 'along') %>% 
+    rename(value_d = owe_along)
   
   
   # ---------- 合并物业费及清欠数据，再判断日期设置重复(截至年、半年、季度、月末的数据)
