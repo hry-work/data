@@ -34,3 +34,10 @@ nodes:
       - history_dm_phone_property_related
     config:
       command: /usr/lib64/R/bin/Rscript /root/data/history/history_dm_phone_car.r
+      
+  - name: history_dm_phone_clear
+    type: command
+    dependsOn:
+      - history_dm_phone_car
+    config:
+      command: /usr/lib64/R/bin/Rscript /root/data/history/history_dm_phone_clear.r
