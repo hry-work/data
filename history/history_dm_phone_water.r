@@ -2,7 +2,7 @@
 # source('C:/Users/Administrator/data/env.r' , encoding = 'utf8')
 # 调度使用
 source('/root/data/env_centos.r' , encoding = 'utf8')
-# 水费逻辑：上月末所属的年初至上月末的应收，截至本月末的收缴情况
+# 水费逻辑：上月末所属的年初至上月末的应收，截至本月末的收缴情况(只按月来看)
 
 author <- c('huruiyi')
 table <- 'dm_phone_water'
@@ -79,7 +79,7 @@ date <- sqlQuery(con_sqls , "select day , month_end from mid_map_date") %>%
 for (day in date$month_end) {
   
   day <- as_date(day)
-  # day <- as_date('2013-10-31')
+  # day <- as_date('2020-10-31')
   print(day)
   
   # 水费逻辑：上月末所属的年初至上月末的应收，截至本月末的收缴情况
@@ -138,7 +138,7 @@ for (day in date$month_end) {
   print(now())
   
   
-  # ---------- 判断日期设置重复(截至年、半年、季度、月末的数据)
+  # ---------- 水只有按月的看法
   # 合并
   water_data <- water %>% 
     mutate(day = day ,
@@ -147,26 +147,11 @@ for (day in date$month_end) {
            get_end = month_end ,
            pd_type = 'M' ,
            pd_type_value = month_value ,
-           is_complete = if_else(day == month_end , 1 , 0))
+           is_complete = if_else(day == month_end , 1 , 0),
+           d_t = now())
   
   # 替换空值
   water_data[is.na(water_data)] <- 0
-  
-  # 设置重复
-  water_data <- water_data %>% 
-    rbind(water_data %>% 
-            mutate(pd_type = 'Q' ,
-                   pd_type_value = quarter_value ,
-                   is_complete = if_else(day == quarter_end , 1 , 0))) %>% 
-    rbind(water_data %>% 
-            mutate(pd_type = 'HY' ,
-                   pd_type_value = halfyear_value ,
-                   is_complete = if_else(day == halfyear_end , 1 , 0))) %>% 
-    rbind(water_data %>% 
-            mutate(pd_type = 'Y' ,
-                   pd_type_value = paste0(year_value , '年') ,
-                   is_complete = if_else(day == year_end , 1 , 0))) %>% 
-    mutate(d_t = now()) 
   
   
   # ---------- 入库
