@@ -105,23 +105,26 @@ for (day in days) {
            get_amount1 = round(lm_owe_amount1 - now_owe_amount1 , 2)) %>% 
     # filter(accrued_amount > 0) %>% 
     group_by(project_name , pk_house) %>% 
-    summarise(lm_owe_amount = sum(lm_owe_amount1 , na.rm = T) ,
-              now_owe_amount = sum(now_owe_amount1 , na.rm = T) ,
-              get_amount = sum(get_amount1 , na.rm = T) ,
+    summarise(lm_owe_amount2 = sum(lm_owe_amount1 , na.rm = T) ,
+              now_owe_amount2 = sum(now_owe_amount1 , na.rm = T) ,
+              get_amount2 = sum(get_amount1 , na.rm = T) ,
               first_owe_date = min(cost_datestart[lm_owe_amount1 > 0])) %>% 
     ungroup() %>% 
-    filter(lm_owe_amount >= 10000) %>%
+    filter(lm_owe_amount2 >= 10000) %>%
     mutate(last_period = (as.yearmon(day)-as.yearmon(first_owe_date))*12 ,
            owe_last = case_when(last_period < 3 ~ '3月以内(不含3)' ,
                                 last_period <= 6 ~ '3-6月' ,
                                 TRUE ~ '6月以上')) %>% 
     group_by(project_name) %>% 
-    summarise(lm_owe_amount = sum(lm_owe_amount , na.rm = T) ,
-              now_owe_amount = sum(now_owe_amount , na.rm = T) ,
-              get_amount = sum(get_amount , na.rm = T) ,
+    summarise(lm_owe_amount = sum(lm_owe_amount2 , na.rm = T) ,
+              now_owe_amount = sum(now_owe_amount2 , na.rm = T) ,
+              get_amount = sum(get_amount2 , na.rm = T) ,
               owe_last3 = n_distinct(pk_house[owe_last == '3月以内(不含3)']) ,
               owe_last6 = n_distinct(pk_house[owe_last == '3-6月']) ,
-              owe_lastup6 = n_distinct(pk_house[owe_last == '6月以上']))
+              owe_lastup6 = n_distinct(pk_house[owe_last == '6月以上']) ,
+              owe_last3_clear = n_distinct(pk_house[owe_last == '3月以内(不含3)' & get_amount2 == lm_owe_amount2]) ,
+              owe_last6_clear = n_distinct(pk_house[owe_last == '3-6月' & get_amount2 == lm_owe_amount2]) ,
+              owe_lastup6_clear = n_distinct(pk_house[owe_last == '6月以上' & get_amount2 == lm_owe_amount2]))
   print(now())
   
   
