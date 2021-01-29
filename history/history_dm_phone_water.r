@@ -105,36 +105,47 @@ for (day in date$month_end) {
                        cost_datestart <= ys_end ,
                        bill_date <= month_end) %>% 
                 group_by(pk_chargebills) %>% 
-                summarise(real_amount = sum(real_amount , na.rm = T))) %>% 
+                summarise(real_amount = sum(real_amount , na.rm = T),
+                          real_amount_tm = sum(real_amount[bill_date >= month_start] , na.rm = T))) %>% 
     left_join(relief %>% 
                 filter(cost_datestart >= ys_start ,
                        cost_datestart <= ys_end ,
                        enableddate <= month_end) %>% 
                 group_by(pk_chargebills) %>% 
-                summarise(adjust_amount = sum(adjust_amount , na.rm = T))) %>% 
+                summarise(adjust_amount = sum(adjust_amount , na.rm = T),
+                          adjust_amount_tm = sum(adjust_amount[enableddate >= month_start] , na.rm = T))) %>% 
     left_join(match %>% 
                 filter(cost_datestart >= ys_start ,
                        cost_datestart <= ys_end ,
                        bill_date <= month_end) %>% 
                 group_by(pk_chargebills) %>% 
-                summarise(match_amount = sum(match_amount , na.rm = T))) %>% 
+                summarise(match_amount = sum(match_amount , na.rm = T),
+                          match_amount_tm = sum(match_amount[bill_date >= month_start] , na.rm = T))) %>% 
     mutate(accrued = round(replace_na(accrued_amount , 0),2) ,
            real_amount = round(replace_na(real_amount , 0),2) ,
            adjust_amount = round(replace_na(adjust_amount , 0),2) ,
            match_amount = round(replace_na(match_amount , 0),2) ,
            get_amount = round(real_amount + adjust_amount + match_amount,2) ,
+           real_amount_tm = round(replace_na(real_amount_tm , 0),2) ,
+           adjust_amount_tm = round(replace_na(adjust_amount_tm , 0),2) ,
+           match_amount_tm = round(replace_na(match_amount_tm , 0),2) ,
+           get_amount_tm = round(real_amount_tm + adjust_amount_tm + match_amount_tm,2) , 
            project_type = case_when(grepl('住宅' , projectname) ~ '住宅' ,
                                     grepl('商业' , projectname) ~ '商业' ,
                                     TRUE ~ '其他')) %>% 
     group_by(project_name) %>% 
-    summarise(accrued_amount = sum(accrued_amount , na.rm = T) ,
+    summarise(accrued_amount = sum(accrued , na.rm = T) ,
               takeover_amount = sum(get_amount , na.rm = T) ,
+              takeover_amount_tm = sum(get_amount_tm , na.rm = T) ,
               accrued_amount_house = sum(accrued[project_type == '住宅'] , na.rm = T) ,
               takeover_amount_house = sum(get_amount[project_type == '住宅'] , na.rm = T) ,
+              takeover_amount_house_tm = sum(get_amount_tm[project_type == '住宅'] , na.rm = T) ,
               accrued_amount_bussiness = sum(accrued[project_type == '商业'] , na.rm = T) ,
               takeover_amount_bussiness = sum(get_amount[project_type == '商业'] , na.rm = T) ,
+              takeover_amount_bussiness_tm = sum(get_amount_tm[project_type == '商业'] , na.rm = T) ,
               accrued_amount_other = sum(accrued[project_type == '其他'] , na.rm = T) ,
-              takeover_amount_other = sum(get_amount[project_type == '其他'] , na.rm = T))
+              takeover_amount_other = sum(get_amount[project_type == '其他'] , na.rm = T) ,
+              takeover_amount_other_tm = sum(get_amount_tm[project_type == '其他'] , na.rm = T) ,) 
   print(now())
   
   
