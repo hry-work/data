@@ -125,19 +125,29 @@ for (day in date$month_end) {
            now_adjust_amount = round(replace_na(now_adjust_amount , 0),2) ,
            lm_match_amount = round(replace_na(lm_match_amount , 0),2) ,
            now_match_amount = round(replace_na(now_match_amount , 0),2) ,
-           lm_owe_amount = round(accrued_amount - lm_real_amount - lm_adjust_amount - lm_match_amount,2) ,
-           now_owe_amount = round(accrued_amount - now_real_amount - now_adjust_amount - now_match_amount,2) ,
-           get_amount = round(lm_owe_amount - now_owe_amount , 2)) %>% 
+           lm_owe_amount1 = round(accrued_amount - lm_real_amount - lm_adjust_amount - lm_match_amount,2) ,
+           now_owe_amount1 = round(accrued_amount - now_real_amount - now_adjust_amount - now_match_amount,2) ,
+           get_amount1 = round(lm_owe_amount1 - now_owe_amount1 , 2)) %>% 
     # filter(accrued_amount > 0) %>% 
     group_by(project_name , pk_house) %>% 
-    summarise(lm_owe_amount = sum(lm_owe_amount , na.rm = T) ,
-              now_owe_amount = sum(now_owe_amount , na.rm = T) ,
-              get_amount = sum(get_amount , na.rm = T)) %>% 
-    filter(lm_owe_amount >= 10000) %>% 
+    summarise(lm_owe_amount = sum(lm_owe_amount1 , na.rm = T) ,
+              now_owe_amount = sum(now_owe_amount1 , na.rm = T) ,
+              get_amount = sum(get_amount1 , na.rm = T) ,
+              first_owe_date = min(cost_datestart[lm_owe_amount1 > 0])) %>% 
+    ungroup() %>% 
+    filter(lm_owe_amount >= 10000) %>%
+    mutate(last_period = (as.yearmon(day)-as.yearmon(first_owe_date))*12 ,
+           owe_last = case_when(last_period < 3 ~ '3月以内(不含3)' ,
+                                last_period <= 6 ~ '3-6月' ,
+                                TRUE ~ '6月以上')) %>% 
     group_by(project_name) %>% 
     summarise(lm_owe_amount = sum(lm_owe_amount , na.rm = T) ,
               now_owe_amount = sum(now_owe_amount , na.rm = T) ,
-              get_amount = sum(get_amount , na.rm = T))
+              get_amount = sum(get_amount , na.rm = T) ,
+              owe_last3 = n_distinct(pk_house[owe_last == '3月以内(不含3)']) ,
+              owe_last6 = n_distinct(pk_house[owe_last == '3-6月']) ,
+              owe_lastup6 = n_distinct(pk_house[owe_last == '6月以上']))
+  
   print(now())
   
   

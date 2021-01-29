@@ -75,6 +75,7 @@ for (day in days) {
   # ---------- 大额电欠费
   # 大额电欠费逻辑：该房间截至上月末的应收，在截止上月末时累计欠费>=10000的，在本月的清收情况
   # 存在应收为0，实收+减免+冲抵大于0的情况；存在实收+减免+冲抵大于应收的情况
+  # 若欠费超过10000，则拿开始欠费的时间(非欠费开始超过10000的时间)，计算欠费持续时长
   print(now())
   large_owe <- chargebills %>% 
     left_join(gathering %>% 
@@ -99,19 +100,28 @@ for (day in days) {
            now_adjust_amount = round(replace_na(now_adjust_amount , 0),2) ,
            lm_match_amount = round(replace_na(lm_match_amount , 0),2) ,
            now_match_amount = round(replace_na(now_match_amount , 0),2) ,
-           lm_owe_amount = round(accrued_amount - lm_real_amount - lm_adjust_amount - lm_match_amount,2) ,
-           now_owe_amount = round(accrued_amount - now_real_amount - now_adjust_amount - now_match_amount,2) ,
-           get_amount = round(lm_owe_amount - now_owe_amount , 2)) %>% 
+           lm_owe_amount1 = round(accrued_amount - lm_real_amount - lm_adjust_amount - lm_match_amount,2) ,
+           now_owe_amount1 = round(accrued_amount - now_real_amount - now_adjust_amount - now_match_amount,2) ,
+           get_amount1 = round(lm_owe_amount1 - now_owe_amount1 , 2)) %>% 
     # filter(accrued_amount > 0) %>% 
     group_by(project_name , pk_house) %>% 
-    summarise(lm_owe_amount = sum(lm_owe_amount , na.rm = T) ,
-              now_owe_amount = sum(now_owe_amount , na.rm = T) ,
-              get_amount = sum(get_amount , na.rm = T)) %>% 
-    filter(lm_owe_amount >= 10000) %>% 
+    summarise(lm_owe_amount = sum(lm_owe_amount1 , na.rm = T) ,
+              now_owe_amount = sum(now_owe_amount1 , na.rm = T) ,
+              get_amount = sum(get_amount1 , na.rm = T) ,
+              first_owe_date = min(cost_datestart[lm_owe_amount1 > 0])) %>% 
+    ungroup() %>% 
+    filter(lm_owe_amount >= 10000) %>%
+    mutate(last_period = (as.yearmon(day)-as.yearmon(first_owe_date))*12 ,
+           owe_last = case_when(last_period < 3 ~ '3月以内(不含3)' ,
+                                last_period <= 6 ~ '3-6月' ,
+                                TRUE ~ '6月以上')) %>% 
     group_by(project_name) %>% 
     summarise(lm_owe_amount = sum(lm_owe_amount , na.rm = T) ,
               now_owe_amount = sum(now_owe_amount , na.rm = T) ,
-              get_amount = sum(get_amount , na.rm = T))
+              get_amount = sum(get_amount , na.rm = T) ,
+              owe_last3 = n_distinct(pk_house[owe_last == '3月以内(不含3)']) ,
+              owe_last6 = n_distinct(pk_house[owe_last == '3-6月']) ,
+              owe_lastup6 = n_distinct(pk_house[owe_last == '6月以上']))
   print(now())
   
   
