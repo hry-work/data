@@ -53,6 +53,10 @@ match <- sqlQuery(con_sqls , glue("select project_name , pk_house , pk_chargebil
          pk_chargebills = trimws(pk_chargebills))
 print(paste0('冲抵结束：' , now()))
 
+# 欠费原因
+basic_info <- sqlQuery(con_sqls , glue("select pk_house , owe_type
+                                         from mid_dim_owner_basic_info "))
+
 
 # ---------- 物业费日期计算
 property_date <- chargebills %>% 
