@@ -4,7 +4,7 @@
 source('/root/data/env_centos.r' , encoding = 'utf8')
 
 author <- c('huruiyi')
-table <- 'dm_phone_property_clear'
+table <- 'dm_phone_property_related'
 print('跑历史数据')
 
 # ---------- 从sql server取物业费相关表
@@ -53,10 +53,6 @@ match <- sqlQuery(con_sqls , glue("select project_name , pk_house , pk_chargebil
          pk_chargebills = trimws(pk_chargebills))
 print(paste0('冲抵结束：' , now()))
 
-# 欠费原因
-basic_info <- sqlQuery(con_sqls , glue("select pk_house , owe_type
-                                         from mid_dim_owner_basic_info "))
-
 
 # ---------- 物业费日期计算
 property_date <- chargebills %>% 
@@ -68,8 +64,8 @@ property_date <- chargebills %>%
 date <- sqlQuery(con_sqls , "select day , month_end from mid_map_date") %>% 
   mutate(day = as_date(day) ,
          month_end = as_date(month_end)) %>% 
-  filter(day >= min(property_date$cost_datestart) , 
-         day < month_start) %>% 
+  filter(day >= year_start ,
+         day <= days) %>% 
   distinct(month_end)
 
 
@@ -101,13 +97,83 @@ for (day in date$month_end) {
   print(paste0(month_end , '   ' , month_value))
   
   
+  # ---------- 物业费户、金额
+  # 当年应收的物业费，在当年及之前的收缴情况
+  print(now())
+  property <- chargebills %>% 
+    filter(cost_datestart >= year_start ,
+           cost_datestart <= year_end) %>% 
+    left_join(gathering %>% 
+                filter(cost_datestart >= year_start ,
+                       cost_datestart <= year_end ,
+                       bill_date <= month_end) %>% 
+                group_by(pk_chargebills) %>% 
+                summarise(real_amount = sum(real_amount , na.rm = T))) %>% 
+    left_join(relief %>% 
+                filter(cost_datestart >= year_start ,
+                       cost_datestart <= year_end ,
+                       enableddate <= month_end) %>% 
+                group_by(pk_chargebills) %>% 
+                summarise(adjust_amount = sum(adjust_amount , na.rm = T))) %>% 
+    left_join(match %>% 
+                filter(cost_datestart >= year_start ,
+                       cost_datestart <= year_end ,
+                       bill_date <= month_end) %>% 
+                group_by(pk_chargebills) %>% 
+                summarise(match_amount = sum(match_amount , na.rm = T))) %>% 
+    mutate(real_amount = round(replace_na(real_amount , 0),2) ,
+           adjust_amount = round(replace_na(adjust_amount , 0),2) ,
+           match_amount = round(replace_na(match_amount , 0),2) ,
+           get_amount = round(real_amount + adjust_amount + match_amount,2) ,
+           owe_amount = round(accrued_amount - real_amount - adjust_amount - match_amount,2))
+  print(now())
+  
+  print(now())
+  # 金额
+  property_amount <- property %>% 
+    group_by(project_name) %>% 
+    summarise(accrued_amount1 = sum(accrued_amount , na.rm = T) ,
+              takeover_amount = sum(get_amount , na.rm = T) ,
+              accrued_amount_business = sum(accrued_amount[projectname == '商业物业费'] , na.rm = T) ,
+              takeover_amount_business = sum(get_amount[projectname == '商业物业费'] , na.rm = T) ,
+              accrued_amount_house = sum(accrued_amount[projectname == '住宅物业费'] , na.rm = T) ,
+              takeover_amount_house = sum(get_amount[projectname == '住宅物业费'] , na.rm = T) ,
+              accrued_amount_office = sum(accrued_amount[projectname == '写字楼物业费'] , na.rm = T) ,
+              takeover_amount_office = sum(get_amount[projectname == '写字楼物业费'] , na.rm = T) ,
+              accrued_amount_pubfacilities = sum(accrued_amount[projectname == '公建配套物业费'] , na.rm = T) ,
+              takeover_amount_pubfacilities = sum(get_amount[projectname == '公建配套物业费'] , na.rm = T))
+  
+  print(now())
+  
+  # 户
+  property_house <- property %>% 
+    group_by(project_name , pk_house) %>% 
+    summarise(owe_amount = sum(owe_amount)) %>% 
+    group_by(project_name) %>% 
+    summarise(house_cnt = n_distinct(pk_house) ,
+              takeover_cnt = n_distinct(pk_house[owe_amount <= 0])) %>% 
+    left_join(property %>% 
+                group_by(project_name , pk_house , projectname) %>% 
+                summarise(owe_amount = sum(owe_amount)) %>% 
+                group_by(project_name) %>% 
+                summarise(house_cnt_business = n_distinct(pk_house[projectname == '商业物业费'] , na.rm = T) ,
+                          takeover_cnt_business = n_distinct(pk_house[owe_amount <= 0 & projectname == '商业物业费'] , na.rm = T) ,
+                          house_cnt_house = n_distinct(pk_house[projectname == '住宅物业费'] , na.rm = T) ,
+                          takeover_cnt_house = n_distinct(pk_house[owe_amount <= 0 & projectname == '住宅物业费'] , na.rm = T) ,
+                          house_cnt_office = n_distinct(pk_house[projectname == '写字楼物业费'] , na.rm = T) ,
+                          takeover_cnt_office = n_distinct(pk_house[owe_amount <= 0 & projectname == '写字楼物业费'] , na.rm = T) ,
+                          house_cnt_pubfacilities = n_distinct(pk_house[projectname == '公建配套物业费'] , na.rm = T) ,
+                          takeover_cnt_pubfacilities = n_distinct(pk_house[owe_amount <= 0 & projectname == '公建配套物业费'] , na.rm = T)))
+  print(now())
+  
+  
   # ---------- 清欠
   # 应收：每年1日之前的应收，在该年1日之前未收的
   # 清收：清欠应收截至该年末/半年末/季末/月末的清收的金额(跑截至到每个月月末的，特定月份的月末即为年末、半年末、季末)
   
   # 截至本年初的欠费(饱和清欠)
   print(now())
-  clear_data <- chargebills %>% 
+  saturation_recovery <- chargebills %>% 
     filter(cost_datestart < year_start) %>% 
     left_join(gathering %>% 
                 filter(cost_datestart < year_start , 
@@ -127,19 +193,11 @@ for (day in date$month_end) {
     mutate(real_amount = round(replace_na(real_amount , 0),2) ,
            adjust_amount = round(replace_na(adjust_amount , 0),2) ,
            match_amount = round(replace_na(match_amount , 0),2) ,
-           owe_amount = round(accrued_amount - real_amount - adjust_amount - match_amount,2)) 
+           owe_amount = round(accrued_amount - real_amount - adjust_amount - match_amount,2)) %>% 
     # filter(owe_amount > 0) %>% 此条注掉，因历史数据部分存在错位，即上个月欠费为负，本月欠费为正，刚好充消
-  
-  clear <- clear_data %>% 
-    filter(owe_amount > 0) %>% 
-    group_by(project_name , pk_house) %>% 
-    summarise(owe_amount = sum(owe_amount , na.rm = T),
-              first_owe = min(cost_datestart , na.rm = T))
-  
-  # 到项目的欠费额
-  saturation_recovery <- clear %>% 
     group_by(project_name) %>% 
     summarise(saturation_recovery = sum(owe_amount))
+  print(now())
   
   # 今年截至日期所属月末的清欠
   recovery <- gathering %>% 
@@ -163,55 +221,42 @@ for (day in date$month_end) {
            recovery = round(real_amount + adjust_amount + match_amount , 2)) %>% 
     select(project_name , recovery) 
   
-  # 截至本年初欠费的房间欠费原因及欠费时长分布情况
-  owe_reason <- clear %>% 
-    left_join(basic_info) %>% 
-    mutate(owe_type = if_else(is.na(owe_type) , '未填写欠费原因' , owe_type)) %>% 
-    group_by(project_name , owe_type) %>% 
-    summarise(house_cnt = n_distinct(pk_house) ,
-              owe_amount = sum(owe_amount , na.rm = T)) %>% 
-    mutate(key_d = 'reason') %>% 
-    rename(value_d = owe_type)
-  
-  owe_along <-  clear %>% 
-    mutate(last_period = (as.yearmon(day)-as.yearmon(first_owe))*12 ,
-           owe_along = case_when(last_period <= 12 ~ '1年以内' ,
-                                 last_period <= 60 ~ '5年以内' ,
-                                 TRUE ~ '5年以上')) %>% 
-    group_by(project_name , owe_along) %>% 
-    summarise(house_cnt = n_distinct(pk_house) ,
-              owe_amount = sum(owe_amount , na.rm = T)) %>% 
-    mutate(key_d = 'along') %>% 
-    rename(value_d = owe_along)
+  # 合并清欠数据
+  recovered <- saturation_recovery %>% 
+    left_join(recovery) %>% 
+    mutate(recovery = replace_na(recovery , 0))
   
   
   # ---------- 合并物业费及清欠数据，再判断日期设置重复(截至年、半年、季度、月末的数据)
   # 合并
-  recovered <- bind_rows(owe_reason , owe_along) %>% 
+  property_related <- property_amount %>% 
+    left_join(property_house) %>% 
+    full_join(recovered) %>% 
     mutate(day = day ,
            ys_start = year_start ,
            ys_end = year_end ,
            get_end = month_end ,
            pd_type = 'M' ,
            pd_type_value = month_value ,
-           is_complete = if_else(day == month_end , 1 , 0))
+           is_complete = if_else(day == month_end , 1 , 0)) %>% 
+    rename(accrued_amount = accrued_amount1)
   
   # 替换空值
-  recovered[is.na(recovered)] <- 0
+  property_related[is.na(property_related)] <- 0
   
   # 设置重复
-  recovered <- recovered %>% 
-    rbind(recovered %>% 
+  property_related <- property_related %>% 
+    rbind(property_related %>% 
             mutate(get_end = quarter_end ,
                    pd_type = 'Q' ,
                    pd_type_value = quarter_value ,
                    is_complete = if_else(day == quarter_end , 1 , 0))) %>% 
-    rbind(recovered %>% 
+    rbind(property_related %>% 
             mutate(get_end = halfyear_end ,
                    pd_type = 'HY' ,
                    pd_type_value = halfyear_value ,
                    is_complete = if_else(day == halfyear_end , 1 , 0))) %>% 
-    rbind(recovered %>% 
+    rbind(property_related %>% 
             mutate(get_end = year_end ,
                    pd_type = 'Y' ,
                    pd_type_value = paste0(year_value , '年') ,
@@ -229,7 +274,7 @@ for (day in date$month_end) {
   print('delete success')
   
   # 今日新跑数据写入(windows会报错，带中文的字符串需改为gbk。线上跑数无问题，因此可直接放线上测试)
-  dbWriteTable(conn , table , recovered , append = T , row.names = F)
+  dbWriteTable(conn , table , property_related , append = T , row.names = F)
   print('write success')
   
   # 断开连接

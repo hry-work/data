@@ -65,7 +65,7 @@ date <- sqlQuery(con_sqls , "select day , month_end from mid_map_date") %>%
   mutate(day = as_date(day) ,
          month_end = as_date(month_end)) %>% 
   filter(day >= min(property_date$cost_datestart) , 
-         day < year_start) %>% 
+         day < month_start) %>% 
   distinct(month_end)
 
 
