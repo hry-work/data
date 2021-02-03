@@ -103,7 +103,7 @@ for (day in days) {
   # 金额
   property_amount <- property %>% 
     group_by(project_name) %>% 
-    summarise(accrued_amount = sum(accrued_amount , na.rm = T) ,
+    summarise(accrued_amount1 = sum(accrued_amount , na.rm = T) ,
               takeover_amount = sum(get_amount , na.rm = T) ,
               accrued_amount_business = sum(accrued_amount[projectname == '商业物业费'] , na.rm = T) ,
               takeover_amount_business = sum(get_amount[projectname == '商业物业费'] , na.rm = T) ,
@@ -209,7 +209,8 @@ for (day in days) {
            get_end = month_end ,
            pd_type = 'M' ,
            pd_type_value = month_value ,
-           is_complete = if_else(day == month_end , 1 , 0))
+           is_complete = if_else(day == month_end , 1 , 0)) %>% 
+    rename(accrued_amount = accrued_amount1)
   
   # 替换空值
   property_related[is.na(property_related)] <- 0
