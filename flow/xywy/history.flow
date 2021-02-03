@@ -14,12 +14,12 @@ nodes:
     config:
       command: /usr/lib64/R/bin/Rscript /root/data/history/history_dm_phone_property_related.r
       
-  - name: history_dm2
-    type: command
-    dependsOn:
-      - start
-    config:
-      command: /usr/lib64/R/bin/Rscript /root/data/history/history_dm2.r
+  # - name: history_dm2
+  #   type: command
+  #   dependsOn:
+  #     - start
+  #   config:
+  #     command: /usr/lib64/R/bin/Rscript /root/data/history/history_dm2.r
       
   - name: history_dm_phone_water
     type: command
