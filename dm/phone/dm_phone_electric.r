@@ -5,91 +5,125 @@ source('/root/data/env_centos.r' , encoding = 'utf8')
 # 电费(当前只关注大额电欠费)
 # 大额电欠费逻辑：截至上月末的应收，在截止上月末时累计欠费>=10000的，在本月的清收情况
 # 大额电欠费只看月来看，无季、半年、年的看法
+# 因电费存在隔几个月才抄表的情况，因此设置为全量。原增量存在更新n月前历史数据时，同真实数据无法匹配的情况
 
 author <- c('huruiyi')
 table <- 'dm_phone_electric'
 
-for (day in days) {
-  
-  day <- as_date(day)
-  print(day)
-  
-  # ---------- 电费相关日期
-  ys_end <- month_start - days(1)
-  
-  
-  # ---------- 从sql server取电费相关表
-  # 应收
-  print(paste0('电费应收开始：' , now()))
-  chargebills <- sqlQuery(con_sqls , glue("select pk_project , project_name , 
+
+# ---------- 从sql server取电费相关表
+# 应收
+print(paste0('电费应收开始：' , now()))
+chargebills <- sqlQuery(con_sqls , glue("select pk_project , project_name , 
                                           pk_house , house_code , house_name , 
                                           pk_chargebills , cost_datestart , accrued_amount
                                           from mid_eve_fee_utilities_chargebills
                                           where cost_datestart < '{month_start}'
                                           and fee_type = '电费'")) %>% 
-    filter(!is.na(project_name) , !project_name %in% c('测试项目' , '北京菊源里')) %>% 
-    mutate(cost_datestart = as_date(cost_datestart) ,
-           pk_chargebills = trimws(pk_chargebills))
-  print(paste0('电费应收结束：' , now()))
-  
-  # 实收
-  print(paste0('电费实收开始：' , now()))
-  gathering <- sqlQuery(con_sqls , glue("select project_name , pk_house , pk_chargebills , 
+  filter(!is.na(project_name) , !project_name %in% c('测试项目' , '北京菊源里')) %>% 
+  mutate(cost_datestart = as_date(cost_datestart) ,
+         pk_chargebills = trimws(pk_chargebills))
+print(paste0('电费应收结束：' , now()))
+
+# 实收
+print(paste0('电费实收开始：' , now()))
+gathering <- sqlQuery(con_sqls , glue("select project_name , pk_house , pk_chargebills , 
                                         cost_datestart , real_amount , bill_date
                                         from mid_eve_fee_utilities_gathering
                                         where cost_datestart < '{month_start}'
                                         and fee_type = '电费'")) %>% 
-    filter(!is.na(project_name) , !project_name %in% c('测试项目' , '北京菊源里')) %>% 
-    mutate(cost_datestart = as_date(cost_datestart) ,
-           bill_date = as_date(bill_date) ,
-           pk_chargebills = trimws(pk_chargebills))
-  print(paste0('电费实收结束：' , now()))
-  
-  # 减免
-  print(paste0('电费减免开始：' , now()))
-  relief <- sqlQuery(con_sqls , glue("select project_name , pk_house , pk_chargebills , 
+  filter(!is.na(project_name) , !project_name %in% c('测试项目' , '北京菊源里')) %>% 
+  mutate(cost_datestart = as_date(cost_datestart) ,
+         bill_date = as_date(bill_date) ,
+         pk_chargebills = trimws(pk_chargebills))
+print(paste0('电费实收结束：' , now()))
+
+# 减免
+print(paste0('电费减免开始：' , now()))
+relief <- sqlQuery(con_sqls , glue("select project_name , pk_house , pk_chargebills , 
                                      cost_datestart , adjust_amount , enableddate
                                      from mid_eve_fee_utilities_relief
                                      where cost_datestart < '{month_start}'
                                      and fee_type = '电费'")) %>% 
-    filter(!is.na(project_name) , !project_name %in% c('测试项目' , '北京菊源里')) %>% 
-    mutate(cost_datestart = as_date(cost_datestart) ,
-           enableddate = as_date(enableddate) ,
-           pk_chargebills = trimws(pk_chargebills))
-  print(paste0('电费减免结束：' , now()))
-  
-  # 冲抵
-  print(paste0('电费冲抵开始：' , now()))
-  match <- sqlQuery(con_sqls , glue("select project_name , pk_house , pk_chargebills , 
+  filter(!is.na(project_name) , !project_name %in% c('测试项目' , '北京菊源里')) %>% 
+  mutate(cost_datestart = as_date(cost_datestart) ,
+         enableddate = as_date(enableddate) ,
+         pk_chargebills = trimws(pk_chargebills))
+print(paste0('电费减免结束：' , now()))
+
+# 冲抵
+print(paste0('电费冲抵开始：' , now()))
+match <- sqlQuery(con_sqls , glue("select project_name , pk_house , pk_chargebills , 
                                     cost_datestart , match_amount , bill_date
                                     from mid_eve_fee_utilities_match
                                     where cost_datestart < '{month_start}'
                                     and fee_type = '电费'")) %>% 
-    filter(!is.na(project_name) , !project_name %in% c('测试项目' , '北京菊源里')) %>% 
-    mutate(cost_datestart = as_date(cost_datestart) ,
-           bill_date = as_date(bill_date) ,
-           pk_chargebills = trimws(pk_chargebills))
-  print(paste0('电费冲抵结束：' , now()))
+  filter(!is.na(project_name) , !project_name %in% c('测试项目' , '北京菊源里')) %>% 
+  mutate(cost_datestart = as_date(cost_datestart) ,
+         bill_date = as_date(bill_date) ,
+         pk_chargebills = trimws(pk_chargebills))
+print(paste0('电费冲抵结束：' , now()))
+
+
+# ---------- 电费日期计算
+electric_date <- chargebills %>% 
+  distinct(cost_datestart) %>% 
+  mutate(cost_datestart = as_date(cost_datestart)) 
+
+# 电费收费截止月末
+date <- sqlQuery(con_sqls , "select day , month_end from mid_map_date") %>% 
+  mutate(day = as_date(day) ,
+         month_end = as_date(month_end)) %>% 
+  filter(day >= min(electric_date$cost_datestart) , 
+         day < month_start) %>% 
+  distinct(month_end) %>% 
+  rename(run_date = month_end)
+
+if(day %in% date$run_date){
+  date <- date
+} else {
+  date <- date %>% 
+    rbind(data.frame('run_date' = day))
+}
+
+
+for (day in date$run_date) {
+  
+  day <- as_date(day)
+  # day <- as_date('2012-12-31')
+  print(day)
+  
+  # ---------- 电费相关日期
+  se_m <- get_day_start_end(day , 'M')
+  month_start <- se_m$start
+  month_end <- se_m$end
+  month_value <- get_pd_type_value(day , 'M')
+  print(paste0(month_end , '   ' , month_value))
+  
+  ys_end <- month_start - days(1)
   
   
   # ---------- 大额电欠费
   # 大额电欠费逻辑：该房间截至上月末的应收，在截止上月末时累计欠费>=10000的，在本月的清收情况
   # 存在应收为0，实收+减免+冲抵大于0的情况；存在实收+减免+冲抵大于应收的情况
-  # 若欠费超过10000，则拿开始欠费的时间(非欠费开始超过10000的时间)，计算欠费持续时长
   print(now())
   large_owe <- chargebills %>% 
+    filter(cost_datestart < month_start) %>% 
     left_join(gathering %>% 
-                filter(bill_date <= day) %>% 
+                filter(cost_datestart < month_start ,
+                       bill_date <= month_end) %>% 
                 group_by(pk_chargebills) %>% 
                 summarise(lm_real_amount = sum(real_amount[bill_date < month_start] , na.rm = T) ,
                           now_real_amount = sum(real_amount , na.rm = T))) %>% 
     left_join(relief %>% 
-                filter(enableddate <= day) %>% 
+                filter(cost_datestart < month_start ,
+                       enableddate <= month_end) %>% 
                 group_by(pk_chargebills) %>% 
                 summarise(lm_adjust_amount = sum(adjust_amount[enableddate < month_start] , na.rm = T) ,
                           now_adjust_amount = sum(adjust_amount , na.rm = T))) %>% 
     left_join(match %>% 
-                filter(bill_date <= day) %>% 
+                filter(cost_datestart < month_start ,
+                       bill_date <= month_end) %>% 
                 group_by(pk_chargebills) %>% 
                 summarise(lm_match_amount = sum(match_amount[bill_date < month_start] , na.rm = T) ,
                           now_match_amount = sum(match_amount , na.rm = T))) %>% 
