@@ -6,6 +6,7 @@ source('/root/data/env_centos.r' , encoding = 'utf8')
 # 大额电欠费逻辑：截至上月末的应收，在截止上月末时累计欠费>=10000的，在本月的清收情况
 # 大额电欠费只看月来看，无季、半年、年的看法
 # 因电费存在隔几个月才抄表的情况，因此设置为全量。原增量存在更新n月前历史数据时，同真实数据无法匹配的情况
+# 大额电冲抵时间根据virement_date来判定，不根据bill_date(乐软逻辑)
 
 author <- c('huruiyi')
 table <- 'dm_phone_electric'
@@ -54,13 +55,14 @@ print(paste0('电费减免结束：' , now()))
 # 冲抵
 print(paste0('电费冲抵开始：' , now()))
 match <- sqlQuery(con_sqls , glue("select project_name , pk_house , pk_chargebills , 
-                                    cost_datestart , match_amount , bill_date
+                                    cost_datestart , match_amount , bill_date , virement_date
                                     from mid_eve_fee_utilities_match
                                     where cost_datestart < '{month_start}'
                                     and fee_type = '电费'")) %>% 
   filter(!is.na(project_name) , !project_name %in% c('测试项目' , '北京菊源里')) %>% 
   mutate(cost_datestart = as_date(cost_datestart) ,
          bill_date = as_date(bill_date) ,
+         virement_date = as_date(virement_date) ,
          pk_chargebills = trimws(pk_chargebills))
 print(paste0('电费冲抵结束：' , now()))
 
@@ -123,9 +125,9 @@ for (day in date$run_date) {
                           now_adjust_amount = sum(adjust_amount , na.rm = T))) %>% 
     left_join(match %>% 
                 filter(cost_datestart < month_start ,
-                       bill_date <= month_end) %>% 
+                       virement_date <= month_end) %>% 
                 group_by(pk_chargebills) %>% 
-                summarise(lm_match_amount = sum(match_amount[bill_date < month_start] , na.rm = T) ,
+                summarise(lm_match_amount = sum(match_amount[virement_date < month_start] , na.rm = T) ,
                           now_match_amount = sum(match_amount , na.rm = T))) %>% 
     mutate(accrued_amount = round(replace_na(accrued_amount , 0) , 2) ,
            lm_real_amount = round(replace_na(lm_real_amount , 0),2) ,
