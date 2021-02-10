@@ -19,14 +19,15 @@ nodes:
   #   dependsOn:
   #     - start
   #   config:
-  #     command: /usr/lib64/R/bin/Rscript /root/data/history/history_dm2.r
+  #     command: /usr/lib64/R/bin/Rscript /root/data/history/off_history_dm2.r
       
-  - name: history_dm_phone_water
-    type: command
-    dependsOn:
-      - history_dm_phone_property_related
-    config:
-      command: /usr/lib64/R/bin/Rscript /root/data/history/history_dm_phone_water.r
+  # 水费的已更新为每天全量跑数，因此此版只跑历史数据的可注掉
+  # - name: history_dm_phone_water
+  #   type: command
+  #   dependsOn:
+  #     - history_dm_phone_property_related
+  #   config:
+  #     command: /usr/lib64/R/bin/Rscript /root/data/history/off_history_dm_phone_water.r
   
   # 大额电欠费的已更新为每天全量跑数，因此此版只跑历史数据的可注掉    
   # - name: history_dm_phone_electric
@@ -34,7 +35,7 @@ nodes:
   #   dependsOn:
   #     - history_dm_phone_property_related
   #   config:
-  #     command: /usr/lib64/R/bin/Rscript /root/data/history/history_dm_phone_electric.r
+  #     command: /usr/lib64/R/bin/Rscript /root/data/history/off_history_dm_phone_electric.r
       
   - name: history_dm_phone_car
     type: command
