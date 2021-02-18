@@ -126,8 +126,9 @@ day_data <- day %>%
 
 # MySQL入库
 conn <- dbConnect(con_mid)
-
-dbWriteTable(conn , table , day_data , overwrite=TRUE)
+# 先清空表内数据，再插入数据。因直接使用覆盖数据，会重新建表，新建表的字段类型不符合规则
+delete <- dbGetQuery(conn , glue("truncate table {table};"))
+dbWriteTable(conn , table , day_data , append = TRUE , row.names = FALSE)
 
 print(paste0('MySQL ETL day_data success: ' , now()))
 
