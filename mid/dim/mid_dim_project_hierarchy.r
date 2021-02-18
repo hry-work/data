@@ -16,5 +16,7 @@ project_data <- sqlQuery(con_sqls , glue("select * from mid_dim_project_hierarch
 # MySQL入库
 conn <- dbConnect(con_mid)
 
-dbWriteTable(conn , table , project_data , overwrite=TRUE)
+# overwrite不设置为true，因可能会重新建表，新建表字段类型不符要求。因此先清空表内数据，在插入数据
+delete <- dbGetQuery(conn , glue("truncate table {table};"))
+dbWriteTable(conn , table , project_data , append = TRUE , row.names = FALSE)
 print(paste0('MySQL ETL project hierarchy success: ' , now()))
