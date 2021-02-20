@@ -17,7 +17,7 @@ belong <- sqlQuery(con_sql , glue("select project_name , fdproject_car
                                    from mid_dim_project_hierarchy"))
 
 # ---------- 税率
-tax_data <- read.xlsx('..\\data\\mid\\dim\\税率表.xlsx' , detectDates = TRUE) %>% 
+tax_data <- read.xlsx('..\\data\\mid\\dim\\停车税率表.xlsx' , detectDates = TRUE) %>% 
   left_join(project_id , by = 'project_name') %>% 
   left_join(belong , by = 'project_name') %>% 
   arrange(tax_type , pk_project) %>% 

@@ -20,7 +20,9 @@ for (day in days) {
                                           pk_chargebills , cost_datestart , accrued_amount , projectname
                                           from mid_eve_fee_property_chargebills
                                           where cost_datestart <= '{year_end}'")) %>% 
-    filter(!is.na(project_name) , !project_name %in% c('测试项目' , '北京菊源里')) %>% 
+    filter(!is.na(project_name) , 
+           !project_name %in% c('测试项目' , '北京菊源里') ,
+           accrued_amount > 0) %>% 
     mutate(cost_datestart = as_date(cost_datestart) ,
            pk_chargebills = trimws(pk_chargebills))
   print(paste0('应收结束：' , now()))
