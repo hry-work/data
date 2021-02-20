@@ -2,7 +2,9 @@
 # source('C:/Users/Administrator/data/env.r' , encoding = 'utf8')
 # 调度使用
 source('/root/data/env_centos.r' , encoding = 'utf8')
-# 水费逻辑：本期-上月末所属的年初至上月末的应收，截至本月末的收缴情况；前期欠费-上月末所属年初之前的应收未收，截止本月末的收缴情况
+# 水费逻辑：
+# 本期：本年截至当前的应收，截至本月末的收缴情况
+# 前期欠费：今年之前的应收未收(截至去年年底未收)，截止本月末的收缴情况
 # 因水费存在隔几个月才抄表的情况，因此设置为全量。原增量存在更新n月前历史数据时，同真实数据无法匹配的情况
 # 水费冲抵时间根据virement_date来判定，不根据bill_date(乐软逻辑)
 
@@ -17,7 +19,7 @@ chargebills <- sqlQuery(con_sqls , glue("select pk_project , project_name , pk_h
                                           house_code , house_name , pk_chargebills , 
                                           cost_datestart , accrued_amount , projectname
                                           from mid_eve_fee_utilities_chargebills
-                                          where cost_datestart < '{month_start}'
+                                          where cost_datestart < '{month_end}'
                                           and fee_type = '水费'")) %>% 
   filter(!is.na(project_name) , !project_name %in% c('测试项目' , '北京菊源里')) %>% 
   mutate(cost_datestart = as_date(cost_datestart) ,
@@ -29,7 +31,7 @@ print(paste0('水费实收开始：' , now()))
 gathering <- sqlQuery(con_sqls , glue("select project_name , pk_house , pk_chargebills , 
                                         cost_datestart , real_amount , bill_date
                                         from mid_eve_fee_utilities_gathering
-                                        where cost_datestart < '{month_start}'
+                                        where cost_datestart < '{month_end}'
                                         and fee_type = '水费'")) %>% 
   filter(!is.na(project_name) , !project_name %in% c('测试项目' , '北京菊源里')) %>% 
   mutate(cost_datestart = as_date(cost_datestart) ,
@@ -42,7 +44,7 @@ print(paste0('水费减免开始：' , now()))
 relief <- sqlQuery(con_sqls , glue("select project_name , pk_house , pk_chargebills , 
                                      cost_datestart , adjust_amount , enableddate
                                      from mid_eve_fee_utilities_relief
-                                     where cost_datestart < '{month_start}'
+                                     where cost_datestart < '{month_end}'
                                      and fee_type = '水费'")) %>% 
   filter(!is.na(project_name) , !project_name %in% c('测试项目' , '北京菊源里')) %>% 
   mutate(cost_datestart = as_date(cost_datestart) ,
@@ -55,7 +57,7 @@ print(paste0('水费冲抵开始：' , now()))
 match <- sqlQuery(con_sqls , glue("select project_name , pk_house , pk_chargebills , 
                                     cost_datestart , match_amount , bill_date , virement_date
                                     from mid_eve_fee_utilities_match
-                                    where cost_datestart < '{month_start}'
+                                    where cost_datestart < '{month_end}'
                                     and fee_type = '水费'")) %>% 
   filter(!is.na(project_name) , !project_name %in% c('测试项目' , '北京菊源里')) %>% 
   mutate(cost_datestart = as_date(cost_datestart) ,
@@ -102,14 +104,14 @@ for (day in date$run_date) {
   month_value <- get_pd_type_value(day , 'M')
   print(paste0(month_end , '   ' , month_value))
   
-  ys_end <- month_start - days(1)
+  ys_end <- day
   ys_start <- get_day_start_end(ys_end , 'Y')$start
   # lym_end <- as_date(paste0(year(ys_start) , '-01-31'))
   
   
   # ---------- 水费金额
   
-  # ----- 本期，即上月末所属的年初至上月末的应收，截至本月末的收缴情况
+  # ----- 本期，即该年截至本期结束的应收，截至本期结束的收缴情况
   print(now())
   water_current <- chargebills %>% 
     filter(cost_datestart >= ys_start ,
