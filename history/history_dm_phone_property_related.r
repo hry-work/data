@@ -15,7 +15,9 @@ chargebills <- sqlQuery(con_sqls , glue("select belong , project1 , project2 ,
                                           pk_house , house_code , house_name , wy_cycle , 
                                           pk_chargebills , cost_datestart , accrued_amount , projectname
                                           from mid_eve_fee_property_chargebills")) %>% 
-  filter(!is.na(project_name) , !project_name %in% c('测试项目' , '北京菊源里')) %>% 
+  filter(!is.na(project_name) , 
+         !project_name %in% c('测试项目' , '北京菊源里') ,
+         accrued_amount > 0) %>% 
   mutate(cost_datestart = as_date(cost_datestart) ,
          pk_chargebills = trimws(pk_chargebills))
 print(paste0('应收结束：' , now()))
@@ -141,7 +143,9 @@ for (day in date$month_end) {
               accrued_amount_office = sum(accrued_amount[projectname == '写字楼物业费'] , na.rm = T) ,
               takeover_amount_office = sum(get_amount[projectname == '写字楼物业费'] , na.rm = T) ,
               accrued_amount_pubfacilities = sum(accrued_amount[projectname == '公建配套物业费'] , na.rm = T) ,
-              takeover_amount_pubfacilities = sum(get_amount[projectname == '公建配套物业费'] , na.rm = T))
+              takeover_amount_pubfacilities = sum(get_amount[projectname == '公建配套物业费'] , na.rm = T) ,
+              accrued_amount_fillpost = sum(accrued_amount[projectname == '物业费补差'] , na.rm = T) ,
+              takeover_amount_fillpost = sum(get_amount[projectname == '物业费补差'] , na.rm = T))
   
   print(now())
   
