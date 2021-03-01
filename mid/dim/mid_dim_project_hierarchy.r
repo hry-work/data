@@ -9,8 +9,7 @@ table <- 'mid_dim_project_hierarchy'      # 项目层级表
 
 # 直接从sql server数据库内拉取数据(设置了填报，业务更新库内即会更新)
 # 把id删除，mysql可设置自增id
-project_data <- sqlQuery(con_sqls , glue("select * from mid_dim_project_hierarchy")) %>% 
-  select(-id)
+project_data <- sqlQuery(con_sqls , glue("select * from mid_dim_project_hierarchy")) 
 
 
 # MySQL入库
