@@ -3,16 +3,23 @@ source('C:/Users/Administrator/data/env.r' , encoding = 'utf8')
 author <- c('huruiyi')
 
 # 命名规则: 表应归属库_表类型_归属部门_业务大类_表详细归类
-table <- 'mid_dim_project_kpi_provide'      # 项目层级表
+table <- 'mid_dim_project_kpi_provide'      # 计划考核提供基础资源表
+
+# 基础资源
+basic <- dbGetQuery(con_orc , glue("select distinct pk_project , project_name
+                                   from res_project
+                                   where dr = 0"))
+names(basic) <- tolower(names(basic))
 
 kpi_project <- read.xlsx('C:/Users/Administrator/data/mid/dim/mid_dim_project_kpi_provide.xlsx' , detectDates = TRUE) %>% 
-  mutate(id = row_number(),
+  left_join(basic) %>% 
+  mutate(pk_project = if_else(is.na(pk_project) , kpi_project , pk_project),
+         dr = 0 ,
          d_t = now()) %>% 
-  select(id , kpi_project_name , project_name , provide_name , source , nature ,
-         contract_start , contract_end , is_delivery , first_delivery_date ,
-         expected_delivery_date , build_area , delivered_area , undelivery_area,
-         is_oc_project , d_t)
-
+  select(kpi_project , project_name , pk_project , delivery_cnt , is_delivery , 
+         source , nature , contract_signed , contract_start , contract_end , delivery_date ,
+         build_area , delivered_area , yetai_classify , yetai , project_address , 
+         our , opposite , contract_project , takeover_year , dr , operator , d_t)
 
 # 替换na为字符型的na，否则入库oracle时报错
 kpi_project[is.na(kpi_project)] <- NA_character_
