@@ -347,7 +347,7 @@ for (day in date$run_date) {
   print('delete success')
   
   # 今日新跑数据写入(windows会报错，带中文的字符串需改为gbk。线上跑数无问题，因此可直接放线上测试)
-  dbWriteTable(conn , table , car_d , append = T , row.names = F)
+  dbWriteTable(conn , table , car , append = T , row.names = F)
   print('write car data success')
   
   # 断开连接
