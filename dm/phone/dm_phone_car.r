@@ -286,34 +286,49 @@ for (day in date$run_date) {
 
 
   # 合并本期及前期欠费
-  car <- car_current %>% 
-    full_join(car_previous) %>% 
-    mutate(day = day ,
+  car_bind <- car_current %>% 
+    full_join(car_previous) 
+  
+  # 替换空值
+  car_bind[is.na(car_bind)] <- 0
+  
+  # 计算
+  car_bind <- car_bind %>% 
+    mutate(accrued_amount = accrued_current + accrued_previous ,
+           takeover_amount = takeover_current + takeover_previous ,
+           accrued_amount_tax = accrued_current_tax + accrued_previous_tax ,
+           takeover_amount_tax = takeover_current_tax + takeover_previous_tax ,
+           accrued_amount_tempark = accrued_current_tempark + accrued_previous_tempark ,
+           takeover_amount_tempark = takeover_current_tempark + takeover_previous_tempark ,
+           accrued_amount_park = accrued_current_park + accrued_previous_park ,
+           takeover_amount_park = takeover_current_park + takeover_previous_park ,
+           accrued_amount_tempark_tax = accrued_current_tempark_tax + accrued_previous_tempark_tax ,
+           takeover_amount_tempark_tax = takeover_current_tempark_tax + takeover_previous_tempark_tax ,
+           accrued_amount_park_tax = accrued_current_park_tax + accrued_previous_park_tax ,
+           takeover_amount_park_tax = takeover_current_park_tax + takeover_previous_park_tax ,
+           day = day ,
            ys_start = ys_start ,
            ys_end = month_end ,
            get_end = month_end ,
            pd_type = 'M' ,
            pd_type_value = month_value ,
            is_complete = if_else(day == month_end , 1 , 0))
-
-  # 替换空值
-  car[is.na(car)] <- 0
     
   # 设置重复
-  car <- car %>% 
-    rbind(car %>% 
+  car <- car_bind %>% 
+    rbind(car_bind %>% 
             mutate(ys_end = quarter_end ,
                    get_end = quarter_end ,
                    pd_type = 'Q' ,
                    pd_type_value = quarter_value ,
                    is_complete = if_else(day == quarter_end , 1 , 0))) %>% 
-    rbind(car %>% 
+    rbind(car_bind %>% 
             mutate(ys_end = halfyear_end ,
                    get_end = halfyear_end ,
                    pd_type = 'HY' ,
                    pd_type_value = halfyear_value ,
                    is_complete = if_else(day == halfyear_end , 1 , 0))) %>% 
-    rbind(car %>% 
+    rbind(car_bind %>% 
             mutate(ys_end = year_end ,
                    get_end = year_end ,
                    pd_type = 'Y' ,
