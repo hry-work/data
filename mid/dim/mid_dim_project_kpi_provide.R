@@ -16,9 +16,9 @@ kpi_project <- read.xlsx('C:/Users/Administrator/data/mid/dim/mid_dim_project_kp
   mutate(pk_project = if_else(is.na(pk_project) , kpi_project , pk_project),
          dr = 0 ,
          d_t = now()) %>% 
-  select(kpi_project , project_name , pk_project , delivery_cnt , is_delivery , 
-         source , nature , contract_signed , contract_start , contract_end , delivery_date ,
-         build_area , delivered_area , yetai_classify , yetai , project_address , 
+  select(kpi_project , project_name , pk_project , province , city , county , delivery_cnt , 
+         is_delivery , source , nature , contract_signed , contract_start , contract_end , 
+         delivery_date ,build_area , delivered_area , yetai_classify , yetai , project_address , 
          our , opposite , contract_project , takeover_year , dr , operator , d_t)
 
 # 替换na为字符型的na，否则入库oracle时报错

@@ -8,18 +8,19 @@ table <- 'mid_dim_project_hierarchy'      # 项目层级表
 
 # 直接从sql server数据库内拉取数据(设置了填报，业务更新库内即会更新)
 
-project_data <- read.xlsx('..\\data\\mid\\dim\\项目层级表.xlsx' , detectDates = TRUE) %>% 
-  mutate(operate_time = if_else(is.na(operator) , as.character(now()) , as.character(paste0('2020/11/16 ', '18:02:50'))) ,
-         operate_date = as_date(operate_time) ,
+project_data <- read_excel('..\\data\\mid\\dim\\mid_dim_project_hierarchy.xlsx') %>% 
+  mutate(operate_time = if_else(is.na(operate_time) , as.character(now()) , as.character(paste0('2020/11/16 ', '18:02:50'))) ,
+         operate_date = if_else(is.na(operate_date) , as_date(operate_time) , as_date(operate_date)) ,
          operator = as.character(operator)) %>% 
-  select(id , project_name , project4 , project3 , project2 , project1 , belong , wy_cycle ,
-         phone_project , csd_project , fdproject_property_h , fdproject_property_a , 
-         fdproject_car , fdproject_business , operate_date , operate_time , operator)
+  select(project_name , project4 , project3 , project2 , project1 , belong , 
+         province , city , county , wy_cycle , csd_project , 
+         fdproject_property_h , fdproject_property_a , fdproject_car , 
+         fdproject_business , operate_date , operate_time , operator)
 
 
 # sqlserver入库
-sqlClear(con_sql, table)
-sqlSave(con_sql , project_data , tablename = table ,
+sqlClear(con_sqls, table)
+sqlSave(con_sqls , project_data , tablename = table ,
         append = TRUE , rownames = FALSE , fast = FALSE)
 
 print(paste0('SQL Server ETL project hierarchy success: ' , now()))
