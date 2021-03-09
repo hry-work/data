@@ -94,7 +94,8 @@ for (day in date$run_date) {
   
   # -- 计算今年收的本期及前期应收
   car_detail <- car_data %>% # 本年度收费
-    filter(bill_date >= ys_start) %>% 
+    filter(bill_date >= ys_start ,
+           bill_date <= month_end) %>% 
     group_by(project_name , project_type , pk_chargebills) %>% 
     summarise(bill_date = min(bill_date) ,
               real = sum(real_amount[bill_date <= month_end]) , #本年收费
@@ -162,49 +163,53 @@ for (day in date$run_date) {
            accrued_previous_tempark = 0 ,
            accrued_previous_tempark_tax = 0)
 
+  if(nrow(car_detail) > 0){
+    
+    # 替换空值
+    car_detail[is.na(car_detail)] <- 0
+    
+    
+    # 设置重复
+    car <- car_detail %>% 
+      rbind(car_detail %>% 
+              mutate(ys_end = quarter_end ,
+                     get_end = quarter_end ,
+                     pd_type = 'Q' ,
+                     pd_type_value = quarter_value ,
+                     is_complete = if_else(day == quarter_end , 1 , 0))) %>% 
+      rbind(car_detail %>% 
+              mutate(ys_end = halfyear_end ,
+                     get_end = halfyear_end ,
+                     pd_type = 'HY' ,
+                     pd_type_value = halfyear_value ,
+                     is_complete = if_else(day == halfyear_end , 1 , 0))) %>% 
+      rbind(car_detail %>% 
+              mutate(ys_end = year_end ,
+                     get_end = year_end ,
+                     pd_type = 'Y' ,
+                     pd_type_value = paste0(year_value , '年') ,
+                     is_complete = if_else(day == year_end , 1 , 0))) %>% 
+      mutate(d_t = now()) 
+    
+    
+    # ---------- 入库
+    # 连接mysql dm层
+    conn <- dbConnect(con_dm)
+    
+    # 删除除新跑数据外，非月末、季末、半年末、年末的数据(is_complete为0的)
+    delete_uncomplete <- dbGetQuery(conn , glue("delete from {table} where is_complete = 0"))
+    delete_old <- dbGetQuery(conn , glue("delete from {table} where day = '{day}'"))
+    print('delete success')
+    
+    # 今日新跑数据写入(windows会报错，带中文的字符串需改为gbk。线上跑数无问题，因此可直接放线上测试)
+    dbWriteTable(conn , table , car , append = T , row.names = F)
+    print('write car data success')
+    
+    # 断开连接
+    dbDisconnect(conn)
+    
+  }
   
-  # 替换空值
-  car_detail[is.na(car_detail)] <- 0
-  
-
-  # 设置重复
-  car <- car_detail %>% 
-    rbind(car_detail %>% 
-            mutate(ys_end = quarter_end ,
-                   get_end = quarter_end ,
-                   pd_type = 'Q' ,
-                   pd_type_value = quarter_value ,
-                   is_complete = if_else(day == quarter_end , 1 , 0))) %>% 
-    rbind(car_detail %>% 
-            mutate(ys_end = halfyear_end ,
-                   get_end = halfyear_end ,
-                   pd_type = 'HY' ,
-                   pd_type_value = halfyear_value ,
-                   is_complete = if_else(day == halfyear_end , 1 , 0))) %>% 
-    rbind(car_detail %>% 
-            mutate(ys_end = year_end ,
-                   get_end = year_end ,
-                   pd_type = 'Y' ,
-                   pd_type_value = paste0(year_value , '年') ,
-                   is_complete = if_else(day == year_end , 1 , 0))) %>% 
-    mutate(d_t = now()) 
-  
-
-  # ---------- 入库
-  # 连接mysql dm层
-  conn <- dbConnect(con_dm)
-  
-  # 删除除新跑数据外，非月末、季末、半年末、年末的数据(is_complete为0的)
-  delete_uncomplete <- dbGetQuery(conn , glue("delete from {table} where is_complete = 0"))
-  delete_old <- dbGetQuery(conn , glue("delete from {table} where day = '{day}'"))
-  print('delete success')
-  
-  # 今日新跑数据写入(windows会报错，带中文的字符串需改为gbk。线上跑数无问题，因此可直接放线上测试)
-  dbWriteTable(conn , table , car , append = T , row.names = F)
-  print('write car data success')
-  
-  # 断开连接
-  dbDisconnect(conn)
   
 }
 
