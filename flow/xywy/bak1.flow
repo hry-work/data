@@ -46,7 +46,8 @@ nodes:
     dependsOn:
       - dm_phone_property_related
     config:
-      command: /usr/lib64/R/bin/Rscript /root/data/dm/phone/dm_phone_car.r
+      command: /usr/lib64/R/bin/Rscript /root/data/dm/phone/dm_phone_car_fornow.r
+  #    command: /usr/lib64/R/bin/Rscript /root/data/dm/phone/dm_phone_car.r
       
   - name: dm_phone_property_clear
     type: command

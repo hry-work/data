@@ -12,25 +12,25 @@ project_id <- dbGetQuery(con_orc , glue("select pk_project , project_name
 
 names(project_id) <- tolower(names(project_id))
 
-
-budget_data <- read.xlsx('..\\data\\mid\\dim\\2020车位预算.xlsx' , detectDates = TRUE) %>% 
+budget_data <- read.xlsx('..\\data\\mid\\dim\\车位预算.xlsx' , detectDates = TRUE) %>% 
   left_join(project_id , by = 'project_name') %>% 
-  arrange(tax , pk_project , month_start) %>% 
+  mutate(pk_project = if_else(is_sys_project == 1 , pk_project , NA_character_)) %>% 
+  arrange(tax , project_name , month_start) %>% 
   mutate(month = substr(month_start , 1 , 7) ,
+         year = year(month_start) ,
          d_t = now() ,
-         id = row_number() ,
-         # budget_amount = trunc(budget_amount * 10000 , 5) ,
-         budget_amount = round(budget_amount * 10000 , 2) ,
-         is_project = if_else(is.na(pk_project) , 0 , 1)) %>% 
-  select(id , pk_project , project_name , is_project , month , month_start , tax , budget_amount , d_t)
+         id = row_number()) %>% 
+         # budget_amount = trunc(budget_amount * 10000 , 5)
+  select(id , pk_project , project_name , is_sys_project , month_start , year , 
+         month , tax , budget_amount , d_t)
 
 # cs <- budget_data %>%
 #   filter(is.na(pk_project)) %>%
 #   distinct(pk_project , project_name)
 
 # 入库
-sqlClear(con_sql, table)
-sqlSave(con_sql , budget_data , tablename = table ,
+sqlClear(con_sqls, table)
+sqlSave(con_sqls , budget_data , tablename = table ,
         append = TRUE , rownames = FALSE , fast = FALSE)
 
 print(paste0('ETL parking budget success: ' , now()))

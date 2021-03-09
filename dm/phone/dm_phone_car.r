@@ -168,7 +168,7 @@ for (day in date$run_date) {
     left_join(car_ratio) %>% 
     mutate(tax_ratio = replace_na(tax_ratio , 0) ,
            tax_start = if_else(is.na(tax_start) , as_date('1900-01-01') , as_date(tax_start)) ,
-           tax_end = if_else(is.na(tax_end) , as_date('1900-01-01') , as_date(tax_end))) %>% 
+           tax_end = if_else(is.na(tax_end) , as_date('3000-01-01') , as_date(tax_end))) %>% 
     filter(tax_start <= c_use_date ,
            tax_end >= c_use_date)
     
@@ -248,7 +248,7 @@ for (day in date$run_date) {
     left_join(car_ratio) %>%
     mutate(tax_ratio = replace_na(tax_ratio , 0) ,
            tax_start = if_else(is.na(tax_start) , as_date('1900-01-01') , as_date(tax_start)) ,
-           tax_end = if_else(is.na(tax_end) , as_date('1900-01-01') , as_date(tax_end))) %>%
+           tax_end = if_else(is.na(tax_end) , as_date('3000-01-01') , as_date(tax_end))) %>%
     filter(tax_start <= c_use_date ,
            tax_end >= c_use_date)
   print(now())
