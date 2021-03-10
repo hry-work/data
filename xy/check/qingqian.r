@@ -1,6 +1,8 @@
 cs <- write.xlsx(recovered , glue('..\\data\\dm\\phone\\清欠核对.xlsx'))  
 
 
+need_check_house <- read.xlsx('..\\data\\dm\\phone\\问题房间.xlsx')
+
 check_qq <- chargebills %>% 
   filter(cost_datestart < year_start ,
          project_name %in% c('北京鑫都汇','成都鑫苑名家一期','巩义天玺华府','合肥望江花园',
@@ -34,8 +36,15 @@ check_qq <- chargebills %>%
          adjust_amount = round(replace_na(adjust_amount , 0),2) ,
          match_amount = round(replace_na(match_amount , 0),2) ,
          owe_amount = round(accrued_amount - real_amount - adjust_amount - match_amount,2)) %>% 
-  group_by(project_name , pk_house , house_code , house_name) %>% 
-  summarise(owe_amount = sum(owe_amount))
+  group_by(project_name , pk_house , house_code , house_name) %>% #  , cost_datestart
+  summarise(accrued_amount = sum(accrued_amount) ,
+            real_amount = sum(real_amount) ,
+            adjust_amount = sum(adjust_amount) ,
+            match_amount = sum(match_amount) ,
+            owe_amount = sum(owe_amount)) #%>% 
+  # filter(owe_amount != 0 ,
+  #        pk_house %in% need_check_house$check_house) %>% 
+  # arrange(project_name , pk_house , cost_datestart)
 
 
 cs <- write.xlsx(check_qq , glue('..\\data\\dm\\phone\\清欠核对到房间.xlsx'))  
