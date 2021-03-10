@@ -93,24 +93,35 @@ for (day in date$run_date) {
   # 实收数/（1+税率）
   
   # -- 计算今年收的本期及前期应收
-  car_detail <- car_data %>% # 本年度收费
-    filter(bill_date >= ys_start ,
-           bill_date <= month_end) %>% 
+  car_detail <- car_data %>% #本年初至本月末应收截至day的收费
+    filter(cost_datestart >= ys_start ,
+           cost_datestart <= month_end ,
+           bill_date <= day) %>% 
     group_by(project_name , project_type , pk_chargebills) %>% 
     summarise(bill_date = min(bill_date) ,
-              real = sum(real_amount[bill_date <= month_end]) , #本年收费
-              real_current = sum(real_amount[cost_datestart >= ys_start & bill_date <= month_end]) , #本年收的本年的
-              real_previous = sum(real_amount[cost_datestart < ys_start & bill_date <= month_end])) %>%  #本年收的历史年的
+              real_amount = sum(real_amount)) %>% 
+    mutate(type = 'current') %>% 
+    rbind(car_data %>% #历史年份应收在本年的收费
+            filter(cost_datestart < ys_start ,
+                   bill_date >= ys_start ,
+                   bill_date <= day) %>%
+            group_by(project_name , project_type , pk_chargebills) %>%
+            summarise(bill_date = min(bill_date) ,
+                      real_amount = sum(real_amount)) %>%
+            mutate(type = 'previous')) %>% 
+    ungroup() %>% 
+    distinct() %>% 
     left_join(car_ratio) %>% 
     mutate(tax_ratio = replace_na(tax_ratio , 0) ,
            tax_start = if_else(is.na(tax_start) , as_date('1900-01-01') , as_date(tax_start)) ,
            tax_end = if_else(is.na(tax_end) , as_date('3000-01-01') , as_date(tax_end))) %>% 
     filter(tax_start <= bill_date ,
            tax_end >= bill_date) %>% 
+    distinct() %>% 
     group_by(project_name , project_type , tax_ratio) %>% 
-    summarise(real = sum(real) ,
-              real_current = sum(real_current) ,
-              real_previous = sum(real_previous)) %>% 
+    summarise(real = sum(real_amount) ,
+              real_current = sum(real_amount[type == 'current']) ,
+              real_previous = sum(real_amount[type == 'previous'])) %>% 
     mutate(real_tax = round(real/(1+tax_ratio) , 2) , 
            real_current_tax = round(real_current/(1+tax_ratio) , 2) ,
            real_previous_tax = round(real_previous/(1+tax_ratio) , 2)) %>% 
